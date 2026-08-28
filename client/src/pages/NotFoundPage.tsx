@@ -1,10 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 
 export const NotFoundPage: React.FC = () => {
-  // 12 curated apparel and accessories items matching the reference design ring
+  const [radius, setRadius] = useState(210);
+
+  useEffect(() => {
+    const updateRadius = () => {
+      if (window.innerWidth < 640) {
+        setRadius(135);
+      } else if (window.innerWidth < 1024) {
+        setRadius(195);
+      } else {
+        setRadius(230);
+      }
+    };
+    updateRadius();
+    window.addEventListener('resize', updateRadius);
+    return () => window.removeEventListener('resize', updateRadius);
+  }, []);
+
+  // 12 curated apparel and accessories items matching the reference circular ring
   const circleItems = [
     {
       img: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=300&q=80',
@@ -71,7 +88,7 @@ export const NotFoundPage: React.FC = () => {
   return (
     <div className="bg-white text-black min-h-[85vh] flex flex-col items-center justify-center px-4 py-12 sm:py-16 select-none font-sans overflow-hidden">
       {/* Central Circular Stage */}
-      <div className="relative w-[340px] h-[340px] sm:w-[500px] sm:h-[500px] lg:w-[560px] lg:h-[560px] flex items-center justify-center">
+      <div className="relative w-[340px] h-[340px] sm:w-[480px] sm:h-[480px] lg:w-[560px] lg:h-[560px] flex items-center justify-center">
         {/* Giant Light Gray 404 in the exact center */}
         <div className="absolute inset-0 flex flex-col items-center justify-center z-0 pointer-events-none">
           <motion.h1
@@ -92,57 +109,43 @@ export const NotFoundPage: React.FC = () => {
           </motion.p>
         </div>
 
-        {/* 12 Floating Product Thumbnails in Circular Orbit */}
+        {/* 12 Floating Product Thumbnails in Perfect Circular Orbit around 404 */}
         {circleItems.map((item, index) => {
           const total = circleItems.length;
-          // Calculate angle starting at top (12 o'clock = -90 deg)
+          // Start from 12 o'clock (-90 deg / -PI/2)
           const angleRad = (index / total) * 2 * Math.PI - Math.PI / 2;
-
-          // Orbit radii for responsive screen sizes
-          const rSm = 135;
-          const rMd = 205;
-          const rLg = 235;
-
-          const xSm = Math.cos(angleRad) * rSm;
-          const ySm = Math.sin(angleRad) * rSm;
-
-          const xMd = Math.cos(angleRad) * rMd;
-          const yMd = Math.sin(angleRad) * rMd;
-
-          const xLg = Math.cos(angleRad) * rLg;
-          const yLg = Math.sin(angleRad) * rLg;
+          const x = Math.round(Math.cos(angleRad) * radius);
+          const y = Math.round(Math.sin(angleRad) * radius);
 
           return (
-            <motion.div
+            <div
               key={index}
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{
-                delay: 0.1 + index * 0.04,
-                type: 'spring',
-                stiffness: 260,
-                damping: 20,
+              className="absolute z-10"
+              style={{
+                left: `calc(50% + ${x}px)`,
+                top: `calc(50% + ${y}px)`,
+                transform: `translate(-50%, -50%) rotate(${item.rotation}deg)`,
               }}
-              whileHover={{ scale: 1.25, zIndex: 30 }}
-              style={
-                {
-                  '--x-sm': `${xSm}px`,
-                  '--y-sm': `${ySm}px`,
-                  '--x-md': `${xMd}px`,
-                  '--y-md': `${yMd}px`,
-                  '--x-lg': `${xLg}px`,
-                  '--y-lg': `${yLg}px`,
-                  rotate: `${item.rotation}deg`,
-                } as React.CSSProperties
-              }
-              className="absolute z-10 w-11 h-12 sm:w-16 sm:h-18 lg:w-20 lg:h-22 bg-[#F3F4F6] shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer [transform:translate(var(--x-sm),var(--y-sm))] sm:[transform:translate(var(--x-md),var(--y-md))] lg:[transform:translate(var(--x-lg),var(--y-lg))]"
             >
-              <img
-                src={item.img}
-                alt={item.title}
-                className="w-full h-full object-cover"
-              />
-            </motion.div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{
+                  delay: 0.08 + index * 0.03,
+                  type: 'spring',
+                  stiffness: 280,
+                  damping: 20,
+                }}
+                whileHover={{ scale: 1.25, zIndex: 40 }}
+                className="w-12 h-14 sm:w-16 sm:h-18 lg:w-20 lg:h-22 bg-[#F3F4F6] shadow-sm hover:shadow-xl transition-shadow duration-300 overflow-hidden cursor-pointer border border-neutral-200/80"
+              >
+                <img
+                  src={item.img}
+                  alt={item.title}
+                  className="w-full h-full object-cover"
+                />
+              </motion.div>
+            </div>
           );
         })}
       </div>
