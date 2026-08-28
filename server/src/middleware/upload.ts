@@ -5,20 +5,16 @@ import fs from 'fs';
 import { Request } from 'express';
 import { AppError } from './errorHandler';
 
-const getUploadsDir = () => {
-  const dir = path.resolve(process.cwd(), 'uploads/temp');
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  return dir;
-};
+const uploadDir = path.resolve(__dirname, '../../uploads/temp');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 // Memory or disk storage
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    cb(null, getUploadsDir());
+    cb(null, uploadDir);
   },
-
   filename: (_req, file, cb) => {
     const randomHex = crypto.randomBytes(16).toString('hex');
     const ext = path.extname(file.originalname).toLowerCase();

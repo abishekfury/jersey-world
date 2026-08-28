@@ -431,7 +431,7 @@ export const uploadAdminProductImage = async (req: Request, res: Response, next:
       return next(new AppError('No image file provided.', 400));
     }
 
-    const targetDir = path.resolve(process.cwd(), 'uploads/products');
+    const targetDir = path.resolve(__dirname, '../../uploads/products');
     if (!fs.existsSync(targetDir)) {
       fs.mkdirSync(targetDir, { recursive: true });
     }
@@ -441,7 +441,6 @@ export const uploadAdminProductImage = async (req: Request, res: Response, next:
     fs.renameSync(req.file.path, targetPath);
 
     const imageUrl = `/uploads/products/${filename}`;
-
 
     res.status(200).json({
       success: true,

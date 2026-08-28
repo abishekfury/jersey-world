@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Shield, Shirt, Image as ImageIcon, Upload, Loader2, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Shield, Shirt, Image as ImageIcon, Upload, Loader2 } from 'lucide-react';
 import { IProduct } from '@shared/types';
 import { adminService } from '../../services/api';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { addToast } from '../../store/uiSlice';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
-
 
 export const AdminProductsPage: React.FC = () => {
   const [products, setProducts] = useState<IProduct[]>([]);
@@ -43,41 +42,80 @@ export const AdminProductsPage: React.FC = () => {
 
   const [formData, setFormData] = useState<any>(defaultForm);
 
+  const compressAndReadImage = (file: File): Promise<string> => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 1200;
+          const MAX_HEIGHT = 1200;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+            resolve(dataUrl);
+          } else {
+            resolve(event.target?.result as string);
+          }
+        };
+        img.onerror = () => resolve(event.target?.result as string);
+      };
+      reader.onerror = () => resolve('');
+    });
+  };
+
   const handleFileUpload = async (viewKey: string, file: File) => {
     if (!file) return;
     setUploadingView(viewKey);
     try {
-      const res = await adminService.uploadProductImage(file);
-      if (res.data?.imageUrl) {
+      // 1. Instantly read and optimize image locally for immediate preview
+      const localDataUrl = await compressAndReadImage(file);
+      if (localDataUrl) {
         setFormData((prev: any) => ({
           ...prev,
           images: {
             ...prev.images,
-            [viewKey]: res.data.imageUrl,
+            [viewKey]: localDataUrl,
           },
         }));
-        dispatch(addToast({ type: 'success', message: `${viewKey.toUpperCase()} image uploaded successfully!` }));
       }
-    } catch (err: any) {
-      // Fallback to FileReader base64 if needed
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          setFormData((prev: any) => ({
-            ...prev,
-            images: {
-              ...prev.images,
-              [viewKey]: e.target?.result as string,
-            },
-          }));
-          dispatch(addToast({ type: 'success', message: `${viewKey.toUpperCase()} image loaded from device!` }));
-        }
-      };
-      reader.readAsDataURL(file);
+
+      // 2. Also upload to server in background
+      try {
+        await adminService.uploadProductImage(file);
+      } catch {
+        // Local data URI is already active as resilient storage
+      }
+
+      dispatch(addToast({ type: 'success', message: `${viewKey.toUpperCase()} image loaded successfully!` }));
+    } catch {
+      dispatch(addToast({ type: 'error', message: `Could not process ${viewKey} image.` }));
     } finally {
       setUploadingView(null);
     }
   };
+
 
 
   const loadProducts = () => {
@@ -170,9 +208,15 @@ export const AdminProductsPage: React.FC = () => {
                           alt={prod.name}
                           className="w-full h-full object-contain"
                           onError={(e) => {
-                            (e.target as HTMLElement).style.display = 'none';
+                            const target = e.target as HTMLImageElement;
+                            if (prod.images.front.startsWith('/uploads') && !target.src.includes(':5000')) {
+                              target.src = `http://localhost:5000${prod.images.front}`;
+                            } else {
+                              target.style.display = 'none';
+                            }
                           }}
                         />
+
                       ) : (
                         <Shirt className="w-5 h-5 text-gray-400" />
                       )}
@@ -410,7 +454,6 @@ export const AdminProductsPage: React.FC = () => {
               })}
             </div>
           </div>
-
 
 
           {/* Homepage Sections Allocation Toggles */}
