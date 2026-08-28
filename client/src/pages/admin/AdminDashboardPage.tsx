@@ -21,8 +21,6 @@ export const AdminDashboardPage: React.FC = () => {
     enableShipping: true,
     freeShippingThreshold: 1499,
     defaultShippingCharge: 79,
-    enableCod: true,
-    codFee: 25,
     activeProvider: 'mock',
     pickupPincode: '400001',
   });
@@ -113,7 +111,7 @@ export const AdminDashboardPage: React.FC = () => {
         <div className="flex items-center gap-3">
           <Link
             to="/admin/products"
-            className="inline-flex items-center gap-2 px-5 py-3 bg-[#FF5722] hover:bg-[#e04816] text-white text-xs font-bold uppercase rounded-xl transition-all shadow"
+            className="inline-flex items-center gap-2 px-5 py-3 bg-[#FF5722] hover:bg-[#e04816] text-white text-xs font-bold uppercase rounded-xl transition-all shadow-xs"
           >
             <Plus className="w-4 h-4" /> Add Match Kit
           </Link>
@@ -155,7 +153,7 @@ export const AdminDashboardPage: React.FC = () => {
                 India-Wide Shipping & Delivery Rules
               </h3>
               <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-                Configure free shipping thresholds, COD fees, and courier provider rules
+                Configure free shipping thresholds and courier provider rules (100% Prepaid Online Orders)
               </p>
             </div>
           </div>
@@ -164,7 +162,7 @@ export const AdminDashboardPage: React.FC = () => {
           </span>
         </div>
 
-        <form onSubmit={handleSaveShippingSettings} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <form onSubmit={handleSaveShippingSettings} className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div>
             <label className="block text-sm font-bold text-black uppercase mb-2">
               Free Shipping Threshold (₹)
@@ -199,22 +197,6 @@ export const AdminDashboardPage: React.FC = () => {
 
           <div>
             <label className="block text-sm font-bold text-black uppercase mb-2">
-              Cash on Delivery (COD) Fee (₹)
-            </label>
-            <input
-              type="number"
-              value={shippingSettings.codFee}
-              onChange={(e) =>
-                setShippingSettings({ ...shippingSettings, codFee: Number(e.target.value) })
-              }
-              className="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm text-black font-bold font-mono focus:border-black focus:outline-none"
-              required
-            />
-            <p className="text-xs text-gray-500 mt-1.5 font-medium">Doorstep carrier fee</p>
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-black uppercase mb-2">
               Active Courier Provider
             </label>
             <select
@@ -230,11 +212,11 @@ export const AdminDashboardPage: React.FC = () => {
             <p className="text-xs text-gray-500 mt-1.5 font-medium">Pluggable shipping gateway</p>
           </div>
 
-          <div className="sm:col-span-2 lg:col-span-4 flex justify-end pt-2">
+          <div className="sm:col-span-3 flex justify-end pt-2">
             <button
               type="submit"
               disabled={isSavingSettings}
-              className="px-6 py-3 bg-black hover:bg-[#FF5722] text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50 shadow-sm"
+              className="px-6 py-3 bg-black hover:bg-[#FF5722] text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all disabled:opacity-50 shadow-xs cursor-pointer"
             >
               {isSavingSettings ? 'Saving...' : 'Save Shipping Rules'}
             </button>
@@ -335,4 +317,3 @@ export const AdminDashboardPage: React.FC = () => {
     </div>
   );
 };
-

@@ -50,6 +50,36 @@ export const registerUser = createAsyncThunk('auth/register', async (formData: a
   }
 });
 
+export const sendOtp = createAsyncThunk('auth/sendOtp', async (email: string, { rejectWithValue }) => {
+  try {
+    const res = await api.post<{ success: boolean; message: string; isExistingUser: boolean; devOtp?: string }>('/auth/otp/send', { email });
+    return res.data;
+  } catch (err: any) {
+    return rejectWithValue(err.response?.data?.message || 'Failed to send OTP');
+  }
+});
+
+export const verifyOtpAndLogin = createAsyncThunk('auth/verifyOtp', async (data: { email: string; otp: string; name?: string; phone?: string }, { rejectWithValue }) => {
+  try {
+    const res = await api.post<{ success: boolean; accessToken: string; user: IUser }>('/auth/otp/verify', data);
+    setAuthToken(res.data.accessToken);
+    return { user: res.data.user, token: res.data.accessToken };
+  } catch (err: any) {
+    return rejectWithValue(err.response?.data?.message || 'Invalid or expired OTP');
+  }
+});
+
+export const googleLogin = createAsyncThunk('auth/googleLogin', async (data: { email: string; name: string; avatar?: string; googleId?: string }, { rejectWithValue }) => {
+  try {
+    const res = await api.post<{ success: boolean; accessToken: string; user: IUser }>('/auth/google', data);
+    setAuthToken(res.data.accessToken);
+    return { user: res.data.user, token: res.data.accessToken };
+  } catch (err: any) {
+    return rejectWithValue(err.response?.data?.message || 'Google sign-in failed');
+  }
+});
+
+
 export const logoutUser = createAsyncThunk('auth/logout', async () => {
   try {
     await api.post('/auth/logout');
@@ -125,12 +155,47 @@ const authSlice = createSlice({
         state.error = action.payload as string;
       });
 
+    // Verify OTP & Login
+    builder
+      .addCase(verifyOtpAndLogin.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(verifyOtpAndLogin.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.isAuthenticated = true;
+      })
+      .addCase(verifyOtpAndLogin.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+
+    // Google Login
+    builder
+      .addCase(googleLogin.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(googleLogin.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.isAuthenticated = true;
+      })
+      .addCase(googleLogin.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
+
     // Logout
     builder.addCase(logoutUser.fulfilled, (state) => {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
     });
+
   },
 });
 

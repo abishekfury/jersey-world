@@ -32,7 +32,7 @@ export const AdminUsersPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-black text-black font-display uppercase tracking-tight">
@@ -99,3 +99,4 @@ export const AdminUsersPage: React.FC = () => {
     </div>
   );
 };
+

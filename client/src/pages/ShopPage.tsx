@@ -8,6 +8,8 @@ import type { JerseySize } from '@shared/types';
 import { ProductCard } from '../components/product/ProductCard';
 import { FilterSidebar } from '../components/product/FilterSidebar';
 import { SortDropdown } from '../components/product/SortDropdown';
+import { CustomSelect } from '../components/ui/CustomSelect';
+
 
 export const ShopPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -117,12 +119,14 @@ export const ShopPage: React.FC = () => {
   // Quick type filter pills
   const typePills = ['All', ...types.slice(0, 7)];
   const ALL_SIZES: JerseySize[] = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'];
-  const PRICE_RANGES = [
-    { label: 'All Prices', max: 8000 },
-    { label: 'Under ₹2,500', max: 2500 },
-    { label: 'Under ₹4,000', max: 4000 },
-    { label: 'Under ₹6,000', max: 6000 },
+  const PRICE_OPTIONS = [
+    { value: 8000, label: 'All prices' },
+    { value: 2500, label: 'Under ₹2,500' },
+    { value: 4000, label: 'Under ₹4,000' },
+    { value: 6000, label: 'Under ₹6,000' },
   ];
+
+
 
   return (
     <div className="bg-white text-black min-h-screen font-sans">
@@ -217,25 +221,16 @@ export const ShopPage: React.FC = () => {
 
           <span className="w-px h-5 bg-neutral-200" />
 
-          {/* Price */}
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 font-sans">
-              Max Price
-            </span>
-            <div className="relative">
-              <select
-                value={maxPrice}
-                onChange={(e) => handleFilterChange('maxPrice', Number(e.target.value))}
-                className="appearance-none bg-neutral-50 border border-neutral-200 hover:border-black px-3 py-1.5 pr-7 text-xs font-semibold text-black rounded-md focus:outline-none cursor-pointer transition-colors font-sans"
-              >
-                {PRICE_RANGES.map((r) => (
-                  <option key={r.max} value={r.max}>
-                    {r.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
+          {/* Max Price Custom Dropdown */}
+          <CustomSelect
+            label="Max price:"
+            value={maxPrice}
+            options={PRICE_OPTIONS}
+            onChange={(val: any) => handleFilterChange('maxPrice', Number(val))}
+            minWidth="min-w-[170px]"
+          />
+
+
 
           <span className="w-px h-5 bg-neutral-200" />
 

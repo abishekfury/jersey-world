@@ -6,6 +6,8 @@ export interface IUserDocument extends Omit<IUser, '_id' | 'createdAt' | 'update
   createdAt: Date;
   updatedAt: Date;
   password?: string;
+  authProvider?: string;
+  googleId?: string;
   refreshTokenHash?: string;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
@@ -38,14 +40,15 @@ const UserSchema = new Schema<IUserDocument>(
       lowercase: true,
       index: true,
     },
-    password: { type: String, required: true, select: false },
+    password: { type: String, select: false },
     role: {
       type: String,
       enum: ['customer', 'manager', 'admin'],
       default: 'customer',
       index: true,
     },
-
+    authProvider: { type: String, enum: ['local', 'google', 'otp'], default: 'local' },
+    googleId: { type: String },
     isActive: { type: Boolean, default: true },
     avatar: { type: String },
     phone: { type: String },
@@ -63,7 +66,7 @@ const UserSchema = new Schema<IUserDocument>(
 );
 
 // Hash password before saving
-UserSchema.pre('save', async function (next) {
+UserSchema.pre('save', async function (this: IUserDocument, next) {
   if (!this.isModified('password') || !this.password) {
     return next();
   }
@@ -74,7 +77,7 @@ UserSchema.pre('save', async function (next) {
 
 // Compare password method
 UserSchema.methods.matchPassword = async function (enteredPassword: string): Promise<boolean> {
-  return await bcrypt.compare(enteredPassword, this.password);
+  return await bcrypt.compare(enteredPassword, this.password || '');
 };
 
 export const User = mongoose.model<IUserDocument>('User', UserSchema);

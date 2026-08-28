@@ -21,22 +21,21 @@ export const AdminLayout: React.FC = () => {
   }
 
   const links = [
-    { label: 'Overview & Sales', path: '/admin', icon: <LayoutDashboard className="w-4 h-4" /> },
-    { label: 'Products & Inventory', path: '/admin/products', icon: <Shirt className="w-4 h-4" /> },
-    { label: 'Orders & Fulfillment', path: '/admin/orders', icon: <ShoppingBag className="w-4 h-4" /> },
-    { label: 'Coupons & Promo Codes', path: '/admin/coupons', icon: <Tag className="w-4 h-4" /> },
-    { label: 'Customer Management', path: '/admin/users', icon: <Users className="w-4 h-4" /> },
+    { label: 'Overview & Sales', path: '/admin', icon: <LayoutDashboard className="w-5 h-5" /> },
+    { label: 'Products & Inventory', path: '/admin/products', icon: <Shirt className="w-5 h-5" /> },
+    { label: 'Orders & Fulfillment', path: '/admin/orders', icon: <ShoppingBag className="w-5 h-5" /> },
+    { label: 'Coupons & Promo Codes', path: '/admin/coupons', icon: <Tag className="w-5 h-5" /> },
+    { label: 'Customer Management', path: '/admin/users', icon: <Users className="w-5 h-5" /> },
   ];
 
-
   return (
-    <div className="min-h-screen bg-gray-50 text-black flex flex-col md:flex-row">
-      {/* Admin Sidebar */}
-      <aside className="w-full md:w-72 bg-white border-b md:border-b-0 md:border-r border-gray-200 p-6 flex flex-col justify-between shrink-0 shadow-sm">
+    <div className="min-h-screen bg-gray-50 text-black flex flex-col md:flex-row font-sans">
+      {/* Admin Sidebar (Sticky so profile card and back to store link are always in view) */}
+      <aside className="w-full md:w-72 bg-white border-b md:border-b-0 md:border-r border-gray-200 p-6 flex flex-col justify-between shrink-0 shadow-sm md:sticky md:top-0 md:h-screen">
         <div>
           {/* Admin Header */}
           <div className="flex items-center gap-3.5 mb-8">
-            <div className="w-12 h-12 rounded-xl bg-black flex items-center justify-center font-black text-white text-base shadow">
+            <div className="w-12 h-12 rounded-xl bg-black flex items-center justify-center font-black text-white text-base shadow-sm">
               JW
             </div>
             <div>
@@ -61,7 +60,7 @@ export const AdminLayout: React.FC = () => {
                   to={link.path}
                   className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
                     isActive
-                      ? 'bg-black text-white shadow-md'
+                      ? 'bg-black text-white shadow-sm'
                       : 'text-gray-700 hover:text-black hover:bg-gray-100'
                   }`}
                 >
@@ -76,8 +75,8 @@ export const AdminLayout: React.FC = () => {
         {/* Admin User Info & Store Link */}
         <div className="pt-6 border-t border-gray-200 mt-6 space-y-4">
           <div className="p-3.5 bg-gray-50 rounded-xl border border-gray-200">
-            <p className="text-xs font-bold text-black truncate">{user?.name}</p>
-            <p className="text-xs text-gray-500 truncate mt-0.5">{user?.email}</p>
+            <p className="text-sm font-bold text-black truncate">{user?.name || 'Alexander Sterling'}</p>
+            <p className="text-xs text-gray-500 font-medium truncate mt-0.5">{user?.email || 'admin@jerseyworld.com'}</p>
           </div>
 
           <Link
@@ -90,7 +89,6 @@ export const AdminLayout: React.FC = () => {
         </div>
       </aside>
 
-
       {/* Main Admin View */}
       <main className="flex-1 p-6 sm:p-10 overflow-y-auto max-w-7xl">
         <Outlet />
@@ -98,3 +96,4 @@ export const AdminLayout: React.FC = () => {
     </div>
   );
 };
+

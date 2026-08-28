@@ -66,11 +66,13 @@ export const App: React.FC = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/shop" element={<ShopPage />} />
           <Route path="/shop/:identifier" element={<ProductDetailPage />} />
+          <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+
 
           {/* Customer Portal Nested Routes */}
           <Route path="/account" element={<CustomerLayout />}>

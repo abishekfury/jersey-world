@@ -10,7 +10,6 @@ import {
   ShoppingBag,
   ArrowRight,
   CreditCard,
-  Banknote,
   Tag,
   Check,
   ChevronRight,
@@ -30,7 +29,7 @@ export const CheckoutPage: React.FC = () => {
   const items = cart?.items || [];
 
   const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'PREPAID' | 'COD'>('PREPAID');
+  const [paymentMethod] = useState<'PREPAID'>('PREPAID');
   const [billingAddressSame, setBillingAddressSame] = useState(true);
 
   // Coupon state
@@ -78,7 +77,6 @@ export const CheckoutPage: React.FC = () => {
     shippingCharge: number;
     courierCost: number;
     isFreeShipping: boolean;
-    codCharge: number;
     subtotal: number;
     tax: number;
     grandTotal: number;
@@ -87,7 +85,6 @@ export const CheckoutPage: React.FC = () => {
     shippingCharge: 0,
     courierCost: 64,
     isFreeShipping: true,
-    codCharge: 0,
     subtotal: cart?.subtotal || 0,
     tax: Math.round((cart?.subtotal || 0) * 0.05),
     grandTotal: cart?.grandTotal || 0,
@@ -112,20 +109,18 @@ export const CheckoutPage: React.FC = () => {
     const disc = cart?.discount || 0;
     const isFree = sub >= 1499;
     const ship = isFree ? 0 : 79;
-    const cod = paymentMethod === 'COD' ? 49 : 0;
     const tx = Math.round((sub - disc) * 0.05);
-    const finalTot = Math.max(0, sub - disc + ship + cod + tx);
+    const finalTot = Math.max(0, sub - disc + ship + tx);
 
     setShippingRate((prev) => ({
       ...prev,
       subtotal: sub,
       isFreeShipping: isFree,
       shippingCharge: ship,
-      codCharge: cod,
       tax: tx,
       grandTotal: finalTot,
     }));
-  }, [cart?.subtotal, cart?.discount, paymentMethod]);
+  }, [cart?.subtotal, cart?.discount]);
 
   // Check PIN serviceability & fetch shipping rate whenever PIN or payment method changes
   const checkPincodeAndFetchRate = async (pincodeToTest?: string) => {
@@ -190,16 +185,14 @@ export const CheckoutPage: React.FC = () => {
         const sub = rate.subtotal;
         const disc = cart?.discount || 0;
         const ship = rate.shippingCharge;
-        const cod = rate.codCharge;
         const tx = Math.round(sub * 0.05);
-        const finalTot = Math.max(0, sub - disc + ship + cod + tx);
+        const finalTot = Math.max(0, sub - disc + ship + tx);
 
         setShippingRate({
           totalWeightGrams: rate.totalWeightGrams,
           shippingCharge: rate.shippingCharge,
           courierCost: rate.courierCost,
           isFreeShipping: rate.isFreeShipping,
-          codCharge: rate.codCharge,
           subtotal: sub,
           tax: tx,
           grandTotal: finalTot,
@@ -220,7 +213,7 @@ export const CheckoutPage: React.FC = () => {
     if (addressForm.pincode.length === 6 && items.length > 0) {
       checkPincodeAndFetchRate(addressForm.pincode);
     }
-  }, [addressForm.pincode, paymentMethod, items.length]);
+  }, [addressForm.pincode, items.length]);
 
   const handleApplyCoupon = async () => {
     if (!couponInput.trim()) return;
@@ -281,15 +274,7 @@ export const CheckoutPage: React.FC = () => {
       const res = await orderService.createOrder(orderPayload);
       const createdOrder = res.data.data.order;
 
-      // If Cash on Delivery (COD), order is confirmed immediately!
-      if (paymentMethod === 'COD') {
-        dispatch(clearCart());
-        dispatch(addToast({ type: 'success', message: 'COD Order placed successfully! AWB Generated.' }));
-        navigate(`/order-success/${createdOrder._id || createdOrder.orderNumber}`);
-        return;
-      }
-
-      // If Prepaid with Razorpay
+      // Online Prepaid Payment via Razorpay
       const paymentDetails = res.data.data.paymentDetails;
       if (paymentDetails && (window as any).Razorpay) {
         const options = {
@@ -707,84 +692,34 @@ export const CheckoutPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-3">
-                  {/* Prepaid Option (Razorpay) */}
-                  <div
-                    onClick={() => setPaymentMethod('PREPAID')}
-                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      paymentMethod === 'PREPAID'
-                        ? 'border-black bg-neutral-50/80 shadow-sm'
-                        : 'border-neutral-200 hover:border-neutral-300 bg-white'
-                    }`}
-                  >
+                  {/* 100% Prepaid Online Option */}
+                  <div className="p-4 rounded-xl border-2 border-black bg-neutral-50/80 shadow-xs">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div
-                          className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                            paymentMethod === 'PREPAID' ? 'border-black' : 'border-neutral-400'
-                          }`}
-                        >
-                          {paymentMethod === 'PREPAID' && <div className="w-2 h-2 rounded-full bg-black" />}
+                        <div className="w-4 h-4 rounded-full border-2 border-black flex items-center justify-center">
+                          <div className="w-2 h-2 rounded-full bg-black" />
                         </div>
                         <div>
                           <p className="text-sm font-bold text-black flex items-center gap-2">
                             <CreditCard className="w-4 h-4 text-[#FF5722]" />
-                            <span>Online Payment (UPI, Cards, NetBanking, EMI)</span>
+                            <span>100% Secure Online Payment (UPI, Cards, NetBanking, EMI)</span>
                           </p>
-                          <p className="text-xs text-neutral-500 mt-0.5">
-                            GPay, PhonePe, Paytm, Credit/Debit Cards, NetBanking
+                          <p className="text-xs text-neutral-500 mt-0.5 font-medium">
+                            Google Pay, PhonePe, Paytm, All Major Cards & NetBanking
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-1">
                         <span className="text-[10px] font-bold bg-green-100 text-green-800 px-2 py-0.5 rounded">
-                          Recommended
+                          Instant Verification
                         </span>
                       </div>
                     </div>
 
-                    {paymentMethod === 'PREPAID' && (
-                      <div className="mt-3 pt-3 border-t border-neutral-200/60 flex items-center gap-2 text-xs text-neutral-600">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-green-600 shrink-0" />
-                        <span>Instant order processing, priority dispatch, and zero handling fees.</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Cash on Delivery (COD) Option */}
-                  <div
-                    onClick={() => setPaymentMethod('COD')}
-                    className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      paymentMethod === 'COD'
-                        ? 'border-black bg-neutral-50/80 shadow-sm'
-                        : 'border-neutral-200 hover:border-neutral-300 bg-white'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                            paymentMethod === 'COD' ? 'border-black' : 'border-neutral-400'
-                          }`}
-                        >
-                          {paymentMethod === 'COD' && <div className="w-2 h-2 rounded-full bg-black" />}
-                        </div>
-                        <div>
-                          <p className="text-sm font-bold text-black flex items-center gap-2">
-                            <Banknote className="w-4 h-4 text-neutral-700" />
-                            <span>Cash on Delivery (COD)</span>
-                          </p>
-                          <p className="text-xs text-neutral-500 mt-0.5">
-                            Pay with cash or UPI upon package arrival at your doorstep
-                          </p>
-                        </div>
-                      </div>
-
-                      {shippingRate.codCharge > 0 && (
-                        <span className="text-xs font-mono font-semibold text-neutral-600">
-                          +₹{shippingRate.codCharge} handling
-                        </span>
-                      )}
+                    <div className="mt-3 pt-3 border-t border-neutral-200/60 flex items-center gap-2 text-xs text-neutral-600 font-medium">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-green-600 shrink-0" />
+                      <span>Zero payment gateway surcharge. Instant order confirmation & priority BlueDart dispatch.</span>
                     </div>
                   </div>
                 </div>
@@ -841,7 +776,6 @@ export const CheckoutPage: React.FC = () => {
               </div>
 
             </div>
-
 
             {/* ═══════════════════════════════════════════════════════════ */}
             {/* ── RIGHT COLUMN: Order Summary & Pay CTA (Span 5) ── */}
@@ -923,7 +857,7 @@ export const CheckoutPage: React.FC = () => {
                       type="button"
                       onClick={handleApplyCoupon}
                       disabled={isApplyingCoupon || !couponInput.trim()}
-                      className="px-4 py-2.5 bg-black hover:bg-neutral-800 disabled:opacity-40 text-white font-bold text-xs uppercase rounded-xl transition-all"
+                      className="px-4 py-2.5 bg-black hover:bg-neutral-800 disabled:opacity-40 text-white font-bold text-xs uppercase rounded-xl transition-all cursor-pointer"
                     >
                       {isApplyingCoupon ? 'Applying…' : 'Apply'}
                     </button>
@@ -938,7 +872,7 @@ export const CheckoutPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={handleRemoveCoupon}
-                        className="text-xs text-red-600 hover:underline font-semibold"
+                        className="text-xs text-red-600 hover:underline font-semibold cursor-pointer"
                       >
                         Remove
                       </button>
@@ -978,13 +912,6 @@ export const CheckoutPage: React.FC = () => {
                     </div>
                   ) : null}
 
-                  {paymentMethod === 'COD' && shippingRate.codCharge > 0 && (
-                    <div className="flex items-center justify-between">
-                      <span>Cash On Delivery Handling</span>
-                      <span className="font-mono font-bold text-black">₹{shippingRate.codCharge}</span>
-                    </div>
-                  )}
-
                   <div className="flex items-center justify-between text-neutral-500">
                     <span>Estimated GST (5% Included)</span>
                     <span className="font-mono">₹{shippingRate.tax.toLocaleString('en-IN')}</span>
@@ -1016,12 +943,7 @@ export const CheckoutPage: React.FC = () => {
                     'Processing Order…'
                   ) : !isAuthenticated ? (
                     <>
-                      Sign In & Place Order <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </>
-                  ) : paymentMethod === 'COD' ? (
-                    <>
-                      Confirm COD Order · ₹{shippingRate.grandTotal.toLocaleString('en-IN')}{' '}
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      Sign In & Pay Now <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </>
                   ) : (
                     <>
@@ -1030,7 +952,6 @@ export const CheckoutPage: React.FC = () => {
                     </>
                   )}
                 </button>
-
                 {/* Trust Badges */}
                 <div className="pt-2 border-t border-neutral-200/70 grid grid-cols-3 gap-2 text-center text-[10px] text-neutral-500 font-medium">
                   <div className="flex flex-col items-center gap-1 p-2 rounded-lg bg-white/70 border border-neutral-200/50">

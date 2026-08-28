@@ -425,5 +425,20 @@ export interface IProductFilterQuery {
   limit?: number;
 }
 
+export interface IOfferBanner {
+  _id?: string;
+  badgeText: string;
+  discountHeadline: string;
+  description: string;
+  couponCode: string;
+  buttonText: string;
+  buttonLink: string;
+  leftImage: string;
+  rightImage: string;
+  isActive: boolean;
+}
+
 const SharedTypes = {};
 export default SharedTypes;
+
+

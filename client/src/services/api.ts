@@ -6,7 +6,9 @@ import {
   IOrder,
   IReview,
   IUser,
+  IOfferBanner,
 } from '@shared/types';
+
 
 const API_BASE_URL = '/api/v1';
 
@@ -154,5 +156,12 @@ export const adminService = {
     });
   },
 };
+
+export const bannerService = {
+  getBanner: () => api.get<{ success: boolean; banner: IOfferBanner }>('/banner'),
+  updateBanner: (data: Partial<IOfferBanner>) =>
+    api.put<{ success: boolean; message: string; banner: IOfferBanner }>('/banner', data),
+};
+
 
 

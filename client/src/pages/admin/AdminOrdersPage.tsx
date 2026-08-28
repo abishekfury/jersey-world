@@ -62,7 +62,7 @@ export const AdminOrdersPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-black text-black font-display uppercase tracking-tight">
@@ -108,12 +108,8 @@ export const AdminOrdersPage: React.FC = () => {
                       </p>
                     </td>
                     <td className="p-4">
-                      <span className={`px-2.5 py-1 rounded-md text-xs font-bold uppercase inline-block ${
-                        order.paymentMethod === 'COD'
-                          ? 'bg-amber-50 text-amber-800 border border-amber-200'
-                          : 'bg-green-50 text-green-800 border border-green-200'
-                      }`}>
-                        {order.paymentMethod}
+                      <span className="px-2.5 py-1 rounded-md text-xs font-bold uppercase inline-block bg-green-50 text-green-800 border border-green-200">
+                        {order.paymentMethod || 'PREPAID'}
                       </span>
                       <p className="text-base font-mono font-black text-black mt-1">
                         ₹{order.grandTotal.toLocaleString('en-IN')}
@@ -157,7 +153,7 @@ export const AdminOrdersPage: React.FC = () => {
                           type="button"
                           onClick={() => handleGenerateAwb(order._id)}
                           disabled={isGeneratingAwb === order._id}
-                          className="px-3 py-1.5 bg-black hover:bg-[#FF5722] text-white text-xs font-bold uppercase rounded-lg transition-colors disabled:opacity-50"
+                          className="px-3 py-1.5 bg-black hover:bg-[#FF5722] text-white text-xs font-bold uppercase rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
                         >
                           {isGeneratingAwb === order._id ? 'Generating...' : '⚡ Generate AWB'}
                         </button>
@@ -170,7 +166,7 @@ export const AdminOrdersPage: React.FC = () => {
                           setNewStatus(order.orderStatus);
                           setTrackingNumber(order.trackingNumber || '');
                         }}
-                        className="p-2 hover:bg-gray-100 rounded-xl text-black transition-colors"
+                        className="p-2 hover:bg-gray-100 rounded-xl text-black transition-colors cursor-pointer"
                         title="Edit Status"
                       >
                         <Edit className="w-4 h-4" />
@@ -181,7 +177,6 @@ export const AdminOrdersPage: React.FC = () => {
               })}
             </tbody>
           </table>
-
         </div>
       </div>
 
@@ -233,13 +228,13 @@ export const AdminOrdersPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSelectedOrder(null)}
-                className="px-4 py-2.5 border border-gray-300 rounded-xl text-xs font-bold text-black hover:bg-gray-50 uppercase"
+                className="px-4 py-2.5 border border-gray-300 rounded-xl text-xs font-bold text-black hover:bg-gray-50 uppercase cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="px-5 py-2.5 bg-black hover:bg-gray-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider"
+                className="px-5 py-2.5 bg-black hover:bg-gray-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer"
               >
                 Save Changes
               </button>

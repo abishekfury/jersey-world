@@ -2,49 +2,33 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export interface SortOption {
-  value: string;
+export interface SelectOption {
+  value: string | number;
   label: string;
 }
 
-export const SORT_OPTIONS: SortOption[] = [
-  { value: 'featured', label: 'Featured' },
-  { value: 'relevant', label: 'Most relevant' },
-  { value: 'best-selling', label: 'Best selling' },
-  { value: 'title-asc', label: 'Alphabetically, A–Z' },
-  { value: 'title-desc', label: 'Alphabetically, Z–A' },
-  { value: 'price-asc', label: 'Price, low to high' },
-  { value: 'price-desc', label: 'Price, high to low' },
-  { value: 'date-old-to-new', label: 'Date, old to new' },
-  { value: 'date-new-to-old', label: 'Date, new to old' },
-];
-
-interface SortDropdownProps {
-  sortBy: string;
-  onSortChange: (val: string) => void;
+interface CustomSelectProps {
+  label: string;
+  value: string | number;
+  options: SelectOption[];
+  onChange: (val: any) => void;
   className?: string;
+  minWidth?: string;
 }
 
-export const SortDropdown: React.FC<SortDropdownProps> = ({
-  sortBy,
-  onSortChange,
+export const CustomSelect: React.FC<CustomSelectProps> = ({
+  label,
+  value,
+  options,
+  onChange,
   className = '',
+  minWidth = 'min-w-[180px]',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Map older aliases to matching new labels if needed
-  const normalizedSort =
-    sortBy === 'popular'
-      ? 'best-selling'
-      : sortBy === 'newest'
-      ? 'date-new-to-old'
-      : sortBy;
-
   const selectedOption =
-    SORT_OPTIONS.find((opt) => opt.value === normalizedSort) ||
-    SORT_OPTIONS.find((opt) => opt.value === sortBy) ||
-    SORT_OPTIONS[0];
+    options.find((opt) => String(opt.value) === String(value)) || options[0];
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -58,11 +42,11 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
 
   return (
     <div ref={dropdownRef} className={`relative inline-block text-left font-sans ${className}`}>
-      {/* Trigger Box matching screenshot */}
+      {/* Trigger Box */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full min-w-[200px] flex items-center justify-between bg-white border px-3.5 py-1.5 rounded-lg transition-all text-left shadow-xs cursor-pointer select-none ${
+        className={`w-full ${minWidth} flex items-center justify-between bg-white border px-3.5 py-1.5 rounded-lg transition-all text-left shadow-xs cursor-pointer select-none ${
           isOpen
             ? 'border-blue-500 ring-2 ring-blue-100 rounded-b-none'
             : 'border-neutral-300 hover:border-neutral-400'
@@ -70,10 +54,10 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
       >
         <div className="flex flex-col text-left">
           <span className="text-[11px] text-neutral-500 font-sans leading-tight">
-            Sort by:
+            {label}
           </span>
           <span className="text-xs font-bold text-neutral-900 font-sans leading-tight mt-0.5">
-            {selectedOption.label}
+            {selectedOption?.label || ''}
           </span>
         </div>
 
@@ -84,7 +68,7 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
         />
       </button>
 
-      {/* Options Menu matching screenshot */}
+      {/* Options Dropdown List */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -92,18 +76,17 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -2 }}
             transition={{ duration: 0.12 }}
-            className="absolute left-0 right-0 top-full bg-white border-x border-b border-neutral-300 shadow-2xl z-50 rounded-b-lg overflow-hidden"
+            className="absolute left-0 right-0 top-full bg-white border-x border-b border-neutral-300 shadow-2xl z-50 rounded-b-lg overflow-hidden max-h-64 overflow-y-auto"
           >
             <div className="py-0 divide-y divide-neutral-100">
-              {SORT_OPTIONS.map((opt) => {
-                const isSelected =
-                  opt.value === normalizedSort || opt.value === sortBy;
+              {options.map((opt) => {
+                const isSelected = String(opt.value) === String(value);
                 return (
                   <button
-                    key={opt.value}
+                    key={String(opt.value)}
                     type="button"
                     onClick={() => {
-                      onSortChange(opt.value);
+                      onChange(opt.value);
                       setIsOpen(false);
                     }}
                     className={`w-full text-left px-3.5 py-2 text-xs transition-colors block cursor-pointer ${
@@ -123,3 +106,4 @@ export const SortDropdown: React.FC<SortDropdownProps> = ({
     </div>
   );
 };
+

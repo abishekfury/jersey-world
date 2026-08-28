@@ -113,11 +113,12 @@ export const Navbar: React.FC = () => {
             {!isAdmin && (
               <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
                 <Link
-                  to="/account/wishlist"
+                  to="/wishlist"
                   className="relative p-2 rounded-full hover:bg-neutral-100 text-black hover:text-[#FF5722] transition-colors block"
                   aria-label="Wishlist"
                 >
                   <Heart className="w-5 h-5 stroke-[2]" />
+
                   <AnimatePresence>
                     {wishlist.length > 0 && (
                       <motion.span
