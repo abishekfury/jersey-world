@@ -12,6 +12,7 @@ import {
   updateUserRole,
   getAllReviewsAdmin,
   deleteReviewAdmin,
+  uploadAdminProductImage,
 } from '../controllers/adminController';
 import {
   getAllCouponsAdmin,
@@ -21,12 +22,16 @@ import {
 } from '../controllers/couponController';
 import { requireAuth, requireRole } from '../middleware/auth';
 import { validateRequest } from '../middleware/validate';
+import { uploadSingleImage } from '../middleware/upload';
 import { createProductSchema } from '../validators/productValidator';
 
 const router = Router();
 
 // Protect all admin routes: require authentication and admin/manager role
 router.use(requireAuth, requireRole('admin', 'manager'));
+
+// Image Uploads for Products & Assets
+router.post('/upload', uploadSingleImage, uploadAdminProductImage);
 
 // Dashboard Stats & AI Cost Telemetry
 router.get('/dashboard', getDashboardStats);
@@ -36,6 +41,7 @@ router.get('/products', getAllProductsAdmin);
 router.post('/products', validateRequest({ body: createProductSchema }), createProduct);
 router.put('/products/:id', updateProduct);
 router.delete('/products/:id', deleteProduct);
+
 
 // Orders Management & Returns
 router.get('/orders', getAllOrdersAdmin);

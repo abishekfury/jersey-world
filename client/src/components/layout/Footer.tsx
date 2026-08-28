@@ -194,7 +194,7 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="px-5 sm:px-8 md:px-14 lg:px-16 xl:px-20 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-[11px] text-neutral-400 font-medium">
-          <div>© {new Date().getFullYear()} JERSEY WORLD. Effortless Shopping, Exceptional Choices.</div>
+          <div>© {new Date().getFullYear()} JERSEY WORLD. All rights reserved. Effortless Shopping, Exceptional Choices.</div>
           <div className="flex items-center gap-6">
             <span className="text-neutral-500">100% Secure Checkout</span>
             <span className="text-neutral-500">Fast India Delivery</span>
@@ -205,3 +205,4 @@ export const Footer: React.FC = () => {
     </footer>
   );
 };
+

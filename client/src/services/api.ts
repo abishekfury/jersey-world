@@ -146,5 +146,13 @@ export const adminService = {
   deleteCoupon: (id: string) => api.delete<{ success: boolean; message: string }>(`/admin/coupons/${id}`),
   getReviews: () => api.get<{ success: boolean; reviews: any[] }>('/admin/reviews'),
   deleteReview: (id: string) => api.delete<{ success: boolean; message: string }>(`/admin/reviews/${id}`),
+  uploadProductImage: (file: File) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    return api.post<{ success: boolean; imageUrl: string; message: string }>('/admin/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
 };
+
 

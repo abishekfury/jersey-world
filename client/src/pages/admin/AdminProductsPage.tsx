@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Shield, Shirt, Image as ImageIcon } from 'lucide-react';
+import { Plus, Edit, Trash2, Shield, Shirt, Image as ImageIcon, Upload, Loader2 } from 'lucide-react';
 import { IProduct } from '@shared/types';
 import { adminService } from '../../services/api';
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -12,6 +12,7 @@ export const AdminProductsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<IProduct | null>(null);
+  const [uploadingView, setUploadingView] = useState<string | null>(null);
 
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
@@ -40,6 +41,43 @@ export const AdminProductsPage: React.FC = () => {
   };
 
   const [formData, setFormData] = useState<any>(defaultForm);
+
+  const handleFileUpload = async (viewKey: string, file: File) => {
+    if (!file) return;
+    setUploadingView(viewKey);
+    try {
+      const res = await adminService.uploadProductImage(file);
+      if (res.data?.imageUrl) {
+        setFormData((prev: any) => ({
+          ...prev,
+          images: {
+            ...prev.images,
+            [viewKey]: res.data.imageUrl,
+          },
+        }));
+        dispatch(addToast({ type: 'success', message: `${viewKey.toUpperCase()} image uploaded successfully!` }));
+      }
+    } catch (err: any) {
+      // Fallback to FileReader base64 if needed
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          setFormData((prev: any) => ({
+            ...prev,
+            images: {
+              ...prev.images,
+              [viewKey]: e.target?.result as string,
+            },
+          }));
+          dispatch(addToast({ type: 'success', message: `${viewKey.toUpperCase()} image loaded from device!` }));
+        }
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setUploadingView(null);
+    }
+  };
+
 
   const loadProducts = () => {
     adminService
@@ -254,120 +292,124 @@ export const AdminProductsPage: React.FC = () => {
             />
           </div>
 
-          {/* Multi-Image Gallery URLs with Live Previews */}
+          {/* Multi-Image Gallery with Local File Upload and URL support */}
           <div className="pt-2 border-t border-gray-200 space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="text-xs font-bold uppercase tracking-wider text-black flex items-center gap-1.5">
-                <ImageIcon className="w-4 h-4 text-[#FF5722]" /> Product Photo Gallery (4 Views)
+                <ImageIcon className="w-4 h-4 text-[#FF5722]" /> Product Photo Gallery (Upload Local Images or URLs)
               </h4>
               <span className="text-[10px] text-gray-500 font-medium">
-                Right-click photo online & select "Copy image address"
+                Select photos from your device or paste web URLs
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* 1. Front Image */}
-              <div className="space-y-2 bg-gray-50 p-3 rounded-xl border border-gray-200">
-                <Input
-                  label="1. Front View URL (Required)"
-                  value={formData.images?.front || ''}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      images: { ...formData.images, front: e.target.value },
-                    })
-                  }
-                  placeholder="https://...front.jpg"
-                  required
-                />
-                {formData.images?.front && (
-                  <div className="w-full h-28 bg-[#ECEAE4] rounded-lg overflow-hidden flex items-center justify-center p-2 border border-gray-200">
-                    <img
-                      src={formData.images.front}
-                      alt="Front preview"
-                      className="w-full h-full object-contain"
-                      onError={(e) => ((e.target as HTMLElement).style.opacity = '0.3')}
-                    />
-                  </div>
-                )}
-              </div>
+              {[
+                { key: 'front', label: '1. Front View', required: true },
+                { key: 'back', label: '2. Back View', required: false },
+                { key: 'detail', label: '3. Badge / Detail View', required: false },
+                { key: 'lifestyle', label: '4. Lifestyle / Pitch View', required: false },
+              ].map(({ key, label, required }) => {
+                const currentImg = formData.images?.[key] || '';
+                const isUploading = uploadingView === key;
 
-              {/* 2. Back Image */}
-              <div className="space-y-2 bg-gray-50 p-3 rounded-xl border border-gray-200">
-                <Input
-                  label="2. Back View URL (Optional)"
-                  value={formData.images?.back || ''}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      images: { ...formData.images, back: e.target.value },
-                    })
-                  }
-                  placeholder="https://...back.jpg"
-                />
-                {formData.images?.back && (
-                  <div className="w-full h-28 bg-[#ECEAE4] rounded-lg overflow-hidden flex items-center justify-center p-2 border border-gray-200">
-                    <img
-                      src={formData.images.back}
-                      alt="Back preview"
-                      className="w-full h-full object-contain"
-                      onError={(e) => ((e.target as HTMLElement).style.opacity = '0.3')}
-                    />
-                  </div>
-                )}
-              </div>
+                return (
+                  <div key={key} className="space-y-2.5 bg-gray-50 p-3.5 rounded-xl border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold uppercase tracking-wider text-black text-[11px]">
+                        {label} {required && <span className="text-red-500">*</span>}
+                      </span>
+                      {currentImg && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFormData((prev: any) => ({
+                              ...prev,
+                              images: { ...prev.images, [key]: '' },
+                            }))
+                          }
+                          className="text-[10px] font-bold text-red-500 hover:text-red-700 uppercase"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
 
-              {/* 3. Detail / Badge Image */}
-              <div className="space-y-2 bg-gray-50 p-3 rounded-xl border border-gray-200">
-                <Input
-                  label="3. Badge / Detail URL (Optional)"
-                  value={formData.images?.detail || ''}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      images: { ...formData.images, detail: e.target.value },
-                    })
-                  }
-                  placeholder="https://...detail.jpg"
-                />
-                {formData.images?.detail && (
-                  <div className="w-full h-28 bg-[#ECEAE4] rounded-lg overflow-hidden flex items-center justify-center p-2 border border-gray-200">
-                    <img
-                      src={formData.images.detail}
-                      alt="Detail preview"
-                      className="w-full h-full object-contain"
-                      onError={(e) => ((e.target as HTMLElement).style.opacity = '0.3')}
-                    />
-                  </div>
-                )}
-              </div>
+                    {/* Image Preview Box & Local Dropzone */}
+                    <div className="relative group w-full h-32 bg-[#ECEAE4] rounded-xl overflow-hidden border border-dashed border-gray-300 hover:border-black flex flex-col items-center justify-center transition-all">
+                      {currentImg ? (
+                        <>
+                          <img
+                            src={currentImg}
+                            alt={`${label} Preview`}
+                            className="w-full h-full object-contain p-1"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                            <label className="cursor-pointer px-3 py-1.5 bg-white text-black font-bold text-[10px] uppercase rounded-lg shadow hover:bg-[#FF5722] hover:text-white transition-colors">
+                              Change Local Image
+                              <input
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) handleFileUpload(key, file);
+                                }}
+                              />
+                            </label>
+                          </div>
+                        </>
+                      ) : (
+                        <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center p-3 text-center space-y-1">
+                          {isUploading ? (
+                            <div className="flex flex-col items-center justify-center space-y-1">
+                              <Loader2 className="w-6 h-6 animate-spin text-[#FF5722]" />
+                              <span className="text-[10px] font-bold text-neutral-600">Uploading Image...</span>
+                            </div>
+                          ) : (
+                            <>
+                              <Upload className="w-5 h-5 text-gray-400 group-hover:text-black transition-colors" />
+                              <span className="text-[11px] font-bold text-black group-hover:text-[#FF5722] transition-colors">
+                                Click to Upload Local Image
+                              </span>
+                              <span className="text-[9px] text-gray-400">PNG, JPG, WEBP up to 10MB</span>
+                            </>
+                          )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            disabled={isUploading}
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleFileUpload(key, file);
+                            }}
+                          />
+                        </label>
+                      )}
+                    </div>
 
-              {/* 4. Lifestyle / Pitch Image */}
-              <div className="space-y-2 bg-gray-50 p-3 rounded-xl border border-gray-200">
-                <Input
-                  label="4. Lifestyle / Action URL (Optional)"
-                  value={formData.images?.lifestyle || ''}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      images: { ...formData.images, lifestyle: e.target.value },
-                    })
-                  }
-                  placeholder="https://...lifestyle.jpg"
-                />
-                {formData.images?.lifestyle && (
-                  <div className="w-full h-28 bg-[#ECEAE4] rounded-lg overflow-hidden flex items-center justify-center p-2 border border-gray-200">
-                    <img
-                      src={formData.images.lifestyle}
-                      alt="Lifestyle preview"
-                      className="w-full h-full object-contain"
-                      onError={(e) => ((e.target as HTMLElement).style.opacity = '0.3')}
-                    />
+                    {/* Or URL input */}
+                    <div className="pt-1">
+                      <input
+                        type="text"
+                        placeholder="Or paste web image URL..."
+                        value={currentImg}
+                        onChange={(e) =>
+                          setFormData((prev: any) => ({
+                            ...prev,
+                            images: { ...prev.images, [key]: e.target.value },
+                          }))
+                        }
+                        className="w-full px-2.5 py-1.5 bg-white border border-gray-200 rounded-lg text-xs font-mono text-gray-700 placeholder:text-gray-400 focus:outline-none focus:border-black"
+                      />
+                    </div>
                   </div>
-                )}
-              </div>
+                );
+              })}
             </div>
           </div>
+
 
           {/* Homepage Sections Allocation Toggles */}
           <div className="pt-4 border-t border-gray-200 space-y-3">

@@ -386,3 +386,4 @@ export const AdminCouponsPage: React.FC = () => {
     </div>
   );
 };
+

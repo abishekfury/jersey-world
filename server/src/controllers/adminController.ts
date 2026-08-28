@@ -1,4 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
+import fs from 'fs';
+import path from 'path';
 import { Product } from '../models/Product';
 import { Order } from '../models/Order';
 import { User } from '../models/User';
@@ -6,6 +8,7 @@ import { Review } from '../models/Review';
 import { TryOnJob } from '../models/TryOnJob';
 import { AppError } from '../middleware/errorHandler';
 import { NotificationService } from '../services/notification/notificationService';
+
 
 export const getDashboardStats = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -421,5 +424,33 @@ export const updateUserRole = async (req: Request, res: Response, next: NextFunc
     next(error);
   }
 };
+
+export const uploadAdminProductImage = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    if (!req.file) {
+      return next(new AppError('No image file provided.', 400));
+    }
+
+    const targetDir = path.resolve(__dirname, '../../uploads/products');
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    const filename = path.basename(req.file.path);
+    const targetPath = path.join(targetDir, filename);
+    fs.renameSync(req.file.path, targetPath);
+
+    const imageUrl = `/uploads/products/${filename}`;
+
+    res.status(200).json({
+      success: true,
+      message: 'Product image uploaded successfully.',
+      imageUrl,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 
