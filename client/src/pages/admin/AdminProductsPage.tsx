@@ -90,7 +90,6 @@ export const AdminProductsPage: React.FC = () => {
     setUploadingView(viewKey);
     try {
       const localDataUrl = await compressAndReadImage(file);
-
       if (localDataUrl) {
         setFormData((prev: any) => ({
           ...prev,
@@ -107,6 +106,7 @@ export const AdminProductsPage: React.FC = () => {
       setUploadingView(null);
     }
   };
+
 
 
 
