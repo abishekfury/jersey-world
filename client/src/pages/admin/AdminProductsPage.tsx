@@ -90,6 +90,7 @@ export const AdminProductsPage: React.FC = () => {
     setUploadingView(viewKey);
     try {
       const localDataUrl = await compressAndReadImage(file);
+
       if (localDataUrl) {
         setFormData((prev: any) => ({
           ...prev,
@@ -106,7 +107,6 @@ export const AdminProductsPage: React.FC = () => {
       setUploadingView(null);
     }
   };
-
 
 
 
@@ -152,13 +152,13 @@ export const AdminProductsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-sans">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-black font-display uppercase tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-black text-black font-display uppercase tracking-tight">
             FOOTBALL KITS & INVENTORY
           </h2>
-          <p className="text-xs text-gray-500 font-medium">
+          <p className="text-sm text-gray-500 font-medium mt-1">
             Manage match kits, size allocations, stock inventory, and club details
           </p>
         </div>
@@ -168,17 +168,17 @@ export const AdminProductsPage: React.FC = () => {
             setFormData(defaultForm);
             setIsModalOpen(true);
           }}
-          className="inline-flex items-center gap-2 px-5 py-3 bg-[#FF5722] hover:bg-[#e04816] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow"
+          className="inline-flex items-center gap-2 px-5 py-3 bg-[#FF5722] hover:bg-[#e04816] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-sm"
         >
           <Plus className="w-4 h-4" /> ADD NEW JERSEY
         </button>
       </div>
 
       {/* Products Table */}
-      <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+      <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-gray-700">
-            <thead className="text-[10px] uppercase font-bold bg-gray-50 text-gray-500 border-b border-gray-200">
+          <table className="w-full text-left text-sm text-gray-700">
+            <thead className="text-xs uppercase font-bold bg-gray-50 text-gray-600 border-b border-gray-200">
               <tr>
                 <th className="p-4">Jersey Name</th>
                 <th className="p-4">Club / Nation</th>
@@ -192,38 +192,43 @@ export const AdminProductsPage: React.FC = () => {
             <tbody className="divide-y divide-gray-100">
               {products.map((prod) => (
                 <tr key={prod._id} className="hover:bg-gray-50 transition-colors">
-                  <td className="p-4 flex items-center gap-3">
-                    <div className="w-12 h-14 bg-[#ECEAE4] rounded-lg p-1 flex items-center justify-center shrink-0 overflow-hidden border border-gray-200">
+                  <td className="p-4 flex items-center gap-3.5">
+                    <div className="w-14 h-16 bg-[#ECEAE4] rounded-xl p-1.5 flex items-center justify-center shrink-0 overflow-hidden border border-gray-200 shadow-xs">
                       {prod.images?.front ? (
                         <img
                           src={prod.images.front}
                           alt={prod.name}
                           className="w-full h-full object-contain"
                           onError={(e) => {
-                            (e.target as HTMLElement).style.display = 'none';
+                            const target = e.target as HTMLImageElement;
+                            if (prod.images.front.startsWith('/uploads') && !target.src.includes(':5000')) {
+                              target.src = `http://localhost:5000${prod.images.front}`;
+                            } else {
+                              target.style.display = 'none';
+                            }
                           }}
                         />
                       ) : (
-                        <Shirt className="w-5 h-5 text-gray-400" />
+                        <Shirt className="w-6 h-6 text-gray-400" />
                       )}
                     </div>
                     <div>
-                      <p className="font-bold text-black line-clamp-1">{prod.name}</p>
-                      <span className="text-[10px] text-gray-400 font-mono">ID: {prod._id.slice(-6)}</span>
+                      <p className="font-bold text-black text-sm sm:text-base line-clamp-1">{prod.name}</p>
+                      <span className="text-xs text-gray-400 font-mono">ID: #{prod._id.slice(-6)}</span>
                     </div>
                   </td>
-                  <td className="p-4 font-medium text-black">{prod.team}</td>
-                  <td className="p-4 text-gray-600 font-mono">{prod.season}</td>
+                  <td className="p-4 font-semibold text-black text-sm">{prod.team}</td>
+                  <td className="p-4 text-gray-700 font-mono font-medium text-sm">{prod.season}</td>
                   <td className="p-4">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-gray-100 text-gray-700">
+                    <span className="px-3 py-1 rounded-md text-xs font-bold uppercase bg-gray-100 text-gray-800 border border-gray-200">
                       {prod.type}
                     </span>
                   </td>
-                  <td className="p-4 font-bold text-black font-mono">
+                  <td className="p-4 font-black text-black font-mono text-base">
                     ₹{(prod.discountPrice || prod.price).toLocaleString('en-IN')}
                   </td>
-                  <td className="p-4 font-mono font-medium">
-                    <span className={prod.totalStock < 15 ? 'text-red-600 font-bold' : 'text-black'}>
+                  <td className="p-4 font-mono font-bold text-sm">
+                    <span className={prod.totalStock < 15 ? 'text-red-600 font-black' : 'text-black'}>
                       {prod.totalStock} units
                     </span>
                   </td>
@@ -245,7 +250,7 @@ export const AdminProductsPage: React.FC = () => {
                         });
                         setIsModalOpen(true);
                       }}
-                      className="p-2 hover:bg-gray-100 rounded-lg text-black transition-colors"
+                      className="p-2.5 hover:bg-gray-100 rounded-xl text-black transition-colors"
                       title="Edit Jersey"
                     >
                       <Edit className="w-4 h-4" />
@@ -253,7 +258,7 @@ export const AdminProductsPage: React.FC = () => {
                     {isAdmin && (
                       <button
                         onClick={() => handleDeleteProduct(prod._id)}
-                        className="p-2 hover:bg-red-50 rounded-lg text-red-600 transition-colors"
+                        className="p-2.5 hover:bg-red-50 rounded-xl text-red-600 transition-colors"
                         title="Delete Jersey"
                       >
                         <Trash2 className="w-4 h-4" />

@@ -63,26 +63,29 @@ export const AdminOrdersPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl sm:text-2xl font-black text-black font-display uppercase tracking-tight">
-          ORDERS & INDIA-WIDE FULFILLMENT
-        </h2>
-        <p className="text-xs text-gray-500 font-medium">
-          Manage matchwear orders, dispatch BlueDart/Shiprocket AWBs, and monitor courier profit margins
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl sm:text-3xl font-black text-black font-display uppercase tracking-tight">
+            ORDERS & FULFILLMENT LOGISTICS
+          </h2>
+          <p className="text-sm text-gray-500 font-medium mt-1">
+            Track order status, manage India post/BlueDart tracking numbers, and view customer shipping details
+          </p>
+        </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
+      {/* Orders Table */}
+      <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-gray-700">
-            <thead className="text-[10px] uppercase font-bold bg-gray-50 text-gray-500 border-b border-gray-200">
+          <table className="w-full text-left text-sm text-gray-700">
+            <thead className="text-xs uppercase font-bold bg-gray-50 text-gray-600 border-b border-gray-200">
               <tr>
-                <th className="p-4">Order / Customer</th>
-                <th className="p-4">Delivery PIN & City</th>
-                <th className="p-4">Payment</th>
-                <th className="p-4">Shipping / Cost</th>
+                <th className="p-4">Order ID & Customer</th>
+                <th className="p-4">Delivery Destination</th>
+                <th className="p-4">Payment & Total</th>
+                <th className="p-4">Shipping Economics</th>
                 <th className="p-4">Status</th>
-                <th className="p-4">AWB & Tracking</th>
+                <th className="p-4">AWB / Courier</th>
                 <th className="p-4 text-right">Actions</th>
               </tr>
             </thead>
@@ -92,40 +95,40 @@ export const AdminOrdersPage: React.FC = () => {
                 return (
                   <tr key={order._id} className="hover:bg-gray-50 transition-colors">
                     <td className="p-4">
-                      <p className="font-mono font-bold text-black">{order.orderNumber}</p>
-                      <p className="text-[11px] text-gray-500 font-semibold">{addr?.fullName || 'Customer'}</p>
+                      <p className="font-mono font-bold text-black text-sm sm:text-base">{order.orderNumber}</p>
+                      <p className="text-xs text-gray-600 font-semibold mt-0.5">{addr?.fullName || 'Customer'}</p>
                     </td>
                     <td className="p-4 font-medium">
-                      <div className="flex items-center gap-1.5 text-black">
-                        <MapPin className="w-3.5 h-3.5 text-[#FF5722]" />
-                        <span>{addr?.city || 'Mumbai'}, {addr?.pincode || addr?.postalCode || '400001'}</span>
+                      <div className="flex items-center gap-1.5 text-black text-sm">
+                        <MapPin className="w-4 h-4 text-[#FF5722] shrink-0" />
+                        <span className="font-semibold">{addr?.city || 'Mumbai'}, {addr?.pincode || addr?.postalCode || '400001'}</span>
                       </div>
-                      <p className="text-[10px] text-gray-400 truncate max-w-[180px]">
+                      <p className="text-xs text-gray-500 truncate max-w-[200px] mt-0.5">
                         {addr?.address || addr?.street}
                       </p>
                     </td>
                     <td className="p-4">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                      <span className={`px-2.5 py-1 rounded-md text-xs font-bold uppercase inline-block ${
                         order.paymentMethod === 'COD'
                           ? 'bg-amber-50 text-amber-800 border border-amber-200'
                           : 'bg-green-50 text-green-800 border border-green-200'
                       }`}>
                         {order.paymentMethod}
                       </span>
-                      <p className="text-[11px] font-mono font-bold text-black mt-1">
+                      <p className="text-base font-mono font-black text-black mt-1">
                         ₹{order.grandTotal.toLocaleString('en-IN')}
                       </p>
                     </td>
-                    <td className="p-4 font-mono text-[11px]">
+                    <td className="p-4 font-mono text-xs text-gray-700">
                       <div>
-                        Customer Paid: <strong>₹{order.pricing?.shipping ?? order.shipping}</strong>
+                        Paid: <strong className="text-black">₹{order.pricing?.shipping ?? order.shipping}</strong>
                       </div>
-                      <div className="text-gray-400 text-[10px]">
-                        Courier Cost: ₹{order.pricing?.courierCost || 64}
+                      <div className="text-gray-500 text-xs mt-0.5">
+                        Courier: ₹{order.pricing?.courierCost || 64}
                       </div>
                     </td>
                     <td className="p-4">
-                      <span className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase ${
+                      <span className={`px-3 py-1 rounded-md text-xs font-bold uppercase inline-block ${
                         order.orderStatus === 'Delivered'
                           ? 'bg-green-100 text-green-800'
                           : order.orderStatus === 'Shipped' || order.orderStatus === 'Processing'
@@ -135,18 +138,18 @@ export const AdminOrdersPage: React.FC = () => {
                         {order.orderStatus}
                       </span>
                     </td>
-                    <td className="p-4 font-mono text-[11px]">
+                    <td className="p-4 font-mono text-xs">
                       {order.trackingNumber ? (
-                        <div className="flex items-center gap-1.5">
-                          <span className="font-bold text-black">{order.trackingNumber}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-black text-sm">{order.trackingNumber}</span>
                           <a
                             href={`https://www.bluedart.com/tracking?awb=${order.trackingNumber}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-gray-400 hover:text-black"
+                            className="p-1 text-gray-400 hover:text-black transition-colors"
                             title="Open Courier Tracking"
                           >
-                            <ExternalLink className="w-3.5 h-3.5" />
+                            <ExternalLink className="w-4 h-4" />
                           </a>
                         </div>
                       ) : (
@@ -154,7 +157,7 @@ export const AdminOrdersPage: React.FC = () => {
                           type="button"
                           onClick={() => handleGenerateAwb(order._id)}
                           disabled={isGeneratingAwb === order._id}
-                          className="px-2.5 py-1 bg-black hover:bg-gray-800 text-white text-[10px] font-bold uppercase rounded-md transition-colors disabled:opacity-50"
+                          className="px-3 py-1.5 bg-black hover:bg-[#FF5722] text-white text-xs font-bold uppercase rounded-lg transition-colors disabled:opacity-50"
                         >
                           {isGeneratingAwb === order._id ? 'Generating...' : '⚡ Generate AWB'}
                         </button>
@@ -167,7 +170,7 @@ export const AdminOrdersPage: React.FC = () => {
                           setNewStatus(order.orderStatus);
                           setTrackingNumber(order.trackingNumber || '');
                         }}
-                        className="p-1.5 hover:bg-gray-100 rounded-lg text-black transition-colors"
+                        className="p-2 hover:bg-gray-100 rounded-xl text-black transition-colors"
                         title="Edit Status"
                       >
                         <Edit className="w-4 h-4" />
@@ -178,6 +181,7 @@ export const AdminOrdersPage: React.FC = () => {
               })}
             </tbody>
           </table>
+
         </div>
       </div>
 

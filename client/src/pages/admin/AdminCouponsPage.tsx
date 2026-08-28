@@ -115,17 +115,17 @@ export const AdminCouponsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-black font-display uppercase tracking-tight">
-            Coupons & Promotional Discounts
+          <h1 className="text-2xl sm:text-3xl font-black text-black font-display uppercase tracking-tight">
+            COUPONS & PROMOTIONAL DISCOUNTS
           </h1>
-          <p className="text-xs text-neutral-500 font-medium mt-0.5">
+          <p className="text-sm text-neutral-500 font-medium mt-1">
             Create and manage promotional discount codes and cart limits
           </p>
         </div>
 
         <button
           onClick={handleOpenCreate}
-          className="inline-flex items-center gap-2 px-4 py-2.5 bg-black hover:bg-[#FF5722] text-white text-xs font-bold uppercase rounded-xl transition-all shadow-sm"
+          className="inline-flex items-center gap-2 px-5 py-3 bg-black hover:bg-[#FF5722] text-white text-xs font-bold uppercase rounded-xl transition-all shadow-xs"
         >
           <Plus className="w-4 h-4" /> Create Coupon
         </button>
@@ -134,26 +134,26 @@ export const AdminCouponsPage: React.FC = () => {
       {/* Coupons Table */}
       <div className="bg-white border border-neutral-200 rounded-2xl overflow-hidden shadow-xs">
         {isLoading ? (
-          <div className="p-8 text-center text-xs text-neutral-400">Loading discount coupons...</div>
+          <div className="p-8 text-center text-sm text-neutral-400 font-medium">Loading discount coupons...</div>
         ) : coupons.length === 0 ? (
           <div className="p-12 text-center space-y-3">
-            <Tag className="w-8 h-8 text-neutral-300 mx-auto" />
-            <h3 className="text-sm font-bold text-black">No coupons created yet</h3>
-            <p className="text-xs text-neutral-500 max-w-xs mx-auto">
-              Create coupons like <span className="font-mono font-bold">#FABFIT25</span> or seasonal discounts for your customers.
+            <Tag className="w-10 h-10 text-neutral-300 mx-auto" />
+            <h3 className="text-base font-bold text-black">No coupons created yet</h3>
+            <p className="text-sm text-neutral-500 max-w-sm mx-auto">
+              Create coupons like <span className="font-mono font-bold text-black">#FABFIT25</span> or seasonal discounts for your customers.
             </p>
             <button
               onClick={handleOpenCreate}
-              className="px-4 py-2 bg-black text-white text-xs font-bold uppercase rounded-lg hover:bg-[#FF5722] transition-colors"
+              className="px-5 py-2.5 bg-black text-white text-xs font-bold uppercase rounded-xl hover:bg-[#FF5722] transition-colors"
             >
               Add First Coupon
             </button>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+            <table className="w-full text-left border-collapse text-sm">
               <thead>
-                <tr className="bg-neutral-50 border-b border-neutral-200 text-neutral-500 font-bold uppercase tracking-wider text-[10px]">
+                <tr className="bg-neutral-50 border-b border-neutral-200 text-neutral-600 font-bold uppercase tracking-wider text-xs">
                   <th className="p-4">Code</th>
                   <th className="p-4">Discount</th>
                   <th className="p-4">Min Order</th>
@@ -167,16 +167,16 @@ export const AdminCouponsPage: React.FC = () => {
                 {coupons.map((c) => (
                   <tr key={c._id} className="hover:bg-neutral-50/50 transition-colors">
                     <td className="p-4">
-                      <span className="font-mono font-bold text-xs text-black bg-neutral-100 border border-neutral-200 px-2.5 py-1 rounded-md">
+                      <span className="font-mono font-bold text-sm text-black bg-neutral-100 border border-neutral-200 px-3 py-1 rounded-lg">
                         {c.code}
                       </span>
                     </td>
                     <td className="p-4">
-                      <div className="flex items-center gap-1 font-bold text-black font-sans">
+                      <div className="flex items-center gap-1.5 font-bold text-black font-sans text-sm">
                         {c.discountType === 'percentage' ? (
                           <>
                             <span>{c.discountValue || c.discountPercent}% OFF</span>
-                            <span className="text-[10px] text-neutral-400 font-normal">
+                            <span className="text-xs text-neutral-500 font-normal">
                               (Max ₹{c.maxDiscountAmount || '∞'})
                             </span>
                           </>
@@ -185,11 +185,11 @@ export const AdminCouponsPage: React.FC = () => {
                         )}
                       </div>
                     </td>
-                    <td className="p-4 font-mono text-neutral-700">₹{c.minOrderAmount || 0}</td>
-                    <td className="p-4 font-mono text-neutral-700">
+                    <td className="p-4 font-mono text-neutral-800 text-sm font-semibold">₹{c.minOrderAmount || 0}</td>
+                    <td className="p-4 font-mono text-neutral-800 text-sm">
                       {c.usedCount || 0} / {c.usageLimit || 'Unlimited'}
                     </td>
-                    <td className="p-4 font-mono text-neutral-500">
+                    <td className="p-4 font-mono text-neutral-700 text-sm">
                       {new Date(c.validUntil).toLocaleDateString('en-IN', {
                         year: 'numeric',
                         month: 'short',
@@ -198,12 +198,12 @@ export const AdminCouponsPage: React.FC = () => {
                     </td>
                     <td className="p-4">
                       {c.active !== false ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold text-[10px] border border-emerald-200">
-                          <CheckCircle className="w-3 h-3" /> Active
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-emerald-50 text-emerald-700 font-bold text-xs border border-emerald-200">
+                          <CheckCircle className="w-3.5 h-3.5" /> Active
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-neutral-100 text-neutral-500 font-bold text-[10px] border border-neutral-200">
-                          <XCircle className="w-3 h-3" /> Disabled
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-neutral-100 text-neutral-500 font-bold text-xs border border-neutral-200">
+                          <XCircle className="w-3.5 h-3.5" /> Disabled
                         </span>
                       )}
                     </td>
@@ -211,17 +211,17 @@ export const AdminCouponsPage: React.FC = () => {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleOpenEdit(c)}
-                          className="p-1.5 rounded-lg hover:bg-neutral-100 text-neutral-600 hover:text-black transition-colors"
+                          className="p-2 rounded-xl hover:bg-neutral-100 text-neutral-700 hover:text-black transition-colors"
                           title="Edit Coupon"
                         >
-                          <Edit2 className="w-3.5 h-3.5" />
+                          <Edit2 className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(c._id, c.code)}
-                          className="p-1.5 rounded-lg hover:bg-red-50 text-neutral-400 hover:text-red-600 transition-colors"
+                          className="p-2 rounded-xl hover:bg-red-50 text-red-600 transition-colors"
                           title="Delete Coupon"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
