@@ -27,9 +27,15 @@ uploads/tryon/*
 uploads/products/*
 !uploads/products/.gitkeep
 
-# Database
+# Database & Local Data
 mongodb_data/
+server/data/
+data/
+*.wt
+*.bson
+*.lock
 *.log*
+
 
 # OS / Editor
 .DS_Store
