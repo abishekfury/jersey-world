@@ -89,8 +89,8 @@ export const AdminProductsPage: React.FC = () => {
     if (!file) return;
     setUploadingView(viewKey);
     try {
-      // 1. Instantly read and optimize image locally for immediate preview
       const localDataUrl = await compressAndReadImage(file);
+
       if (localDataUrl) {
         setFormData((prev: any) => ({
           ...prev,
@@ -99,16 +99,8 @@ export const AdminProductsPage: React.FC = () => {
             [viewKey]: localDataUrl,
           },
         }));
+        dispatch(addToast({ type: 'success', message: `${viewKey.toUpperCase()} image loaded successfully!` }));
       }
-
-      // 2. Also upload to server in background
-      try {
-        await adminService.uploadProductImage(file);
-      } catch {
-        // Local data URI is already active as resilient storage
-      }
-
-      dispatch(addToast({ type: 'success', message: `${viewKey.toUpperCase()} image loaded successfully!` }));
     } catch {
       dispatch(addToast({ type: 'error', message: `Could not process ${viewKey} image.` }));
     } finally {
@@ -208,15 +200,9 @@ export const AdminProductsPage: React.FC = () => {
                           alt={prod.name}
                           className="w-full h-full object-contain"
                           onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            if (prod.images.front.startsWith('/uploads') && !target.src.includes(':5000')) {
-                              target.src = `http://localhost:5000${prod.images.front}`;
-                            } else {
-                              target.style.display = 'none';
-                            }
+                            (e.target as HTMLElement).style.display = 'none';
                           }}
                         />
-
                       ) : (
                         <Shirt className="w-5 h-5 text-gray-400" />
                       )}
@@ -388,7 +374,14 @@ export const AdminProductsPage: React.FC = () => {
                             src={currentImg}
                             alt={`${label} Preview`}
                             className="w-full h-full object-contain p-1"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              if (currentImg.startsWith('/uploads') && !target.src.includes(':5000')) {
+                                target.src = `http://localhost:5000${currentImg}`;
+                              }
+                            }}
                           />
+
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                             <label className="cursor-pointer px-3 py-1.5 bg-white text-black font-bold text-[10px] uppercase rounded-lg shadow hover:bg-[#FF5722] hover:text-white transition-colors">
                               Change Local Image
