@@ -1,0 +1,932 @@
+import mongoose from 'mongoose';
+import { config } from './config/env';
+import { logger } from './config/logger';
+import { User } from './models/User';
+import { Product } from './models/Product';
+import { Category, Team, Country } from './models/Category';
+import { Coupon } from './models/TryOnJob';
+import { Review } from './models/Review';
+import { Order } from './models/Order';
+import { Shipment } from './models/Shipment';
+import { ShippingSettings } from './models/ShippingSettings';
+
+const seedData = async () => {
+  try {
+    const candidateUris = [
+      config.MONGODB_URI,
+      'mongodb://127.0.0.1:27017/jersey-world',
+      'mongodb://127.0.0.1:27018/jersey-world',
+      'mongodb://localhost:27017/jersey-world',
+    ];
+    const uniqueUris = Array.from(new Set(candidateUris.filter(Boolean)));
+    let connected = false;
+
+    for (const uri of uniqueUris) {
+      try {
+        await mongoose.connect(uri, { serverSelectionTimeoutMS: 2000 });
+        logger.info(`Connected to MongoDB for database seeding on: ${uri}`);
+        connected = true;
+        break;
+      } catch {
+        // try next
+      }
+    }
+
+    if (!connected) {
+      throw new Error(`Could not connect to MongoDB on any candidate port (27017, 27018).`);
+    }
+
+    // Clear existing data
+    await Promise.all([
+      User.deleteMany({}),
+      Product.deleteMany({}),
+      Category.deleteMany({}),
+      Team.deleteMany({}),
+      Country.deleteMany({}),
+      Coupon.deleteMany({}),
+      Review.deleteMany({}),
+      Order.deleteMany({}),
+      Shipment.deleteMany({}),
+      ShippingSettings.deleteMany({}),
+    ]);
+
+    logger.info('Cleared previous database collections.');
+
+    // 1. Seed Users
+    const adminUser = await User.create({
+      name: 'Alexander Sterling',
+      email: 'admin@jerseyworld.com',
+      password: 'Admin@12345',
+      role: 'admin',
+      isEmailVerified: true,
+      dailyTryOnCount: 0,
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+      addresses: [
+        {
+          fullName: 'Alexander Sterling',
+          street: '10 Downing Commercial Boulevard',
+          apartment: 'Suite 404',
+          city: 'Mumbai',
+          state: 'Maharashtra',
+          postalCode: '400001',
+          country: 'India',
+          phone: '+91 98765 43210',
+          isDefault: true,
+        },
+      ],
+    });
+
+    const customerUser = await User.create({
+      name: 'Rohan Sharma',
+      email: 'customer@jerseyworld.com',
+      password: 'Customer@12345',
+      role: 'customer',
+      isEmailVerified: true,
+      dailyTryOnCount: 0,
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+      addresses: [
+        {
+          fullName: 'Rohan Sharma',
+          street: '42 Football Avenue, Indiranagar',
+          city: 'Bengaluru',
+          state: 'Karnataka',
+          postalCode: '560038',
+          country: 'India',
+          phone: '+91 91234 56789',
+          isDefault: true,
+        },
+      ],
+    });
+
+    logger.info('Seeded users: Admin and Customer accounts.');
+
+    // 2. Seed Coupons
+    await Coupon.create([
+      {
+        code: 'JERSEY10',
+        discountPercent: 10,
+        minOrderAmount: 1999,
+        maxDiscountAmount: 500,
+        validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        active: true,
+      },
+      {
+        code: 'WORLD20',
+        discountPercent: 20,
+        minOrderAmount: 4999,
+        maxDiscountAmount: 1500,
+        validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        active: true,
+      },
+      {
+        code: 'FIRSTGOAL',
+        discountPercent: 15,
+        minOrderAmount: 0,
+        maxDiscountAmount: 800,
+        validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        active: true,
+      },
+    ]);
+
+    // 3. Seed Categories
+    await Category.create([
+      { name: 'Club Teams', slug: 'club-teams', description: 'Official club match kits and fan jerseys.' },
+      { name: 'National Teams', slug: 'national-teams', description: 'International country kits and World Cup editions.' },
+      { name: 'Retro Classics', slug: 'retro-classics', description: 'Legendary 90s and 2000s football kits.' },
+      { name: 'Player Issue / Match Edition', slug: 'player-issue', description: 'Exact specifications worn on pitch by athletes.' },
+      { name: 'Training & Pre-Match', slug: 'training-pre-match', description: 'High-performance warm-up and drill tops.' },
+    ]);
+
+    // 4. Seed Teams
+    await Team.create([
+      { name: 'Real Madrid', slug: 'real-madrid', country: 'Spain', league: 'La Liga', logo: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=200&q=80', primaryColor: '#FFFFFF' },
+      { name: 'Barcelona', slug: 'barcelona', country: 'Spain', league: 'La Liga', logo: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=200&q=80', primaryColor: '#A50044' },
+      { name: 'Manchester United', slug: 'manchester-united', country: 'England', league: 'Premier League', logo: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=200&q=80', primaryColor: '#DA291C' },
+      { name: 'Manchester City', slug: 'manchester-city', country: 'England', league: 'Premier League', logo: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=200&q=80', primaryColor: '#6CABDD' },
+      { name: 'Liverpool', slug: 'liverpool', country: 'England', league: 'Premier League', logo: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=200&q=80', primaryColor: '#C8102E' },
+      { name: 'Arsenal', slug: 'arsenal', country: 'England', league: 'Premier League', logo: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=200&q=80', primaryColor: '#EF0107' },
+      { name: 'Paris Saint-Germain', slug: 'paris-saint-germain', country: 'France', league: 'Ligue 1', logo: 'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?auto=format&fit=crop&w=200&q=80', primaryColor: '#004170' },
+      { name: 'Bayern Munich', slug: 'bayern-munich', country: 'Germany', league: 'Bundesliga', logo: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=200&q=80', primaryColor: '#DC052D' },
+      { name: 'Juventus', slug: 'juventus', country: 'Italy', league: 'Serie A', logo: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=200&q=80', primaryColor: '#000000' },
+      { name: 'Inter Milan', slug: 'inter-milan', country: 'Italy', league: 'Serie A', logo: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=200&q=80', primaryColor: '#001489' },
+    ]);
+
+    // 5. Seed Countries
+    await Country.create([
+      { name: 'Brazil', code: 'BRA', flag: '🇧🇷', confederation: 'CONMEBOL' },
+      { name: 'Argentina', code: 'ARG', flag: '🇦🇷', confederation: 'CONMEBOL' },
+      { name: 'France', code: 'FRA', flag: '🇫🇷', confederation: 'UEFA' },
+      { name: 'Portugal', code: 'POR', flag: '🇵🇹', confederation: 'UEFA' },
+      { name: 'Germany', code: 'GER', flag: '🇩🇪', confederation: 'UEFA' },
+      { name: 'Spain', code: 'ESP', flag: '🇪🇸', confederation: 'UEFA' },
+      { name: 'England', code: 'ENG', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', confederation: 'UEFA' },
+      { name: 'Italy', code: 'ITA', flag: '🇮🇹', confederation: 'UEFA' },
+      { name: 'Japan', code: 'JPN', flag: '🇯🇵', confederation: 'AFC' },
+      { name: 'India', code: 'IND', flag: '🇮🇳', confederation: 'AFC' },
+    ]);
+
+    // 6. 30+ Realistic Curated Football Jerseys with Rich Imagery
+    const rawJerseys = [
+      {
+        name: 'Real Madrid 2026/27 Royal White Edition',
+        team: 'Real Madrid',
+        country: 'Spain',
+        league: 'La Liga',
+        season: '2026/27',
+        type: 'Home',
+        price: 5499,
+        discountPrice: 4799,
+        isFeatured: true,
+        isBestSeller: true,
+        colors: ['White', 'Gold'],
+        tags: ['Real Madrid', 'Bellingham', 'Vinicius', 'La Liga', 'Home Kit'],
+        frontImg: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=80',
+        description: 'The iconic Real Madrid Home Jersey crafted with high-performance AEROREADY fabric, gold accents celebrating European legacy, and breathable mesh side panels.',
+      },
+      {
+        name: 'Barcelona 2026/27 Blaugrana Heritage',
+        team: 'Barcelona',
+        country: 'Spain',
+        league: 'La Liga',
+        season: '2026/27',
+        type: 'Home',
+        price: 5299,
+        discountPrice: 4599,
+        isFeatured: true,
+        isBestSeller: true,
+        colors: ['Blue', 'Maroon'],
+        tags: ['Barcelona', 'Lamine Yamal', 'Lewandowski', 'La Liga', 'Home Kit'],
+        frontImg: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=800&q=80',
+        description: 'Classic vertical Blaugrana stripes infused with Catalan modernist architecture textures, engineered with Dri-FIT moisture-wicking technology.',
+      },
+      {
+        name: 'Arsenal 2026/27 Emirates Red & White',
+        team: 'Arsenal',
+        country: 'England',
+        league: 'Premier League',
+        season: '2026/27',
+        type: 'Home',
+        price: 4999,
+        discountPrice: 4299,
+        isFeatured: true,
+        isNewArrival: true,
+        colors: ['Red', 'White'],
+        tags: ['Arsenal', 'Saka', 'Odegaard', 'Premier League', 'Home Kit'],
+        frontImg: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80',
+        description: 'A tribute to the Invincibles with pristine white sleeves, tailored crew neckline, and metallic gold cannon emblem on the nape.',
+      },
+      {
+        name: 'Manchester United 2026/27 Red Devil Pro',
+        team: 'Manchester United',
+        country: 'England',
+        league: 'Premier League',
+        season: '2026/27',
+        type: 'Home',
+        price: 5199,
+        discountPrice: 4499,
+        isFeatured: false,
+        isBestSeller: true,
+        colors: ['Red', 'Black'],
+        tags: ['Manchester United', 'Rashford', 'Bruno Fernandes', 'Premier League'],
+        frontImg: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=800&q=80',
+        description: 'Vibrant scarlet shade with subtle Lancashire rose gradient embossing and ribbed collar for unmatched matchday comfort.',
+      },
+      {
+        name: 'Manchester City 2026/27 Sky Blue Champions',
+        team: 'Manchester City',
+        country: 'England',
+        league: 'Premier League',
+        season: '2026/27',
+        type: 'Home',
+        price: 5299,
+        colors: ['Sky Blue', 'White'],
+        tags: ['Man City', 'Haaland', 'De Bruyne', 'Premier League'],
+        frontImg: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80',
+        description: 'Ultra-clean sky blue canvas inspired by 0161 dialing codes and modern Manchester urban street style.',
+      },
+      {
+        name: 'Liverpool 2026/27 Anfield Crimson',
+        team: 'Liverpool',
+        country: 'England',
+        league: 'Premier League',
+        season: '2026/27',
+        type: 'Home',
+        price: 4999,
+        discountPrice: 4199,
+        isFeatured: true,
+        colors: ['Crimson Red', 'Yellow'],
+        tags: ['Liverpool', 'Salah', 'Van Dijk', 'Premier League'],
+        frontImg: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=800&q=80',
+        description: 'Deep crimson with geometric yellow pinstripes commemorating Liverpool’s European championship journeys.',
+      },
+      {
+        name: 'Paris Saint-Germain 2026/27 Midnight Blue',
+        team: 'Paris Saint-Germain',
+        country: 'France',
+        league: 'Ligue 1',
+        season: '2026/27',
+        type: 'Home',
+        price: 5699,
+        discountPrice: 4899,
+        isFeatured: true,
+        colors: ['Midnight Blue', 'Red'],
+        tags: ['PSG', 'Paris', 'Ligue 1', 'Jordan'],
+        frontImg: 'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=800&q=80',
+        description: 'Haute couture meets sports performance with the iconic Parisian central red stripe brushed in paintbrush effect.',
+      },
+      {
+        name: 'Bayern Munich 2026/27 Bavarian Flame',
+        team: 'Bayern Munich',
+        country: 'Germany',
+        league: 'Bundesliga',
+        season: '2026/27',
+        type: 'Home',
+        price: 5199,
+        colors: ['Red', 'White', 'Black'],
+        tags: ['Bayern', 'Kane', 'Musiala', 'Bundesliga'],
+        frontImg: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?auto=format&fit=crop&w=800&q=80',
+        description: 'Triple-red tone Bavarian diamond weave texture celebrating FC Bayern’s relentless domestic dominance.',
+      },
+      {
+        name: 'Juventus 2026/27 Zebra Noir',
+        team: 'Juventus',
+        country: 'Italy',
+        league: 'Serie A',
+        season: '2026/27',
+        type: 'Home',
+        price: 4899,
+        discountPrice: 4199,
+        colors: ['Black', 'White', 'Neon Pink'],
+        tags: ['Juventus', 'Vlahovic', 'Serie A', 'Turin'],
+        frontImg: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=800&q=80',
+        description: 'Futuristic monochrome zebra pattern with subtle lunar surface topography and gilded crest detail.',
+      },
+      {
+        name: 'Inter Milan 2026/27 Biscione Nerazzurro',
+        team: 'Inter Milan',
+        country: 'Italy',
+        league: 'Serie A',
+        season: '2026/27',
+        type: 'Home',
+        price: 4999,
+        colors: ['Royal Blue', 'Black'],
+        tags: ['Inter Milan', 'Lautaro', 'Serie A', 'Milano'],
+        frontImg: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=800&q=80',
+        description: 'Dynamic diagonal stripe shift with dual golden star crests marking twenty Italian league championships.',
+      },
+      {
+        name: 'Brazil 2026 Canarinho Yellow Match Issue',
+        team: 'Brazil',
+        country: 'Brazil',
+        league: 'International',
+        season: '2026',
+        type: 'Player Version',
+        price: 6499,
+        discountPrice: 5699,
+        isFeatured: true,
+        isBestSeller: true,
+        colors: ['Canary Yellow', 'Green', 'Blue'],
+        tags: ['Brazil', 'Neymar', 'Vinicius', 'World Cup', 'Samba'],
+        frontImg: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80',
+        description: 'The definitive Seleção canary yellow jersey with jaguar watermark print and 5-star embroidery.',
+      },
+      {
+        name: 'Argentina 2026 Three-Star Albiceleste',
+        team: 'Argentina',
+        country: 'Argentina',
+        league: 'International',
+        season: '2026',
+        type: 'Player Version',
+        price: 6999,
+        discountPrice: 5999,
+        isFeatured: true,
+        isBestSeller: true,
+        colors: ['Sky Blue', 'White', 'Gold'],
+        tags: ['Argentina', 'Messi', 'World Cup', 'Albiceleste'],
+        frontImg: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=800&q=80',
+        description: 'Sun of May gold badge on the collar, 3 golden stars over the crest, and feather-light Heat.RDY fabric.',
+      },
+      {
+        name: 'France 2026 Gallic Rooster Navy',
+        team: 'France',
+        country: 'France',
+        league: 'International',
+        season: '2026',
+        type: 'Home',
+        price: 5499,
+        discountPrice: 4799,
+        colors: ['Navy Blue', 'Gold', 'Red'],
+        tags: ['France', 'Mbappe', 'Griezmann', 'Les Bleus'],
+        frontImg: 'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=80',
+        description: 'Rich royal navy base with oversized vintage Gallic rooster crest and tricolor ribbing on cuffs.',
+      },
+      {
+        name: 'Portugal 2026 Navigator Crimson',
+        team: 'Portugal',
+        country: 'Portugal',
+        league: 'International',
+        season: '2026',
+        type: 'Home',
+        price: 5399,
+        colors: ['Crimson Red', 'Forest Green'],
+        tags: ['Portugal', 'Ronaldo', 'Bruno', 'Selecao'],
+        frontImg: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=800&q=80',
+        description: 'Vibrant crimson with armillary sphere nautical details honoring Portuguese seafaring history.',
+      },
+      {
+        name: 'Japan 2026 Origami Azure Samurai',
+        team: 'Japan',
+        country: 'Japan',
+        league: 'International',
+        season: '2026',
+        type: 'Home',
+        price: 5599,
+        discountPrice: 4899,
+        isFeatured: true,
+        colors: ['Indigo Blue', 'Red', 'White'],
+        tags: ['Japan', 'Mitoma', 'Kubo', 'Samurai Blue', 'Anime'],
+        frontImg: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80',
+        description: 'World-renowned Japanese origami crane graphic pattern in deep indigo blue and crimson.',
+      },
+      {
+        name: 'India 2026 Blue Tigers National Edition',
+        team: 'India',
+        country: 'India',
+        league: 'International',
+        season: '2026',
+        type: 'Fan Version',
+        price: 2499,
+        discountPrice: 1999,
+        isFeatured: true,
+        isBestSeller: true,
+        colors: ['Cyan Blue', 'Orange', 'White'],
+        tags: ['India', 'Chhetri', 'Blue Tigers', 'National Kit'],
+        frontImg: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=80',
+        description: 'Official national Blue Tigers jersey with stylized Ashoka chakra stripes and tiger claw sleeve graphic.',
+      },
+      {
+        name: 'Real Madrid 2002 Zidane Retro UCL Champions',
+        team: 'Real Madrid',
+        country: 'Spain',
+        league: 'La Liga',
+        season: '2001/02',
+        type: 'Retro',
+        price: 5999,
+        discountPrice: 4999,
+        isFeatured: true,
+        colors: ['White', 'Navy Blue'],
+        tags: ['Retro', 'Zidane', 'Real Madrid', 'Champions League', '90s'],
+        frontImg: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=80',
+        description: 'The legendary Centenary centenary kit worn during Zidane’s iconic Hampden Park volley.',
+      },
+      {
+        name: 'Manchester United 1999 Treble Winners Retro',
+        team: 'Manchester United',
+        country: 'England',
+        league: 'Premier League',
+        season: '1998/99',
+        type: 'Retro',
+        price: 6199,
+        discountPrice: 5299,
+        isFeatured: true,
+        colors: ['Red', 'White', 'Black'],
+        tags: ['Retro', 'Beckham', 'Treble', 'Man Utd', 'Camp Nou'],
+        frontImg: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=800&q=80',
+        description: 'Authentic reproduction of the 1999 UEFA Champions League final kit with foldover zip collar.',
+      },
+      {
+        name: 'Brazil 1998 R9 Fenomeno Retro',
+        team: 'Brazil',
+        country: 'Brazil',
+        league: 'International',
+        season: '1998',
+        type: 'Retro',
+        price: 6499,
+        colors: ['Yellow', 'Green'],
+        tags: ['Retro', 'Ronaldo', 'R9', 'Brazil', '90s'],
+        frontImg: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=800&q=80',
+        description: 'The timeless 1998 France World Cup jersey with iconic round collar and green side tape.',
+      },
+      {
+        name: 'Arsenal 2005/06 Highbury Farewell Redcurrant',
+        team: 'Arsenal',
+        country: 'England',
+        league: 'Premier League',
+        season: '2005/06',
+        type: 'Retro',
+        price: 6299,
+        discountPrice: 5499,
+        isFeatured: true,
+        colors: ['Redcurrant', 'Gold'],
+        tags: ['Retro', 'Henry', 'Highbury', 'Arsenal', 'Gold'],
+        frontImg: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80',
+        description: 'Commemorative redcurrant shade celebrating 93 years of Arsenal football at Highbury Stadium.',
+      },
+      {
+        name: 'Barcelona 2026/27 Away Obsidian Glow',
+        team: 'Barcelona',
+        country: 'Spain',
+        league: 'La Liga',
+        season: '2026/27',
+        type: 'Away',
+        price: 5299,
+        colors: ['Obsidian Black', 'Electric Blue', 'Hot Crimson'],
+        tags: ['Barcelona', 'Away Kit', 'Black Jersey', 'La Liga'],
+        frontImg: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=800&q=80',
+        description: 'Sleek blacked-out chassis with iridescent TPU crest that shifts color under floodlights.',
+      },
+      {
+        name: 'Real Madrid 2026/27 Away Orange Velocity',
+        team: 'Real Madrid',
+        country: 'Spain',
+        league: 'La Liga',
+        season: '2026/27',
+        type: 'Away',
+        price: 5399,
+        colors: ['Vibrant Orange', 'Night Metallic'],
+        tags: ['Real Madrid', 'Away Kit', 'Orange', 'La Liga'],
+        frontImg: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=80',
+        description: 'High-visibility vibrant orange chassis evoking La Decima memories, with midnight navy stripes.',
+      },
+      {
+        name: 'Liverpool 2026/27 Away Teal Wave',
+        team: 'Liverpool',
+        country: 'England',
+        league: 'Premier League',
+        season: '2026/27',
+        type: 'Away',
+        price: 4899,
+        colors: ['Teal Green', 'White', 'Black'],
+        tags: ['Liverpool', 'Away Kit', 'Teal', 'Premier League'],
+        frontImg: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=800&q=80',
+        description: 'Modern teal green wave pattern inspired by the iconic Liver Bird statue overlooking the Mersey River.',
+      },
+      {
+        name: 'Arsenal 2026/27 Third Kit Cyber Gold',
+        team: 'Arsenal',
+        country: 'England',
+        league: 'Premier League',
+        season: '2026/27',
+        type: 'Third Kit',
+        price: 5199,
+        colors: ['Cyber Gold', 'Navy', 'Mint'],
+        tags: ['Arsenal', 'Third Kit', 'Gold', 'Premier League'],
+        frontImg: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80',
+        description: 'Electrifying cyber gold base accented with deep French navy and mint green collar trim.',
+      },
+      {
+        name: 'PSG 2026/27 Third Kit Elephant Print Jordan',
+        team: 'Paris Saint-Germain',
+        country: 'France',
+        league: 'Ligue 1',
+        season: '2026/27',
+        type: 'Third Kit',
+        price: 5899,
+        discountPrice: 4999,
+        colors: ['Charcoal Grey', 'Infrared', 'Black'],
+        tags: ['PSG', 'Jordan', 'Third Kit', 'Fashion', 'Paris'],
+        frontImg: 'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=800&q=80',
+        description: 'Special Jordan collaboration jersey featuring the iconic grey elephant print and infrared Jumpman badge.',
+      },
+      {
+        name: 'Real Madrid 2026/27 Courtois Goalkeeper Edition',
+        team: 'Real Madrid',
+        country: 'Spain',
+        league: 'La Liga',
+        season: '2026/27',
+        type: 'Goalkeeper',
+        price: 4999,
+        colors: ['Acid Green', 'Black'],
+        tags: ['Real Madrid', 'Courtois', 'Goalkeeper', 'GK Kit'],
+        frontImg: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=80',
+        description: 'Dynamic acid green goalkeeper top engineered with flexible impact zones and anti-slip grip print on forearms.',
+      },
+      {
+        name: 'Manchester City 2026/27 Ederson Neon GK Kit',
+        team: 'Manchester City',
+        country: 'England',
+        league: 'Premier League',
+        season: '2026/27',
+        type: 'Goalkeeper',
+        price: 4999,
+        colors: ['Neon Pink', 'Charcoal'],
+        tags: ['Man City', 'Ederson', 'Goalkeeper', 'GK'],
+        frontImg: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80',
+        description: 'Striking neon pink goalkeeper jersey designed for maximum peripheral presence inside the penalty box.',
+      },
+      {
+        name: 'Jersey World 2026 Cyberpunk Signature Custom',
+        team: 'Custom Teams',
+        country: 'International',
+        league: 'Jersey World Exclusive',
+        season: '2026',
+        type: 'Custom Jersey',
+        price: 4499,
+        discountPrice: 3899,
+        isFeatured: true,
+        isNewArrival: true,
+        colors: ['Matte Black', 'Neon Lime', 'Cyber Purple'],
+        tags: ['Custom', 'Cyberpunk', 'Jersey World', 'Exclusive'],
+        frontImg: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1518609878373-06d740f60d8b?auto=format&fit=crop&w=800&q=80',
+        description: 'Exclusive bespoke dark luxury kit designed specifically for custom name/number personalizations and AI Try-On styling.',
+      },
+      {
+        name: 'Germany 2026 DFB Eagle White',
+        team: 'Germany',
+        country: 'Germany',
+        league: 'International',
+        season: '2026',
+        type: 'Home',
+        price: 5299,
+        colors: ['White', 'Black', 'Red', 'Gold'],
+        tags: ['Germany', 'Musiala', 'Wirtz', 'DFB', 'Home Kit'],
+        frontImg: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?auto=format&fit=crop&w=800&q=80',
+        description: 'Precision German tailoring featuring eagle feather gradient shoulder pattern and 4 World Cup championship stars.',
+      },
+      {
+        name: 'Spain 2026 La Roja Carnation',
+        team: 'Spain',
+        country: 'Spain',
+        league: 'International',
+        season: '2026',
+        type: 'Home',
+        price: 5199,
+        colors: ['Red', 'Yellow'],
+        tags: ['Spain', 'Yamal', 'Rodri', 'Pedri', 'La Roja'],
+        frontImg: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80',
+        description: 'Fiery crimson base infused with national carnation flower weave and celebratory yellow side stripes.',
+      },
+      {
+        name: 'England 2026 Three Lions St. George White',
+        team: 'England',
+        country: 'England',
+        league: 'International',
+        season: '2026',
+        type: 'Home',
+        price: 5299,
+        colors: ['White', 'Navy', 'Purple'],
+        tags: ['England', 'Bellingham', 'Kane', 'Three Lions'],
+        frontImg: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=800&q=80',
+        description: 'Classic English white jersey featuring modern multi-tonal St. George cross on the back collar and sleeve ribs.',
+      },
+      {
+        name: 'Netherlands 2026 Oranje Lion Edition',
+        team: 'Netherlands',
+        country: 'Netherlands',
+        league: 'International',
+        season: '2026',
+        type: 'Home',
+        price: 5399,
+        colors: ['Vibrant Orange', 'Royal Blue'],
+        tags: ['Netherlands', 'Van Dijk', 'Gakpo', 'Oranje'],
+        frontImg: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=800&q=80',
+        backImg: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=800&q=80',
+        description: 'Electric royal orange with regal crown accents and geometric heraldic lion print woven into the chest.',
+      },
+    ];
+
+    logger.info(`Creating ${rawJerseys.length} curated football jersey products...`);
+
+    const createdProducts = [];
+    for (const item of rawJerseys) {
+      const slug = `${item.name}-${item.season}`
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+
+      const sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+      const sizeStock = sizes.map((s) => ({
+        size: s,
+        stock: Math.floor(8 + Math.random() * 20),
+      }));
+      const totalStock = sizeStock.reduce((sum, s) => sum + s.stock, 0);
+
+      const product = await Product.create({
+        name: item.name,
+        slug,
+        team: item.team,
+        country: item.country,
+        league: item.league,
+        season: item.season,
+        type: item.type,
+        description: item.description,
+        material: '100% Recycled Polyester (AEROREADY / Dri-FIT ADV Performance)',
+        fit: 'Athletic Slim Fit',
+        washingInstructions: 'Machine wash cold, inside out. Do not iron directly on crest.',
+        authenticityInfo: 'Licensed club/federation replica with woven authenticity verification patch.',
+        price: item.price,
+        discountPrice: item.discountPrice,
+        shipping: {
+          weight: 350,
+          length: 30,
+          width: 25,
+          height: 3,
+        },
+        images: {
+          front: item.frontImg,
+          back: item.backImg,
+          detail: item.frontImg,
+          lifestyle: item.frontImg,
+        },
+        sizes,
+        sizeStock,
+        totalStock,
+        colors: item.colors,
+        tags: item.tags,
+        aiAsset: {
+          frontImage: item.frontImg,
+          backImage: item.backImg,
+          referenceImage: item.frontImg,
+          category: 'upper_body',
+        },
+        rating: Number((4.6 + Math.random() * 0.4).toFixed(1)),
+        numReviews: Math.floor(12 + Math.random() * 80),
+        isFeatured: item.isFeatured || false,
+        isNewArrival: item.isNewArrival || false,
+        isBestSeller: item.isBestSeller || false,
+        isCustomizable: true,
+        active: true,
+      });
+
+      createdProducts.push(product);
+    }
+
+    // 7. Seed Sample Reviews
+    if (createdProducts.length > 0) {
+      await Review.create([
+        {
+          user: customerUser._id,
+          product: createdProducts[0]._id,
+          rating: 5,
+          title: 'Unbelievable quality and AI try-on was spot on!',
+          comment:
+            'Tried this jersey with the AI fitting room before buying. The fit and print are 100% authentic. Fast delivery to Bangalore too!',
+          isVerifiedPurchase: true,
+          likes: 14,
+          isApproved: true,
+        },
+        {
+          user: adminUser._id,
+          product: createdProducts[1]._id,
+          rating: 5,
+          title: 'Masterpiece jersey. Fabric feels so lightweight.',
+          comment:
+            'The detailing on the crest and the gold stars look incredible in person. Highly recommended for every football fan.',
+          isVerifiedPurchase: true,
+          likes: 9,
+          isApproved: true,
+        },
+      ]);
+    }
+
+    // 8. Seed Shipping Settings
+    await ShippingSettings.create({
+      enableShipping: true,
+      freeShippingThreshold: 1499,
+      defaultShippingCharge: 79,
+      enableCod: true,
+      codFee: 25,
+      activeProvider: 'mock',
+      pickupPincode: '400001',
+    });
+    logger.info('Seeded India-wide Shipping Settings (Threshold: ₹1499).');
+
+    // 9. Seed Sample Orders & Shipments for Admin Analytics
+    if (createdProducts.length >= 2) {
+      const order1 = await Order.create({
+        orderNumber: 'ORD-2026-98124',
+        user: customerUser._id,
+        items: [
+          {
+            product: createdProducts[0]._id,
+            productName: createdProducts[0].name,
+            productImage: createdProducts[0].images.front,
+            team: createdProducts[0].team,
+            season: createdProducts[0].season,
+            size: 'L',
+            quantity: 1,
+            price: createdProducts[0].price,
+            customization: {
+              playerName: 'BELLINGHAM',
+              playerNumber: '5',
+            },
+          },
+        ],
+        shippingAddress: {
+          fullName: 'Rohan Sharma',
+          phone: '+91 91234 56789',
+          address: '42 Football Avenue, Indiranagar',
+          apartment: 'Flat 4B',
+          city: 'Bengaluru',
+          state: 'Karnataka',
+          pincode: '560038',
+          country: 'India',
+        },
+        paymentMethod: 'PREPAID',
+        paymentStatus: 'paid',
+        paymentResult: {
+          orderId: 'order_JW_98124',
+          paymentId: 'pay_JW_98124',
+          signature: 'sig_JW_98124',
+          paidAt: new Date().toISOString(),
+        },
+        pricing: {
+          subtotal: createdProducts[0].price,
+          discount: 200,
+          shipping: 0,
+          codFee: 0,
+          tax: 150,
+          total: createdProducts[0].price - 50,
+          customerShippingCharge: 0,
+          courierCost: 64,
+        },
+        subtotal: createdProducts[0].price,
+        discount: 200,
+        shipping: 0,
+        tax: 150,
+        grandTotal: createdProducts[0].price - 50,
+        orderStatus: 'Delivered',
+        trackingNumber: 'BD882910412IN',
+        trackingCourier: 'BlueDart Air Express',
+        statusHistory: [
+          { status: 'Pending', note: 'Order placed', updatedAt: new Date().toISOString() },
+          { status: 'Confirmed', note: 'Payment verified via Razorpay', updatedAt: new Date().toISOString() },
+          { status: 'Shipped', note: 'Dispatched from Mumbai hub via BlueDart Air', updatedAt: new Date().toISOString() },
+          { status: 'Delivered', note: 'Delivered to customer in Bengaluru', updatedAt: new Date().toISOString() },
+        ],
+      });
+
+      const order2 = await Order.create({
+        orderNumber: 'ORD-2026-98125',
+        user: customerUser._id,
+        items: [
+          {
+            product: createdProducts[1]._id,
+            productName: createdProducts[1].name,
+            productImage: createdProducts[1].images.front,
+            team: createdProducts[1].team,
+            season: createdProducts[1].season,
+            size: 'M',
+            quantity: 1,
+            price: createdProducts[1].price,
+            customization: {
+              playerName: 'MESSI',
+              playerNumber: '10',
+            },
+          },
+        ],
+        shippingAddress: {
+          fullName: 'Rohan Sharma',
+          phone: '+91 91234 56789',
+          address: '42 Football Avenue, Indiranagar',
+          apartment: 'Flat 4B',
+          city: 'Bengaluru',
+          state: 'Karnataka',
+          pincode: '560038',
+          country: 'India',
+        },
+        paymentMethod: 'COD',
+        paymentStatus: 'pending',
+        pricing: {
+          subtotal: createdProducts[1].price,
+          discount: 0,
+          shipping: 79,
+          codFee: 25,
+          tax: 120,
+          total: createdProducts[1].price + 224,
+          customerShippingCharge: 79,
+          courierCost: 64,
+        },
+        subtotal: createdProducts[1].price,
+        discount: 0,
+        shipping: 79,
+        tax: 120,
+        grandTotal: createdProducts[1].price + 224,
+        orderStatus: 'Processing',
+        trackingNumber: 'BD994821034IN',
+        trackingCourier: 'BlueDart Air Express',
+        statusHistory: [
+          { status: 'Confirmed', note: 'Cash on Delivery order placed', updatedAt: new Date().toISOString() },
+          { status: 'Processing', note: 'Custom name-set heat-pressing in progress at hub', updatedAt: new Date().toISOString() },
+        ],
+      });
+
+      // Seed Shipments
+      await Shipment.create([
+        {
+          orderId: order1._id,
+          orderNumber: order1.orderNumber,
+          provider: 'BlueDart Air Express',
+          awbNumber: 'BD882910412IN',
+          courierName: 'BlueDart Air Express',
+          trackingUrl: 'https://www.bluedart.com/tracking?awb=BD882910412IN',
+          weight: 350,
+          shippingCost: 64,
+          customerPaidShipping: 0,
+          codAmount: 0,
+          status: 'DELIVERED',
+          estimatedDelivery: '2 business days',
+          pickupPincode: '400001',
+          deliveryPincode: '560038',
+        },
+        {
+          orderId: order2._id,
+          orderNumber: order2.orderNumber,
+          provider: 'BlueDart Air Express',
+          awbNumber: 'BD994821034IN',
+          courierName: 'BlueDart Air Express',
+          trackingUrl: 'https://www.bluedart.com/tracking?awb=BD994821034IN',
+          weight: 350,
+          shippingCost: 64,
+          customerPaidShipping: 79,
+          codAmount: order2.grandTotal,
+          status: 'READY_TO_SHIP',
+          estimatedDelivery: '3 business days',
+          pickupPincode: '400001',
+          deliveryPincode: '560038',
+        },
+      ]);
+
+      logger.info('Seeded sample orders and BlueDart shipments.');
+    }
+
+    logger.info('Database seeding completed successfully!');
+    process.exit(0);
+  } catch (error) {
+    logger.error('Error during database seed:', error);
+    process.exit(1);
+  }
+};
+
+seedData();
