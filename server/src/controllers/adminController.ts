@@ -350,6 +350,54 @@ export const getAllUsersAdmin = async (_req: Request, res: Response, next: NextF
   }
 };
 
+export const getAllReviewsAdmin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const reviews = await Review.find()
+      .populate('user', 'name email avatar')
+      .populate('product', 'name slug images price')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      reviews,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteReviewAdmin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const review = await Review.findById(id);
+
+    if (!review) {
+      return next(new AppError('Review not found.', 404));
+    }
+
+    const productId = review.product;
+    await Review.findByIdAndDelete(id);
+
+    // Recalculate product ratings
+    const remainingReviews = await Review.find({ product: productId, isApproved: true });
+    const totalRating = remainingReviews.reduce((sum, r) => sum + r.rating, 0);
+    const avgRating = remainingReviews.length > 0 ? Number((totalRating / remainingReviews.length).toFixed(1)) : 5.0;
+
+    await Product.findByIdAndUpdate(productId, {
+      rating: avgRating,
+      numReviews: remainingReviews.length,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Review removed successfully and product rating recalculated.',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateUserRole = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
@@ -373,3 +421,5 @@ export const updateUserRole = async (req: Request, res: Response, next: NextFunc
     next(error);
   }
 };
+
+

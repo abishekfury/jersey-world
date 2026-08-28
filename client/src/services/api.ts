@@ -140,4 +140,11 @@ export const adminService = {
     api.put<{ success: boolean; order: IOrder }>(`/admin/orders/${id}/status`, data),
   getUsers: () => api.get<{ success: boolean; users: IUser[] }>('/admin/users'),
   updateUserRole: (id: string, role: string) => api.put<{ success: boolean; user: IUser }>(`/admin/users/${id}/role`, { role }),
+  getCoupons: () => api.get<{ success: boolean; coupons: any[] }>('/admin/coupons'),
+  createCoupon: (data: any) => api.post<{ success: boolean; coupon: any }>('/admin/coupons', data),
+  updateCoupon: (id: string, data: any) => api.put<{ success: boolean; coupon: any }>(`/admin/coupons/${id}`, data),
+  deleteCoupon: (id: string) => api.delete<{ success: boolean; message: string }>(`/admin/coupons/${id}`),
+  getReviews: () => api.get<{ success: boolean; reviews: any[] }>('/admin/reviews'),
+  deleteReview: (id: string) => api.delete<{ success: boolean; message: string }>(`/admin/reviews/${id}`),
 };
+

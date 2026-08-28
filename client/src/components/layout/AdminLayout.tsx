@@ -5,6 +5,7 @@ import {
   Shirt,
   ShoppingBag,
   Users,
+  Tag,
   ArrowLeft,
   Shield,
 } from 'lucide-react';
@@ -23,8 +24,10 @@ export const AdminLayout: React.FC = () => {
     { label: 'Overview & Sales', path: '/admin', icon: <LayoutDashboard className="w-4 h-4" /> },
     { label: 'Products & Inventory', path: '/admin/products', icon: <Shirt className="w-4 h-4" /> },
     { label: 'Orders & Fulfillment', path: '/admin/orders', icon: <ShoppingBag className="w-4 h-4" /> },
+    { label: 'Coupons & Promo Codes', path: '/admin/coupons', icon: <Tag className="w-4 h-4" /> },
     { label: 'Customer Management', path: '/admin/users', icon: <Users className="w-4 h-4" /> },
   ];
+
 
   return (
     <div className="min-h-screen bg-gray-50 text-black flex flex-col md:flex-row">

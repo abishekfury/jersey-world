@@ -37,6 +37,8 @@ import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { AdminProductsPage } from './pages/admin/AdminProductsPage';
 import { AdminOrdersPage } from './pages/admin/AdminOrdersPage';
 import { AdminUsersPage } from './pages/admin/AdminUsersPage';
+import { AdminCouponsPage } from './pages/admin/AdminCouponsPage';
+
 
 export const App: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -84,8 +86,10 @@ export const App: React.FC = () => {
             <Route index element={<AdminDashboardPage />} />
             <Route path="products" element={<AdminProductsPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
+            <Route path="coupons" element={<AdminCouponsPage />} />
             <Route path="users" element={<AdminUsersPage />} />
           </Route>
+
 
           {/* 404 Fallback */}
           <Route path="*" element={<NotFoundPage />} />

@@ -10,6 +10,8 @@ import {
   reviewReturnRequest,
   getAllUsersAdmin,
   updateUserRole,
+  getAllReviewsAdmin,
+  deleteReviewAdmin,
 } from '../controllers/adminController';
 import {
   getAllCouponsAdmin,
@@ -40,6 +42,10 @@ router.get('/orders', getAllOrdersAdmin);
 router.put('/orders/:id/status', updateOrderStatus);
 router.put('/orders/:id/return', reviewReturnRequest);
 
+// Reviews Moderation
+router.get('/reviews', getAllReviewsAdmin);
+router.delete('/reviews/:id', deleteReviewAdmin);
+
 // Coupon Management
 router.get('/coupons', getAllCouponsAdmin);
 router.post('/coupons', createCouponAdmin);
@@ -51,3 +57,4 @@ router.get('/users', requireRole('admin'), getAllUsersAdmin);
 router.put('/users/:id/role', requireRole('admin'), updateUserRole);
 
 export default router;
+
