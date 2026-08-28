@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Shield, Shirt, Image as ImageIcon, Upload, Loader2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Shield, Shirt, Image as ImageIcon, Upload, Loader2, X } from 'lucide-react';
 import { IProduct } from '@shared/types';
 import { adminService } from '../../services/api';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { addToast } from '../../store/uiSlice';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
+
 
 export const AdminProductsPage: React.FC = () => {
   const [products, setProducts] = useState<IProduct[]>([]);
@@ -409,6 +410,7 @@ export const AdminProductsPage: React.FC = () => {
               })}
             </div>
           </div>
+
 
 
           {/* Homepage Sections Allocation Toggles */}

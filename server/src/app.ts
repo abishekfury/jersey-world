@@ -43,7 +43,10 @@ if (config.NODE_ENV !== 'test') {
 }
 
 // Serve uploaded assets
+app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
+app.use('/uploads', express.static(path.resolve(__dirname, '../uploads')));
 app.use('/uploads', express.static(path.resolve(__dirname, '../../uploads')));
+
 
 // General API rate limiting
 app.use('/api/v1', apiLimiter);
