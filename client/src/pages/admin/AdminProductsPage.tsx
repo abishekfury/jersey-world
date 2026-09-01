@@ -201,8 +201,9 @@ export const AdminProductsPage: React.FC = () => {
                           className="w-full h-full object-contain"
                           onError={(e) => {
                             const target = e.target as HTMLImageElement;
-                            if (prod.images.front.startsWith('/uploads') && !target.src.includes(':5000')) {
-                              target.src = `http://localhost:5000${prod.images.front}`;
+                            if (prod.images.front.startsWith('/uploads') && !target.src.includes(':5000') && !target.src.includes('http')) {
+                              const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                              target.src = `${baseUrl}${prod.images.front}`;
                             } else {
                               target.style.display = 'none';
                             }
@@ -381,8 +382,9 @@ export const AdminProductsPage: React.FC = () => {
                             className="w-full h-full object-contain p-1"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
-                              if (currentImg.startsWith('/uploads') && !target.src.includes(':5000')) {
-                                target.src = `http://localhost:5000${currentImg}`;
+                              if (currentImg.startsWith('/uploads') && !target.src.includes(':5000') && !target.src.includes('http')) {
+                                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                                target.src = `${baseUrl}${currentImg}`;
                               }
                             }}
                           />

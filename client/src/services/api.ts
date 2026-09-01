@@ -10,7 +10,8 @@ import {
 } from '@shared/types';
 
 
-const API_BASE_URL = '/api/v1';
+const API_URL = import.meta.env.VITE_API_URL || '';
+const API_BASE_URL = `${API_URL}/api/v1`;
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
