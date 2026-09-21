@@ -20,12 +20,9 @@ build
 .env.development
 
 # Uploads and temporary media
-uploads/temp/*
-!uploads/temp/.gitkeep
-uploads/tryon/*
-!uploads/tryon/.gitkeep
-uploads/products/*
-!uploads/products/.gitkeep
+uploads/
+server/uploads/
+**/uploads/**
 
 # Database & Local Data
 mongodb_data/
