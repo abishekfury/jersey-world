@@ -9,7 +9,6 @@ import {
   LogOut,
   Shield,
   Package,
-  Sparkles,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAppDispatch, useAppSelector } from '../../store';
@@ -28,7 +27,6 @@ export const Navbar: React.FC = () => {
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
-  const [hoveredNav, setHoveredNav] = useState<string | null>(null);
 
   const isAdmin = user?.role === 'admin';
   const totalCartCount = cart?.items?.reduce((sum: number, item: any) => sum + item.quantity, 0) || 0;
@@ -40,175 +38,129 @@ export const Navbar: React.FC = () => {
   };
 
   const navLinks = [
-    { label: 'Home', path: '/' },
-    { label: 'Jerseys', path: '/shop?type=Home,Away,Third+Kit' },
-    { label: 'World Cup Specials', path: '/shop?league=International', special: true },
-    { label: 'Premium Quality', path: '/shop?type=Player+Version' },
-    { label: 'About Us', path: '/about' },
+    { label: 'HOME', path: '/' },
+    { label: 'JERSEYS', path: '/shop' },
+    { label: 'WORLD CUP SPECIALS', path: '/shop?league=International' },
+    { label: 'PREMIUM QUALITY', path: '/shop?type=Player+Version' },
+    { label: 'ABOUT US', path: '/about' },
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-xl border-b border-neutral-200/80 transition-all font-sans w-full">
-      <div className="w-full px-5 sm:px-8 md:px-14 lg:px-16 xl:px-20">
-        <div className="flex items-center justify-between h-20">
-          {/* Brand Logo: JERSEY WORLD */}
-          <Link to="/" className="flex items-center gap-1.5 group relative">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="flex items-center"
-            >
-              <span className="text-3xl sm:text-4xl font-normal text-[#171C1B] font-display tracking-tight uppercase">
-                JERSEY WORLD<span className="text-[#FF5722] inline-block animate-pulse">.</span>
-              </span>
-            </motion.div>
+    <header className="sticky top-0 z-40 bg-white border-b border-neutral-200 transition-all font-sans w-full">
+      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16">
+        <div className="flex items-center justify-between h-16 sm:h-20">
+          {/* Brand Logo on Left: JERSEY WORLD. */}
+          <Link to="/" className="flex items-center gap-1.5 group flex-shrink-0">
+            <span className="text-2xl sm:text-3xl font-bold text-black font-sans tracking-wider uppercase">
+              JERSEY WORLD<span className="text-[#FF5722]">.</span>
+            </span>
           </Link>
 
-          {/* Desktop Navigation Links with Framer Hover Highlight */}
-          <nav
-            onMouseLeave={() => setHoveredNav(null)}
-            className="hidden md:flex items-center space-x-1 lg:space-x-2 relative"
-          >
+          {/* Desktop Navigation Links */}
+          <nav className="hidden lg:flex items-center space-x-6 xl:space-x-8">
             {navLinks.map((link) => {
-              const isActive = location.pathname === link.path.split('?')[0] && (link.path === '/' ? location.pathname === '/' : true);
-              const isHovered = hoveredNav === link.label;
+              const isActive =
+                link.path === '/'
+                  ? location.pathname === '/' && !location.search
+                  : location.pathname === link.path.split('?')[0] &&
+                    (link.path.includes('?') ? location.search.includes(link.path.split('?')[1]) : true);
 
               return (
                 <Link
                   key={link.label}
                   to={link.path}
-                  onMouseEnter={() => setHoveredNav(link.label)}
-                  className="relative px-3.5 py-2 text-xs sm:text-sm font-semibold tracking-wider uppercase transition-colors font-sans text-[#171C1B] hover:text-[#FF5722] flex items-center gap-1.5"
+                  className={`text-xs font-bold tracking-wider uppercase transition-colors font-sans hover:text-[#FF5722] ${
+                    isActive ? 'text-black' : 'text-neutral-800'
+                  }`}
                 >
-                  {isHovered && (
-                    <motion.div
-                      layoutId="navbar-hover-pill"
-                      transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-                      className="absolute inset-0 bg-neutral-100 rounded-full -z-10"
-                    />
-                  )}
-                  {link.special && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#FF5722] animate-ping" />
-                  )}
-                  <span>{link.label}</span>
+                  {link.label}
                 </Link>
               );
             })}
           </nav>
 
-          {/* Right Action Icons */}
+          {/* Right Action Icons: Search, Wishlist, Bag, Profile */}
           <div className="flex items-center space-x-3 sm:space-x-5">
             {/* Search Trigger */}
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => dispatch(setSearchModalOpen(true))}
-              className="p-2 rounded-full hover:bg-neutral-100 text-black hover:text-[#FF5722] transition-colors"
+              className="p-1.5 text-neutral-800 hover:text-black transition-colors"
               aria-label="Search"
             >
-              <Search className="w-5 h-5 stroke-[2]" />
-            </motion.button>
+              <Search className="w-5 h-5 stroke-[1.8]" />
+            </button>
 
             {/* Wishlist Link */}
             {!isAdmin && (
-              <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-                <Link
-                  to="/wishlist"
-                  className="relative p-2 rounded-full hover:bg-neutral-100 text-black hover:text-[#FF5722] transition-colors block"
-                  aria-label="Wishlist"
-                >
-                  <Heart className="w-5 h-5 stroke-[2]" />
-
-                  <AnimatePresence>
-                    {wishlist.length > 0 && (
-                      <motion.span
-                        key="wishlist-badge"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        exit={{ scale: 0 }}
-                        transition={{ type: 'spring', stiffness: 500, damping: 25 }}
-                        className="absolute top-0 right-0 w-4 h-4 bg-[#FF5722] text-white text-[9px] font-mono font-bold rounded-full flex items-center justify-center shadow"
-                      >
-                        {wishlist.length}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                </Link>
-              </motion.div>
+              <Link
+                to="/wishlist"
+                className="relative p-1.5 text-neutral-800 hover:text-black transition-colors"
+                aria-label="Wishlist"
+              >
+                <Heart className="w-5 h-5 stroke-[1.8]" />
+                {wishlist.length > 0 && (
+                  <span className="absolute top-0 right-0 w-4 h-4 bg-[#FF5722] text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-xs">
+                    {wishlist.length}
+                  </span>
+                )}
+              </Link>
             )}
 
-            {/* Shopping Bag Button with Animated Badge */}
+            {/* Shopping Bag Icon with Count */}
             {!isAdmin && (
-              <motion.button
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.95 }}
+              <button
                 onClick={() => dispatch(toggleCartDrawer())}
-                className="relative p-2 rounded-full hover:bg-neutral-100 text-black hover:text-[#FF5722] transition-colors flex items-center gap-1.5"
+                className="relative p-1.5 text-neutral-800 hover:text-black transition-colors flex items-center gap-1"
                 aria-label="Shopping Cart"
               >
-                <ShoppingBag className="w-5 h-5 stroke-[2]" />
-                <AnimatePresence mode="wait">
-                  <motion.span
-                    key={totalCartCount}
-                    initial={{ scale: 0.8, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.8, opacity: 0 }}
-                    transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-                    className="text-xs font-mono font-bold text-black"
-                  >
-                    {totalCartCount}
-                  </motion.span>
-                </AnimatePresence>
-              </motion.button>
+                <ShoppingBag className="w-5 h-5 stroke-[1.8]" />
+                <span className="text-xs font-bold font-mono text-black">
+                  {totalCartCount}
+                </span>
+              </button>
             )}
 
-            {/* Admin Direct Portal Shortcut */}
+            {/* Admin Dashboard Shortcut */}
             {isAdmin && (
               <Link
                 to="/admin"
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-black text-white text-xs font-bold uppercase rounded-full hover:bg-[#FF5722] transition-all shadow-sm"
+                className="inline-flex items-center gap-1.5 px-3 py-1 bg-black text-white text-[11px] font-bold uppercase rounded hover:bg-[#FF5722] transition-colors"
               >
                 <Shield className="w-3.5 h-3.5 text-[#FF5722]" /> Admin
               </Link>
             )}
 
-            {/* Auth / Account Profile Dropdown */}
+            {/* Account Profile Avatar / Login */}
             <div className="relative">
               {isAuthenticated ? (
-                <div className="relative">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                <div>
+                  <button
                     onClick={() => setIsUserDropdownOpen(!isUserDropdownOpen)}
-                    className="flex items-center gap-2 p-1 rounded-full hover:ring-2 hover:ring-black/10 transition-all"
+                    className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs font-bold font-mono hover:ring-2 hover:ring-black/10 transition-all shadow-xs"
+                    aria-label="Account Profile"
                   >
-                    <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs font-bold font-mono shadow-sm">
-                      {user?.name.charAt(0).toUpperCase()}
-                    </div>
-                  </motion.button>
+                    {user?.name.charAt(0).toUpperCase()}
+                  </button>
 
                   <AnimatePresence>
                     {isUserDropdownOpen && (
                       <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        initial={{ opacity: 0, y: 8, scale: 0.95 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        exit={{ opacity: 0, y: 8, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute right-0 mt-3 w-56 bg-white/95 backdrop-blur-md border border-gray-200 rounded-2xl shadow-2xl py-2 z-50 overflow-hidden"
+                        className="absolute right-0 mt-2 w-52 bg-white border border-neutral-200 rounded-xl shadow-xl py-2 z-50 overflow-hidden text-left"
                       >
-                        <div className="px-4 py-2.5 border-b border-gray-100 bg-neutral-50/50">
+                        <div className="px-4 py-2 border-b border-neutral-100 bg-neutral-50">
                           <p className="text-xs font-bold text-black truncate">{user?.name}</p>
-                          <p className="text-[10px] text-gray-500 font-mono truncate">{user?.email}</p>
-                          <span className="inline-block mt-1 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-black text-white font-mono">
-                            {user?.role}
-                          </span>
+                          <p className="text-[10px] text-neutral-500 truncate">{user?.email}</p>
                         </div>
 
                         {isAdmin ? (
                           <Link
                             to="/admin"
                             onClick={() => setIsUserDropdownOpen(false)}
-                            className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-black hover:bg-neutral-100 font-bold transition-colors"
+                            className="flex items-center gap-2 px-4 py-2 text-xs text-black hover:bg-neutral-100 font-bold transition-colors"
                           >
                             <Shield className="w-4 h-4 text-[#FF5722]" /> Admin Dashboard
                           </Link>
@@ -217,23 +169,23 @@ export const Navbar: React.FC = () => {
                             <Link
                               to="/account/orders"
                               onClick={() => setIsUserDropdownOpen(false)}
-                              className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-gray-700 hover:bg-neutral-100 font-medium transition-colors"
+                              className="flex items-center gap-2 px-4 py-2 text-xs text-neutral-700 hover:bg-neutral-100 transition-colors"
                             >
-                              <Package className="w-4 h-4 text-neutral-500" /> My Orders & Tracking
+                              <Package className="w-4 h-4 text-neutral-500" /> My Orders
                             </Link>
                             <Link
                               to="/account/wishlist"
                               onClick={() => setIsUserDropdownOpen(false)}
-                              className="flex items-center gap-2.5 px-4 py-2.5 text-xs text-gray-700 hover:bg-neutral-100 font-medium transition-colors"
+                              className="flex items-center gap-2 px-4 py-2 text-xs text-neutral-700 hover:bg-neutral-100 transition-colors"
                             >
-                              <Heart className="w-4 h-4 text-[#FF5722]" /> My Wishlist
+                              <Heart className="w-4 h-4 text-neutral-500" /> My Wishlist
                             </Link>
                           </>
                         )}
 
                         <button
                           onClick={handleLogout}
-                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs text-red-600 hover:bg-red-50 text-left border-t border-gray-100 mt-1 transition-colors"
+                          className="w-full flex items-center gap-2 px-4 py-2 text-xs text-red-600 hover:bg-red-50 text-left border-t border-neutral-100 mt-1 transition-colors"
                         >
                           <LogOut className="w-4 h-4" /> Sign Out
                         </button>
@@ -244,70 +196,73 @@ export const Navbar: React.FC = () => {
               ) : (
                 <Link
                   to="/login"
-                  className="hidden sm:inline-flex items-center gap-1 px-4 py-2 text-xs font-bold uppercase text-black hover:text-white hover:bg-black border border-black rounded-full tracking-wider transition-all duration-200"
+                  className="w-8 h-8 rounded-full bg-black hover:bg-[#FF5722] text-white flex items-center justify-center text-xs font-bold transition-colors shadow-xs"
+                  aria-label="Sign In"
                 >
-                  Sign In
+                  <span className="font-bold text-[11px]">IN</span>
                 </Link>
               )}
             </div>
 
-            {/* Mobile Hamburger Toggle */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
+            {/* Mobile Hamburger Button */}
+            <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg text-black hover:bg-neutral-100 transition-colors"
+              className="lg:hidden p-1.5 text-neutral-800 hover:text-black transition-colors"
               aria-label="Toggle Menu"
             >
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </motion.button>
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Drawer Menu with Framer Motion AnimatePresence */}
+      {/* Mobile Drawer Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="md:hidden bg-white/95 backdrop-blur-xl border-b border-gray-200 px-6 py-6 space-y-4 shadow-xl font-sans overflow-hidden"
+            transition={{ duration: 0.25 }}
+            className="lg:hidden bg-white border-b border-neutral-200 px-6 py-5 space-y-3 font-sans overflow-hidden"
           >
-            {navLinks.map((link, idx) => (
-              <motion.div
+            {navLinks.map((link) => (
+              <Link
                 key={link.label}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.05, duration: 0.25 }}
+                to={link.path}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block text-sm font-bold uppercase tracking-wider text-neutral-900 hover:text-[#FF5722] py-1.5"
               >
-                <Link
-                  to={link.path}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block text-base font-semibold uppercase tracking-wider ${
-                    link.special ? 'text-[#FF5722]' : 'text-black hover:text-[#FF5722]'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              </motion.div>
+                {link.label}
+              </Link>
             ))}
-            {!isAuthenticated && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25 }}
-                className="pt-2"
+
+            <div className="pt-4 border-t border-neutral-100 flex flex-col gap-2">
+              <Link
+                to="/wishlist"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-xs font-bold uppercase tracking-wider text-neutral-700 py-1"
               >
+                Wishlist ({wishlist.length})
+              </Link>
+              {!isAuthenticated ? (
                 <Link
                   to="/login"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block w-full text-center py-3 bg-black text-white font-bold text-xs uppercase rounded-full hover:bg-[#FF5722] transition-colors shadow-md"
+                  className="block w-full text-center py-2.5 bg-black text-white font-bold text-xs uppercase rounded transition-colors"
                 >
-                  Sign In
+                  Sign In / Register
                 </Link>
-              </motion.div>
-            )}
+              ) : (
+                <Link
+                  to="/account/orders"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-xs font-bold uppercase tracking-wider text-neutral-700 py-1"
+                >
+                  My Orders & Profile
+                </Link>
+              )}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

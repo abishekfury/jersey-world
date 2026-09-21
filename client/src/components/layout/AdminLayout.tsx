@@ -8,8 +8,11 @@ import {
   Tag,
   ArrowLeft,
   Shield,
+  Star,
+  Layers,
 } from 'lucide-react';
 import { useAppSelector } from '../../store';
+import { SEO } from '../seo/SEO';
 
 export const AdminLayout: React.FC = () => {
   const location = useLocation();
@@ -22,14 +25,17 @@ export const AdminLayout: React.FC = () => {
 
   const links = [
     { label: 'Overview & Sales', path: '/admin', icon: <LayoutDashboard className="w-5 h-5" /> },
-    { label: 'Products & Inventory', path: '/admin/products', icon: <Shirt className="w-5 h-5" /> },
+    { label: 'Jerseys & Homepage Kits', path: '/admin/products', icon: <Shirt className="w-5 h-5" /> },
+    { label: 'Homepage Banners & Coupons', path: '/admin/coupons', icon: <Tag className="w-5 h-5" /> },
+    { label: 'Categories & Teams', path: '/admin/categories', icon: <Layers className="w-5 h-5" /> },
     { label: 'Orders & Fulfillment', path: '/admin/orders', icon: <ShoppingBag className="w-5 h-5" /> },
-    { label: 'Coupons & Promo Codes', path: '/admin/coupons', icon: <Tag className="w-5 h-5" /> },
+    { label: 'Review Moderation', path: '/admin/reviews', icon: <Star className="w-5 h-5" /> },
     { label: 'Customer Management', path: '/admin/users', icon: <Users className="w-5 h-5" /> },
   ];
 
   return (
     <div className="min-h-screen bg-gray-50 text-black flex flex-col md:flex-row font-sans">
+      <SEO title="Admin Portal" noIndex={true} />
       {/* Admin Sidebar (Sticky so profile card and back to store link are always in view) */}
       <aside className="w-full md:w-72 bg-white border-b md:border-b-0 md:border-r border-gray-200 p-6 flex flex-col justify-between shrink-0 shadow-sm md:sticky md:top-0 md:h-screen">
         <div>

@@ -23,6 +23,8 @@ import { loginUser, sendOtp, verifyOtpAndLogin, googleLogin } from '../../store/
 import { addToast } from '../../store/uiSlice';
 import { Input } from '../../components/ui/Input';
 import { CustomerReviewPill } from '../../components/ui/CustomerReviewPill';
+import { SEO } from '../../components/seo/SEO';
+import { API_BASE_URL } from '../../services/api';
 
 export const LoginPage: React.FC = () => {
   const [authMethod, setAuthMethod] = useState<'otp' | 'password'>('otp');
@@ -167,29 +169,45 @@ export const LoginPage: React.FC = () => {
   };
 
   // Google One-Tap / OAuth Sign In
-  const handleGoogleSignIn = async () => {
-    const defaultGoogleProfile = {
-      name: 'Football Collector',
-      email: 'collector@gmail.com',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80',
-      googleId: 'google_' + Math.random().toString(36).substring(2, 10),
-    };
+  useEffect(() => {
+    const clientId =
+      import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+      '834468863512-cucrda0nr22oabb3mahi5rk3h5mvvrtc.apps.googleusercontent.com';
 
-    const result = await dispatch(googleLogin(defaultGoogleProfile));
-    if (googleLogin.fulfilled.match(result)) {
-      confetti({
-        particleCount: 60,
-        spread: 50,
-        origin: { y: 0.7 },
-        colors: ['#4285F4', '#EA4335', '#FBBC05', '#34A853'],
-      });
-      dispatch(addToast({ type: 'success', message: 'Signed in with Google!' }));
-      navigate(redirectUrl);
+    if (typeof window !== 'undefined' && (window as any).google?.accounts?.id) {
+      try {
+        (window as any).google.accounts.id.initialize({
+          client_id: clientId,
+          callback: async (response: any) => {
+            if (response?.credential) {
+              const res = await dispatch(googleLogin({ credential: response.credential }));
+              if (googleLogin.fulfilled.match(res)) {
+                confetti({
+                  particleCount: 60,
+                  spread: 50,
+                  origin: { y: 0.7 },
+                  colors: ['#4285F4', '#EA4335', '#FBBC05', '#34A853'],
+                });
+                dispatch(addToast({ type: 'success', message: 'Signed in with Google!' }));
+                navigate(redirectUrl);
+              }
+            }
+          },
+        });
+      } catch (err) {
+        console.debug('Google Identity Services initialization:', err);
+      }
     }
+  }, [dispatch, navigate, redirectUrl]);
+
+  const handleGoogleSignIn = () => {
+    sessionStorage.setItem('jw_auth_redirect', redirectUrl);
+    window.location.href = `${API_BASE_URL}/auth/google`;
   };
 
   return (
     <div className="min-h-screen bg-[#FAF9F5] text-[#171C1B] font-sans flex items-stretch">
+      <SEO title="Sign In" noIndex={true} />
       {/* Left Column: Visual Brand Showcase (Desktop only) */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-[#171C1B] text-white p-12 xl:p-16 flex-col justify-between overflow-hidden">
         {/* Background Image with Ambient Lighting Overlay */}
@@ -562,16 +580,12 @@ export const LoginPage: React.FC = () => {
                   <span className="text-neutral-600 font-medium">Remember for 30 days</span>
                 </label>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAuthMethod('otp');
-                    setOtpStep('email');
-                  }}
+                <Link
+                  to="/forgot-password"
                   className="text-neutral-500 font-medium hover:text-[#FF5722] cursor-pointer"
                 >
-                  Forgot password? Use OTP
-                </button>
+                  Forgot password?
+                </Link>
               </div>
 
               <button

@@ -69,15 +69,21 @@ export const verifyOtpAndLogin = createAsyncThunk('auth/verifyOtp', async (data:
   }
 });
 
-export const googleLogin = createAsyncThunk('auth/googleLogin', async (data: { email: string; name: string; avatar?: string; googleId?: string }, { rejectWithValue }) => {
-  try {
-    const res = await api.post<{ success: boolean; accessToken: string; user: IUser }>('/auth/google', data);
-    setAuthToken(res.data.accessToken);
-    return { user: res.data.user, token: res.data.accessToken };
-  } catch (err: any) {
-    return rejectWithValue(err.response?.data?.message || 'Google sign-in failed');
+export const googleLogin = createAsyncThunk(
+  'auth/googleLogin',
+  async (
+    data: { email?: string; name?: string; avatar?: string; googleId?: string; credential?: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await api.post<{ success: boolean; accessToken: string; user: IUser }>('/auth/google', data);
+      setAuthToken(res.data.accessToken);
+      return { user: res.data.user, token: res.data.accessToken };
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Google sign-in failed');
+    }
   }
-});
+);
 
 
 export const logoutUser = createAsyncThunk('auth/logout', async () => {

@@ -5,6 +5,7 @@ import { User, IUserDocument } from '../models/User';
 import { AppError } from '../middleware/errorHandler';
 import { AuthenticatedRequest } from '../middleware/auth';
 import { config } from '../config/env';
+import { logger } from '../config/logger';
 
 // Generate access and refresh tokens
 const generateTokens = (user: IUserDocument) => {
@@ -299,10 +300,11 @@ export const verifyOtp = async (req: Request, res: Response, next: NextFunction)
     const normalizedEmail = String(email).trim().toLowerCase();
     const stored = otpStore.get(normalizedEmail);
 
-    // Accept master OTP for development / evaluation (e.g. '123456') or matching generated OTP
+    // Only accept master OTP in non-production development environments
+    const isMasterOtp = config.NODE_ENV !== 'production' && String(otp).trim() === '123456';
     const isValidOtp =
       (stored && stored.code === String(otp).trim() && Date.now() <= stored.expiresAt) ||
-      String(otp).trim() === '123456';
+      isMasterOtp;
 
     if (!isValidOtp) {
       return next(new AppError('Invalid or expired verification code.', 400, 'INVALID_OTP'));
@@ -364,28 +366,56 @@ export const verifyOtp = async (req: Request, res: Response, next: NextFunction)
 
 export const googleAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { email, name, avatar, googleId } = req.body;
-    if (!email) {
+    const { email, name, avatar, googleId, credential } = req.body;
+
+    // Support Google Identity Services ID token / credential parsing
+    let resolvedEmail = email;
+    let resolvedName = name;
+    let resolvedAvatar = avatar;
+    let resolvedGoogleId = googleId;
+
+    if (credential && !email) {
+      try {
+        const base64Url = credential.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+          Buffer.from(base64, 'base64')
+            .toString('utf-8')
+            .split('')
+            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        );
+        const payload = JSON.parse(jsonPayload);
+        resolvedEmail = payload.email;
+        resolvedName = payload.name || payload.given_name;
+        resolvedAvatar = payload.picture;
+        resolvedGoogleId = payload.sub;
+      } catch (e) {
+        logger.warn('Failed to decode credential JWT payload:', e);
+      }
+    }
+
+    if (!resolvedEmail) {
       return next(new AppError('Email is required for Google Sign-In.', 400, 'MISSING_EMAIL'));
     }
 
-    const normalizedEmail = String(email).trim().toLowerCase();
+    const normalizedEmail = String(resolvedEmail).trim().toLowerCase();
     let user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
       user = await User.create({
-        name: name || normalizedEmail.split('@')[0],
+        name: resolvedName || normalizedEmail.split('@')[0],
         email: normalizedEmail,
-        avatar: avatar || undefined,
-        googleId: googleId || undefined,
+        avatar: resolvedAvatar || undefined,
+        googleId: resolvedGoogleId || undefined,
         role: 'customer',
         authProvider: 'google',
         isEmailVerified: true,
         dailyTryOnCount: 0,
       });
     } else {
-      if (avatar && !user.avatar) user.avatar = avatar;
-      if (googleId && !user.googleId) user.googleId = googleId;
+      if (resolvedAvatar && !user.avatar) user.avatar = resolvedAvatar;
+      if (resolvedGoogleId && !user.googleId) user.googleId = resolvedGoogleId;
       user.isEmailVerified = true;
       await user.save();
     }
@@ -399,6 +429,136 @@ export const googleAuth = async (req: Request, res: Response, next: NextFunction
     res.status(200).json({
       success: true,
       message: 'Google Sign-In successful.',
+      accessToken,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+        phone: user.phone,
+        addresses: user.addresses,
+        dailyTryOnCount: user.dailyTryOnCount,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const googleOAuthCallback = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const user = req.user as IUserDocument;
+    if (!user) {
+      res.redirect(`${config.CLIENT_URL}/login?error=google_failed`);
+      return;
+    }
+
+    const { accessToken, refreshToken } = generateTokens(user);
+    user.refreshTokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+    await user.save();
+
+    setRefreshTokenCookie(res, refreshToken);
+
+    if (req.headers.accept && req.headers.accept.includes('application/json')) {
+      res.status(200).json({
+        success: true,
+        message: 'Google OAuth callback successful.',
+        accessToken,
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          avatar: user.avatar,
+          phone: user.phone,
+          addresses: user.addresses,
+          dailyTryOnCount: user.dailyTryOnCount,
+        },
+      });
+      return;
+    }
+
+    res.redirect(`${config.CLIENT_URL}/auth/google/callback?token=${accessToken}`);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const forgotPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return next(new AppError('Email address is required.', 400, 'MISSING_EMAIL'));
+    }
+
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      // Return 200 to prevent user enumeration attacks
+      res.status(200).json({
+        success: true,
+        message: 'If an account exists with this email, a password reset link has been sent.',
+      });
+      return;
+    }
+
+    // Generate unhashed reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    // Store hashed version with 15 minutes expiration
+    user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000);
+    await user.save();
+
+    const resetUrl = `${config.CLIENT_URL}/reset-password/${resetToken}`;
+    console.log(`[AUTH] 🔑 Password reset requested for ${normalizedEmail}. Reset URL: ${resetUrl}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'If an account exists with this email, a password reset link has been sent.',
+      devResetUrl: config.NODE_ENV !== 'production' ? resetUrl : undefined,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { token } = req.params;
+    const { password } = req.body;
+
+    if (!token || !password) {
+      return next(new AppError('Token and new password are required.', 400, 'MISSING_FIELDS'));
+    }
+
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: new Date() },
+    }).select('+password +resetPasswordToken +resetPasswordExpires');
+
+    if (!user) {
+      return next(new AppError('Password reset link is invalid or has expired.', 400, 'INVALID_RESET_TOKEN'));
+    }
+
+    // Update password (pre-save hook will hash it)
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    // Issue new session tokens & rotate
+    const { accessToken, refreshToken } = generateTokens(user);
+    user.refreshTokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+    await user.save();
+
+    setRefreshTokenCookie(res, refreshToken);
+
+    res.status(200).json({
+      success: true,
+      message: 'Password reset successfully. You are now logged in.',
       accessToken,
       user: {
         _id: user._id,

@@ -89,8 +89,8 @@ export class PaymentService {
       return false;
     }
 
-    // In simulator mode, verify structured hash or prefix
-    if (params.razorpay_signature === 'simulated_signature' || params.razorpay_order_id.startsWith('order_')) {
+    // In simulator mode with explicit simulated signature
+    if (config.PAYMENT_PROVIDER === 'simulator' && params.razorpay_signature === 'simulated_signature') {
       return true;
     }
 

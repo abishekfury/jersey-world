@@ -22,6 +22,8 @@ import { CustomerReviewPill } from '../components/ui/CustomerReviewPill';
 import { Accordion } from '../components/ui/Accordion';
 import { useAppDispatch } from '../store';
 import { addToast } from '../store/uiSlice';
+import { SEO } from '../components/seo/SEO';
+import { ProductCard } from '../components/product/ProductCard';
 
 // Motion variants matching Framer site entrance animations
 const heroContainerVariants: Variants = {
@@ -64,15 +66,22 @@ export const HomePage: React.FC = () => {
     leftImage: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=700&q=85',
     rightImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=85',
     isActive: true,
+    heroTag: 'OFFICIAL 2026/27 COLLECTION',
+    heroHeadline: 'WEAR THE PASSION.',
+    heroSubheadline: 'OWN THE GLORY.',
+    heroDescription:
+      'Discover authentic club & international jerseys with official custom name & number printing, free express shipping, and seamless size exchanges.',
+    heroBackgroundImage:
+      'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=2400&q=85',
   });
 
   useEffect(() => {
     setIsLoading(true);
     Promise.allSettled([
-      productService.getProducts({ limit: 3, isBestSeller: true }),
-      productService.getProducts({ limit: 3, isNewArrival: true }),
-      productService.getProducts({ limit: 3, league: 'Premier League' }),
-      productService.getProducts({ limit: 3, league: 'La Liga' }),
+      productService.getProducts({ limit: 8, isBestSeller: true }),
+      productService.getProducts({ limit: 8, isNewArrival: true }),
+      productService.getProducts({ limit: 8, league: 'Premier League' }),
+      productService.getProducts({ limit: 8, league: 'La Liga' }),
       bannerService.getBanner(),
     ])
       .then(([bestRes, newRes, eplRes, laligaRes, bannerRes]) => {
@@ -89,7 +98,7 @@ export const HomePage: React.FC = () => {
           setLaLigaJerseys(laligaRes.value.data.products || []);
         }
         if (bannerRes.status === 'fulfilled' && bannerRes.value.data?.banner) {
-          setOfferBanner(bannerRes.value.data.banner);
+          setOfferBanner((prev) => ({ ...prev, ...bannerRes.value.data.banner }));
         }
       })
       .catch((err) => console.error('Error loading home products:', err))
@@ -114,195 +123,303 @@ export const HomePage: React.FC = () => {
     setTimeout(() => setCopiedCoupon(false), 3000);
   };
 
-  // Fallbacks with full product model
+  // Curated Fallbacks matching reference image
   const fallbackBestSellers: IProduct[] = [
     {
-      _id: 'real-madrid-seed-id',
-      name: 'Real Madrid 2026/27 Royal White Edition',
-      price: 5499,
-      discountPrice: 4799,
+      _id: 'atletico-3rd-seed',
+      name: 'ATLÉTICO MADRID THIRD PLAYER VERSION 24/25',
+      team: 'Atlético Madrid',
+      league: 'La Liga',
+      season: '24/25',
+      type: 'Third Kit',
+      price: 999,
+      discountPrice: 0,
+      totalStock: 0, // Displays "Sold Out"
       images: {
-        front: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80',
+        front: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=600&q=90',
+        back: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=600&q=90',
       },
-      slug: 'real-madrid-2026-27-royal-white-edition',
+      slug: 'atletico-madrid-third-player-version-24-25',
     } as IProduct,
     {
-      _id: 'barcelona-seed-id',
-      name: 'Barcelona 2026/27 Blaugrana Heritage',
-      price: 5299,
-      discountPrice: 4599,
+      _id: 'barca-away-25-26',
+      name: 'CUSTOM - F.C. BARCELONA AWAY JERSEY 25/26',
+      team: 'Barcelona',
+      league: 'La Liga',
+      season: '25/26',
+      type: 'Away',
+      price: 999,
+      discountPrice: 799,
+      totalStock: 45,
       images: {
-        front: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=80',
+        front: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=600&q=90',
+        back: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=600&q=90',
       },
-      slug: 'barcelona-2026-27-blaugrana-heritage',
+      slug: 'custom-fc-barcelona-away-jersey-25-26',
     } as IProduct,
     {
-      _id: 'arsenal-seed-id',
-      name: 'Arsenal 2026/27 Emirates Red & White',
-      price: 4999,
-      discountPrice: 4299,
+      _id: 'barca-home-25-26',
+      name: 'CUSTOM - F.C. BARCELONA HOME JERSEY 25/26',
+      team: 'Barcelona',
+      league: 'La Liga',
+      season: '25/26',
+      type: 'Home',
+      price: 999,
+      discountPrice: 799,
+      totalStock: 80,
       images: {
-        front: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=80',
+        front: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=600&q=90',
+        back: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=600&q=90',
       },
-      slug: 'arsenal-2026-27-emirates-red-white',
+      slug: 'custom-fc-barcelona-home-jersey-25-26',
+    } as IProduct,
+    {
+      _id: 'barca-away-26-27',
+      name: 'CUSTOM - FC BARCELONA AWAY VERSION 26/27',
+      team: 'Barcelona',
+      league: 'La Liga',
+      season: '26/27',
+      type: 'Away',
+      price: 949,
+      discountPrice: 0,
+      totalStock: 0, // Displays "Sold Out"
+      images: {
+        front: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=600&q=90',
+        back: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=600&q=90',
+      },
+      slug: 'custom-fc-barcelona-away-version-26-27',
     } as IProduct,
   ];
 
   const fallbackNewSeason: IProduct[] = [
     {
-      _id: 'ns-1',
-      name: 'Real Madrid 2026/27 Royal White Edition',
-      price: 5499,
-      discountPrice: 4799,
+      _id: 'real-madrid-away-24-25',
+      name: 'REAL MADRID AWAY PLAYER VERSION 24/25',
+      team: 'Real Madrid',
+      league: 'La Liga',
+      season: '24/25',
+      type: 'Away',
+      price: 999,
+      discountPrice: 799,
+      totalStock: 60,
       images: {
-        front: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=85',
+        front: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=600&q=90',
+        back: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=600&q=90',
       },
-      slug: 'real-madrid-2026-27-royal-white-edition',
+      slug: 'real-madrid-away-player-version-24-25',
     } as IProduct,
     {
-      _id: 'ns-2',
-      name: 'Manchester City 2026/27 Sky Blue Home',
-      price: 4999,
-      discountPrice: 4399,
+      _id: 'real-madrid-home-24-25',
+      name: 'CUSTOM - REAL MADRID HOME JERSEY 24/25',
+      team: 'Real Madrid',
+      league: 'La Liga',
+      season: '24/25',
+      type: 'Home',
+      price: 999,
+      discountPrice: 799,
+      totalStock: 90,
       images: {
-        front: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=800&q=85',
+        front: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=600&q=90',
+        back: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=600&q=90',
       },
-      slug: 'manchester-city-2026-27-sky-blue-home',
+      slug: 'custom-real-madrid-home-jersey-24-25',
     } as IProduct,
     {
-      _id: 'ns-3',
-      name: 'Arsenal 2026/27 Emirates Red & White',
-      price: 4999,
-      discountPrice: 4299,
+      _id: 'arsenal-home-24-25',
+      name: 'CUSTOM - ARSENAL HOME JERSEY 24/25',
+      team: 'Arsenal',
+      league: 'Premier League',
+      season: '24/25',
+      type: 'Home',
+      price: 999,
+      discountPrice: 699,
+      totalStock: 40,
       images: {
-        front: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=85',
+        front: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=600&q=90',
+        back: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=600&q=90',
       },
-      slug: 'arsenal-2026-27-emirates-red-white',
+      slug: 'custom-arsenal-home-jersey-24-25',
+    } as IProduct,
+    {
+      _id: 'netherlands-2026',
+      name: 'NETHERLANDS 2026 ORANJE LION EDITION',
+      country: 'Netherlands',
+      league: 'International',
+      season: '2026',
+      type: 'Home',
+      price: 999,
+      discountPrice: 799,
+      totalStock: 50,
+      images: {
+        front: 'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?auto=format&fit=crop&w=600&q=90',
+        back: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=600&q=90',
+      },
+      slug: 'netherlands-2026-oranje-lion-edition',
     } as IProduct,
   ];
 
   const fallbackPremierLeague: IProduct[] = [
     {
       _id: 'epl-1',
-      name: 'Manchester City 2026/27 Sky Blue Home',
-      price: 4999,
-      discountPrice: 4399,
+      name: 'CUSTOM - MANCHESTER CITY HOME JERSEY 24/25',
+      team: 'Manchester City',
+      league: 'Premier League',
+      season: '24/25',
+      type: 'Home',
+      price: 999,
+      discountPrice: 799,
+      totalStock: 75,
       images: {
-        front: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=800&q=85',
+        front: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=600&q=90',
+        back: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=600&q=90',
       },
-      slug: 'manchester-city-2026-27-sky-blue-home',
+      slug: 'custom-manchester-city-home-jersey-24-25',
     } as IProduct,
     {
       _id: 'epl-2',
-      name: 'Arsenal 2026/27 Emirates Red & White',
-      price: 4999,
-      discountPrice: 4299,
+      name: 'CUSTOM - ARSENAL HOME JERSEY 24/25',
+      team: 'Arsenal',
+      league: 'Premier League',
+      season: '24/25',
+      type: 'Home',
+      price: 999,
+      discountPrice: 699,
+      totalStock: 40,
       images: {
-        front: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=800&q=85',
+        front: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=600&q=90',
+        back: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=600&q=90',
       },
-      slug: 'arsenal-2026-27-emirates-red-white',
+      slug: 'custom-arsenal-home-jersey-24-25',
     } as IProduct,
     {
       _id: 'epl-3',
-      name: 'Liverpool 2026/27 Anfield Crimson',
-      price: 4899,
-      discountPrice: 4199,
+      name: 'CUSTOM - LIVERPOOL HOME JERSEY 24/25',
+      team: 'Liverpool',
+      league: 'Premier League',
+      season: '24/25',
+      type: 'Home',
+      price: 999,
+      discountPrice: 799,
+      totalStock: 55,
       images: {
-        front: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=800&q=85',
+        front: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=600&q=90',
+        back: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?auto=format&fit=crop&w=600&q=90',
       },
-      slug: 'liverpool-2026-27-anfield-crimson',
+      slug: 'custom-liverpool-home-jersey-24-25',
+    } as IProduct,
+    {
+      _id: 'epl-4',
+      name: 'CUSTOM - MANCHESTER UNITED HOME JERSEY 24/25',
+      team: 'Manchester United',
+      league: 'Premier League',
+      season: '24/25',
+      type: 'Home',
+      price: 999,
+      discountPrice: 799,
+      totalStock: 35,
+      images: {
+        front: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=600&q=90',
+        back: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=600&q=90',
+      },
+      slug: 'custom-manchester-united-home-jersey-24-25',
     } as IProduct,
   ];
 
   const fallbackLaLiga: IProduct[] = [
     {
       _id: 'laliga-1',
-      name: 'Real Madrid 2026/27 Royal White Edition',
-      price: 5499,
-      discountPrice: 4799,
+      name: 'ATLÉTICO MADRID THIRD PLAYER VERSION 24/25',
+      team: 'Atlético Madrid',
+      league: 'La Liga',
+      season: '24/25',
+      type: 'Third Kit',
+      price: 999,
+      discountPrice: 0,
+      totalStock: 0,
       images: {
-        front: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=85',
+        front: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=600&q=90',
+        back: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=600&q=90',
       },
-      slug: 'real-madrid-2026-27-royal-white-edition',
+      slug: 'atletico-madrid-third-player-version-24-25',
     } as IProduct,
     {
       _id: 'laliga-2',
-      name: 'Barcelona 2026/27 Blaugrana Heritage',
-      price: 5299,
-      discountPrice: 4599,
+      name: 'CUSTOM - F.C. BARCELONA AWAY JERSEY 25/26',
+      team: 'Barcelona',
+      league: 'La Liga',
+      season: '25/26',
+      type: 'Away',
+      price: 999,
+      discountPrice: 799,
+      totalStock: 45,
       images: {
-        front: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=800&q=85',
+        front: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=600&q=90',
+        back: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=600&q=90',
       },
-      slug: 'barcelona-2026-27-blaugrana-heritage',
+      slug: 'custom-fc-barcelona-away-jersey-25-26',
     } as IProduct,
     {
       _id: 'laliga-3',
-      name: 'Real Madrid 2026/27 Away Gold Edition',
-      price: 5399,
-      discountPrice: 4699,
+      name: 'CUSTOM - F.C. BARCELONA HOME JERSEY 25/26',
+      team: 'Barcelona',
+      league: 'La Liga',
+      season: '25/26',
+      type: 'Home',
+      price: 999,
+      discountPrice: 799,
+      totalStock: 80,
       images: {
-        front: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=800&q=85',
+        front: 'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=600&q=90',
+        back: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=600&q=90',
       },
-      slug: 'real-madrid-2026-27-away-gold-edition',
+      slug: 'custom-fc-barcelona-home-jersey-25-26',
+    } as IProduct,
+    {
+      _id: 'laliga-4',
+      name: 'REAL MADRID AWAY PLAYER VERSION 24/25',
+      team: 'Real Madrid',
+      league: 'La Liga',
+      season: '24/25',
+      type: 'Away',
+      price: 999,
+      discountPrice: 799,
+      totalStock: 60,
+      images: {
+        front: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=600&q=90',
+        back: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=600&q=90',
+      },
+      slug: 'real-madrid-away-player-version-24-25',
     } as IProduct,
   ];
 
-  const displayBestSellers =
-    bestSellers && bestSellers.length >= 3 ? bestSellers.slice(0, 3) : fallbackBestSellers;
-  const displayNewSeason =
-    newSeasonJerseys && newSeasonJerseys.length >= 3 ? newSeasonJerseys.slice(0, 3) : fallbackNewSeason;
-  const displayPremierLeague =
-    premierLeagueJerseys && premierLeagueJerseys.length >= 3 ? premierLeagueJerseys.slice(0, 3) : fallbackPremierLeague;
-  const displayLaLiga =
-    laLigaJerseys && laLigaJerseys.length >= 3 ? laLigaJerseys.slice(0, 3) : fallbackLaLiga;
+  // Priority display: Always showcase real admin database products first, padding with fallbacks only if fewer than 4
+  const getDisplayProducts = (dbProducts: IProduct[], fallbacks: IProduct[]): IProduct[] => {
+    if (!dbProducts || dbProducts.length === 0) return fallbacks.slice(0, 4);
+    if (dbProducts.length >= 4) return dbProducts.slice(0, 4);
+    // Fill remaining slots with fallbacks that don't duplicate existing IDs
+    const existingIds = new Set(dbProducts.map((p) => p._id));
+    const filler = fallbacks.filter((f) => !existingIds.has(f._id));
+    return [...dbProducts, ...filler].slice(0, 4);
+  };
 
-  // Reusable 3D Tilt Card Grid Component for all product sections
-  const renderProductTrio = (items: IProduct[], badgePrefix: string) => (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+  const displayBestSellers = getDisplayProducts(bestSellers, fallbackBestSellers);
+  const displayNewSeason = getDisplayProducts(newSeasonJerseys, fallbackNewSeason);
+  const displayPremierLeague = getDisplayProducts(premierLeagueJerseys, fallbackPremierLeague);
+  const displayLaLiga = getDisplayProducts(laLigaJerseys, fallbackLaLiga);
+
+  const getHeadingImages = (products: IProduct[], fallbacks: string[]): string[] => {
+    const validImages = products.map((p) => p.images?.front).filter((img): img is string => Boolean(img));
+    if (validImages.length >= 3) return validImages.slice(0, 3);
+    const existing = new Set(validImages);
+    const remaining = fallbacks.filter((fb) => !existing.has(fb));
+    return [...validImages, ...remaining].slice(0, 3);
+  };
+
+  // Clean 4-Column Minimal Grid matching Image 2
+  const renderProductGrid = (items: IProduct[]) => (
+    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 md:gap-8">
       {items.map((product, idx) => (
-        <motion.div
-          key={product._id || idx}
-          initial={{ opacity: 0, y: 25 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: idx * 0.15 }}
-        >
-          <InteractiveTiltCard maxTilt={6} className="h-full">
-            <Link
-              to={`/shop/${product.slug || product._id}`}
-              className="group block bg-white border border-neutral-200/90 overflow-hidden hover:border-black transition-all duration-500 shadow-sm rounded-xl h-full flex flex-col justify-between"
-            >
-              {/* 3D Product Canvas Area */}
-              <div className="w-full h-[380px] sm:h-[420px] lg:h-[460px] bg-[#F5F5F3] flex items-center justify-center p-8 overflow-hidden relative">
-                <img
-                  src={product.images?.front || (product as any).image}
-                  alt={product.name}
-                  className="max-h-[88%] max-w-[88%] object-contain object-center transform group-hover:scale-110 group-hover:-translate-y-2 transition-all duration-700 ease-out drop-shadow-md"
-                />
-                <div className="absolute top-4 left-4">
-                  <span className="px-3 py-1 bg-black text-white text-[10px] font-bold uppercase tracking-widest rounded shadow-xs">
-                    {badgePrefix} #{idx + 1}
-                  </span>
-                </div>
-              </div>
-
-              {/* Bottom Title Bar */}
-              <div className="border-t border-neutral-200 group-hover:border-black px-6 py-5 flex items-center justify-between bg-white group-hover:bg-black transition-all duration-300">
-                <div>
-                  <h3 className="text-xl sm:text-2xl font-normal text-[#171C1B] group-hover:text-white uppercase font-display tracking-tight transition-colors duration-300 line-clamp-1">
-                    {product.name}
-                  </h3>
-                  <p className="text-xs font-mono text-neutral-500 group-hover:text-neutral-300 mt-0.5">
-                    ₹{(product.discountPrice || product.price).toLocaleString('en-IN')}
-                  </p>
-                </div>
-                <div className="text-black group-hover:text-white transform group-hover:rotate-45 group-hover:translate-x-1 transition-all duration-300 w-10 h-10 rounded-full border border-neutral-200 group-hover:border-white/30 flex items-center justify-center flex-shrink-0">
-                  <ArrowUpRight className="w-5 h-5 stroke-[1.8]" />
-                </div>
-              </div>
-            </Link>
-          </InteractiveTiltCard>
-        </motion.div>
+        <ProductCard key={product._id || idx} product={product} index={idx} />
       ))}
     </div>
   );
@@ -365,15 +482,53 @@ export const HomePage: React.FC = () => {
     },
   ];
 
+  const homeJsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      name: 'Jersey World',
+      url: 'https://jersey-world.vercel.app',
+      logo: 'https://jersey-world.vercel.app/logo.png',
+      description: 'India\'s premier destination for authentic football jerseys, player customized kits, retro collections, and AI Virtual Fitting Room technology.',
+      sameAs: [
+        'https://instagram.com/jerseyworld_in',
+        'https://twitter.com/jerseyworld_in',
+        'https://facebook.com/jerseyworld_in'
+      ],
+      contactPoint: {
+        '@type': 'ContactPoint',
+        contactType: 'customer service',
+        availableLanguage: ['English', 'Hindi']
+      }
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'Jersey World',
+      url: 'https://jersey-world.vercel.app',
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: 'https://jersey-world.vercel.app/shop?search={search_term_string}',
+        'query-input': 'required name=search_term_string'
+      }
+    }
+  ];
+
   return (
     <div className="bg-white text-black min-h-screen font-sans selection:bg-black selection:text-white">
+      <SEO
+        title="Authentic Football Jerseys & AI Fitting Room"
+        description="Shop authentic football club & national team jerseys. Premium player customization, iconic retro kits, and AI Virtual Fitting Room experience with fast shipping across India."
+        keywords="football jerseys, authentic soccer kits, real madrid jersey, barcelona kit, arsenal jersey, manchester united kit, retro football shirts, custom jersey name printing, AI virtual fitting room"
+        jsonLd={homeJsonLd}
+      />
       {/* 1. HERO SECTION (Full Width Edge-to-Edge) */}
       <section className="w-full relative overflow-hidden bg-neutral-950 border-b border-neutral-800">
         <div className="relative w-full min-h-[580px] sm:min-h-[660px] lg:min-h-[740px] xl:min-h-[800px] flex flex-col justify-between px-5 sm:px-8 md:px-14 lg:px-16 xl:px-20 py-8 sm:py-12 md:py-14 lg:py-16">
           {/* Panoramic Stadium & Lifestyle Backdrop Image */}
           <div className="absolute inset-0 z-0">
             <img
-              src="https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=2400&q=85"
+              src={offerBanner.heroBackgroundImage || 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=2400&q=85'}
               alt="Football Matchwear Stadium Atmosphere"
               className="w-full h-full object-cover object-center filter brightness-[0.75] contrast-105"
             />
@@ -386,7 +541,7 @@ export const HomePage: React.FC = () => {
           <div className="relative z-10 flex items-center justify-between">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-mono tracking-widest uppercase">
               <span className="w-2 h-2 rounded-full bg-[#FF5722] animate-pulse" />
-              <span>OFFICIAL 2026/27 COLLECTION</span>
+              <span>{offerBanner.heroTag || 'OFFICIAL 2026/27 COLLECTION'}</span>
             </div>
 
             <div className="hidden sm:inline-flex items-center gap-2 text-white/80 text-xs font-mono tracking-widest uppercase">
@@ -408,17 +563,19 @@ export const HomePage: React.FC = () => {
                   variants={wordItemVariants}
                   className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal text-white uppercase font-display tracking-tight leading-[0.95]"
                 >
-                  WEAR THE PASSION<span className="text-[#FF5722]">.</span>
+                  {offerBanner.heroHeadline || 'WEAR THE PASSION.'}
                 </motion.h1>
               </div>
-              <div className="overflow-hidden">
-                <motion.h2
-                  variants={wordItemVariants}
-                  className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal text-neutral-300 uppercase font-display tracking-tight leading-[0.95]"
-                >
-                  OWN THE GLORY.
-                </motion.h2>
-              </div>
+              {offerBanner.heroSubheadline && (
+                <div className="overflow-hidden">
+                  <motion.h2
+                    variants={wordItemVariants}
+                    className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal text-neutral-300 uppercase font-display tracking-tight leading-[0.95]"
+                  >
+                    {offerBanner.heroSubheadline}
+                  </motion.h2>
+                </div>
+              )}
             </motion.div>
 
             <motion.p
@@ -427,7 +584,8 @@ export const HomePage: React.FC = () => {
               transition={{ duration: 0.6, delay: 0.35 }}
               className="text-sm sm:text-base md:text-lg text-neutral-200 font-normal max-w-xl leading-relaxed"
             >
-              Discover authentic club & international jerseys with official custom name & number printing, free express shipping, and seamless size exchanges.
+              {offerBanner.heroDescription ||
+                'Discover authentic club & international jerseys with official custom name & number printing, free express shipping, and seamless size exchanges.'}
             </motion.p>
 
             {/* Action Buttons */}
@@ -572,11 +730,11 @@ export const HomePage: React.FC = () => {
             suffix="KITS"
             tagline="★ TOP PICKS 2026/27"
             badge="BEST SELLER"
-            images={[
+            images={getHeadingImages(displayBestSellers, [
               'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=600&q=85',
               'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=600&q=85',
               'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=600&q=85',
-            ]}
+            ])}
           />
           <Link
             to="/shop?isBestSeller=true"
@@ -586,10 +744,10 @@ export const HomePage: React.FC = () => {
           </Link>
         </div>
 
-        {renderProductTrio(displayBestSellers, 'Trending')}
+        {renderProductGrid(displayBestSellers)}
       </section>
 
-      {/* 3. NEW SEASON 26 / 27 SECTION (3 Cards) */}
+      {/* 3. NEW SEASON 26 / 27 SECTION */}
       <section className="py-12 sm:py-20 w-full px-5 sm:px-8 md:px-14 lg:px-16 xl:px-20 bg-[#FAF9F5] border-y border-neutral-200">
         <div className="mb-10 sm:mb-14 flex flex-col items-center justify-center text-center">
           <InteractiveSplitHeading
@@ -597,11 +755,11 @@ export const HomePage: React.FC = () => {
             suffix="26 / 27"
             tagline="2026 / 2027 CLUB & INTERNATIONAL"
             badge="OFFICIAL DROP"
-            images={[
+            images={getHeadingImages(displayNewSeason, [
               'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=600&q=85',
               'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=600&q=85',
               'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=600&q=85',
-            ]}
+            ])}
           />
           <Link
             to="/shop?isNewArrival=true"
@@ -611,10 +769,10 @@ export const HomePage: React.FC = () => {
           </Link>
         </div>
 
-        {renderProductTrio(displayNewSeason, '2026/27')}
+        {renderProductGrid(displayNewSeason)}
       </section>
 
-      {/* 4. PREMIER LEAGUE SECTION (3 Cards) */}
+      {/* 4. PREMIER LEAGUE SECTION */}
       <section className="py-12 sm:py-20 w-full px-5 sm:px-8 md:px-14 lg:px-16 xl:px-20 bg-white border-b border-neutral-200">
         <div className="mb-10 sm:mb-14 flex flex-col items-center justify-center text-center">
           <InteractiveSplitHeading
@@ -622,11 +780,11 @@ export const HomePage: React.FC = () => {
             suffix="LEAGUE"
             tagline="ENGLISH TOP FLIGHT"
             badge="EPL KITS"
-            images={[
+            images={getHeadingImages(displayPremierLeague, [
               'https://images.unsplash.com/photo-1518091043644-c1d4457512c6?auto=format&fit=crop&w=600&q=85',
               'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=600&q=85',
               'https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=600&q=85',
-            ]}
+            ])}
           />
           <Link
             to="/shop?league=Premier+League"
@@ -636,7 +794,7 @@ export const HomePage: React.FC = () => {
           </Link>
         </div>
 
-        {renderProductTrio(displayPremierLeague, 'EPL')}
+        {renderProductGrid(displayPremierLeague)}
       </section>
 
       {/* 5. SALE IS ON / DYNAMIC OFFER BANNER with 1-Click Copy & Confetti */}
@@ -719,11 +877,11 @@ export const HomePage: React.FC = () => {
             suffix="LIGA"
             tagline="SPANISH FOOTBALL EXCELLENCE"
             badge="PRIMERA DIVISIÓN"
-            images={[
+            images={getHeadingImages(displayLaLiga, [
               'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=600&q=85',
               'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=600&q=85',
               'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?auto=format&fit=crop&w=600&q=85',
-            ]}
+            ])}
           />
           <Link
             to="/shop?league=La+Liga"
@@ -733,7 +891,7 @@ export const HomePage: React.FC = () => {
           </Link>
         </div>
 
-        {renderProductTrio(displayLaLiga, 'La Liga')}
+        {renderProductGrid(displayLaLiga)}
       </section>
 
       {/* 7. CUSTOMER TESTIMONIALS SECTION */}

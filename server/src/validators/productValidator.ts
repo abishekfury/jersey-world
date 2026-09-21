@@ -87,16 +87,37 @@ export const updateCartItemSchema = z.object({
 export const createOrderSchema = z.object({
   shippingAddress: z.object({
     fullName: z.string().min(2),
-    street: z.string().min(5),
+    email: z.string().email().optional(),
+    phone: z.string().min(8),
+    street: z.string().optional(),
+    address: z.string().optional(),
     apartment: z.string().optional(),
+    area: z.string().optional(),
     city: z.string().min(2),
     state: z.string().min(2),
-    postalCode: z.string().min(4),
-    country: z.string().min(2),
-    phone: z.string().min(8),
+    postalCode: z.string().optional(),
+    pincode: z.string().optional(),
+    country: z.string().default('India'),
   }),
-  paymentMethod: z.string().default('Razorpay'),
+  paymentMethod: z.string().default('PREPAID'),
   couponCode: z.string().optional(),
+  items: z
+    .array(
+      z.object({
+        productId: z.string().optional(),
+        product: z.any().optional(),
+        size: z.string(),
+        quantity: z.number().int().min(1),
+        price: z.number().optional(),
+        customization: z
+          .object({
+            playerName: z.string().optional(),
+            playerNumber: z.string().optional(),
+          })
+          .optional(),
+      })
+    )
+    .optional(),
 });
 
 export const verifyPaymentSchema = z.object({

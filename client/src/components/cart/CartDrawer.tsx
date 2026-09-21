@@ -233,14 +233,26 @@ export const CartDrawer: React.FC = () => {
                     </div>
                   </div>
 
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={handleProceedCheckout}
-                    className="w-full py-4 bg-black hover:bg-[#FF5722] text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
-                  >
-                    Proceed to Checkout <ArrowRight className="w-4 h-4" />
-                  </motion.button>
+                  <div className="space-y-2">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleProceedCheckout}
+                      className="w-full py-3.5 bg-black hover:bg-[#FF5722] text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
+                    >
+                      Proceed to Checkout <ArrowRight className="w-4 h-4" />
+                    </motion.button>
+
+                    <button
+                      onClick={() => {
+                        dispatch(closeCartDrawer());
+                        navigate('/cart');
+                      }}
+                      className="w-full py-2.5 bg-white border border-neutral-300 hover:border-black text-black font-bold text-xs uppercase tracking-wider rounded-xl transition-colors text-center"
+                    >
+                      View Shopping Cart Page
+                    </button>
+                  </div>
                 </div>
               )}
             </motion.div>

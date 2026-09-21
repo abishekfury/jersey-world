@@ -8,6 +8,7 @@ import reviewRoutes from './reviewRoutes';
 import adminRoutes from './adminRoutes';
 import shippingRoutes from './shippingRoutes';
 import bannerRoutes from './bannerRoutes';
+import uploadRoutes from './uploadRoutes';
 
 const router = Router();
 
@@ -20,6 +21,7 @@ router.use('/reviews', reviewRoutes);
 router.use('/admin', adminRoutes);
 router.use('/shipping', shippingRoutes);
 router.use('/banner', bannerRoutes);
+router.use('/upload', uploadRoutes);
 
 
 // Health check endpoint

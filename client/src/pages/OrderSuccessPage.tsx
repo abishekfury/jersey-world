@@ -5,6 +5,7 @@ import confetti from 'canvas-confetti';
 import { orderService } from '../services/api';
 import { IOrder } from '@shared/types';
 import { Button } from '../components/ui/Button';
+import { SEO } from '../components/seo/SEO';
 
 export const OrderSuccessPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
@@ -27,6 +28,7 @@ export const OrderSuccessPage: React.FC = () => {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16 text-center space-y-8 animate-in fade-in zoom-in-95 duration-500">
+      <SEO title="Order Confirmed" noIndex={true} />
       <div className="w-20 h-20 mx-auto rounded-3xl bg-neon-lime/20 border-2 border-neon-lime flex items-center justify-center text-neon-lime shadow-[0_0_30px_rgba(204,255,0,0.5)]">
         <CheckCircle2 className="w-10 h-10" />
       </div>

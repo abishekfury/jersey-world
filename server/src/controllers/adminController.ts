@@ -6,8 +6,11 @@ import { Order } from '../models/Order';
 import { User } from '../models/User';
 import { Review } from '../models/Review';
 import { TryOnJob } from '../models/TryOnJob';
+import { AuditLog } from '../models/AuditLog';
+import { AuthenticatedRequest } from '../middleware/auth';
 import { AppError } from '../middleware/errorHandler';
 import { NotificationService } from '../services/notification/notificationService';
+import { uploadToCloudinary } from '../services/storage/cloudinaryService';
 
 
 export const getDashboardStats = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -231,6 +234,74 @@ export const getAllOrdersAdmin = async (req: Request, res: Response, next: NextF
   }
 };
 
+const sanitizeCsvCell = (val: any): string => {
+  if (val === null || val === undefined) return '""';
+  let str = String(val).replace(/"/g, '""');
+  // Prevent CSV Formula Injection
+  if (/^[=\-+@\t\r]/.test(str)) {
+    str = `'${str}`;
+  }
+  return `"${str}"`;
+};
+
+export const exportOrdersCSV = async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const orders = await Order.find().sort({ createdAt: -1 }).populate('user', 'name email').lean();
+
+    const headers = [
+      'Order Number',
+      'Date Placed',
+      'Customer Name',
+      'Customer Email',
+      'Payment Method',
+      'Payment Status',
+      'Order Status',
+      'Subtotal (INR)',
+      'Discount (INR)',
+      'Shipping (INR)',
+      'Tax (INR)',
+      'Grand Total (INR)',
+      'Delivery City',
+      'Delivery State',
+      'PIN Code',
+      'Items Summary',
+    ];
+
+    const rows = orders.map((o: any) => {
+      const itemsSummary = (o.items || [])
+        .map((i: any) => `${i.productName || 'Jersey'} (${i.size} × ${i.quantity})`)
+        .join('; ');
+
+      return [
+        sanitizeCsvCell(o.orderNumber),
+        sanitizeCsvCell(o.createdAt ? new Date(o.createdAt).toISOString().split('T')[0] : ''),
+        sanitizeCsvCell(o.shippingAddress?.fullName || o.user?.name || 'Customer'),
+        sanitizeCsvCell(o.shippingAddress?.email || o.user?.email || ''),
+        sanitizeCsvCell(o.paymentMethod || 'PREPAID'),
+        sanitizeCsvCell(o.paymentStatus || 'pending'),
+        sanitizeCsvCell(o.orderStatus || 'Pending'),
+        sanitizeCsvCell(o.pricing?.subtotal || o.subtotal || 0),
+        sanitizeCsvCell(o.pricing?.discount || o.discount || 0),
+        sanitizeCsvCell(o.pricing?.shipping || o.shipping || 0),
+        sanitizeCsvCell(o.pricing?.tax || o.tax || 0),
+        sanitizeCsvCell(o.pricing?.total || o.grandTotal || 0),
+        sanitizeCsvCell(o.shippingAddress?.city || ''),
+        sanitizeCsvCell(o.shippingAddress?.state || ''),
+        sanitizeCsvCell(o.shippingAddress?.pincode || o.shippingAddress?.postalCode || ''),
+        sanitizeCsvCell(itemsSummary),
+      ].join(',');
+    });
+
+    const csvContent = [headers.join(','), ...rows].join('\n');
+
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="jersey_world_orders_${Date.now()}.csv"`);
+    res.status(200).send(csvContent);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const updateOrderStatus = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
@@ -431,21 +502,16 @@ export const uploadAdminProductImage = async (req: Request, res: Response, next:
       return next(new AppError('No image file provided.', 400));
     }
 
-    const targetDir = path.resolve(__dirname, '../../uploads/products');
-    if (!fs.existsSync(targetDir)) {
-      fs.mkdirSync(targetDir, { recursive: true });
-    }
-
-    const filename = path.basename(req.file.path);
-    const targetPath = path.join(targetDir, filename);
-    fs.renameSync(req.file.path, targetPath);
-
-    const imageUrl = `/uploads/products/${filename}`;
+    const folder = (req.query.folder as string) || 'jersey-world/products';
+    const result = await uploadToCloudinary(req.file.path, folder);
 
     res.status(200).json({
       success: true,
       message: 'Product image uploaded successfully.',
-      imageUrl,
+      imageUrl: result.secure_url,
+      url: result.secure_url,
+      secure_url: result.secure_url,
+      public_id: result.public_id,
     });
   } catch (error) {
     next(error);

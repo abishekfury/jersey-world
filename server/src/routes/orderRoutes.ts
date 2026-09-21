@@ -5,17 +5,19 @@ import {
   getMyOrders,
   getOrderById,
 } from '../controllers/orderController';
-import { requireAuth } from '../middleware/auth';
+import { requireAuth, optionalAuth } from '../middleware/auth';
 import { validateRequest } from '../middleware/validate';
 import { createOrderSchema, verifyPaymentSchema } from '../validators/productValidator';
 
 const router = Router();
 
-router.use(requireAuth);
+// Guest and authenticated checkout & payment verification
+router.post('/', optionalAuth, validateRequest({ body: createOrderSchema }), createOrder);
+router.post('/verify-payment', optionalAuth, validateRequest({ body: verifyPaymentSchema }), verifyPayment);
 
-router.post('/', validateRequest({ body: createOrderSchema }), createOrder);
-router.post('/verify-payment', validateRequest({ body: verifyPaymentSchema }), verifyPayment);
-router.get('/', getMyOrders);
-router.get('/:id', getOrderById);
+// Customer portal & order lookup
+router.get('/my-orders', requireAuth, getMyOrders);
+router.get('/', requireAuth, getMyOrders);
+router.get('/:id', optionalAuth, getOrderById);
 
 export default router;

@@ -19,6 +19,8 @@ import { useAppDispatch, useAppSelector } from '../store';
 import { orderService, shippingService, cartService } from '../services/api';
 import { clearCart, fetchCart } from '../store/cartSlice';
 import { addToast } from '../store/uiSlice';
+import { SEO } from '../components/seo/SEO';
+import { trackPurchase } from '../utils/analytics';
 
 export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
@@ -245,9 +247,8 @@ export const CheckoutPage: React.FC = () => {
   const handlePlaceOrder = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isAuthenticated) {
-      dispatch(addToast({ type: 'info', message: 'Please sign in to complete your order.' }));
-      navigate('/login?redirect=/checkout');
+    if (!addressForm.email || !addressForm.email.includes('@')) {
+      dispatch(addToast({ type: 'error', message: 'Please enter a valid email address for order confirmation & tracking.' }));
       return;
     }
 
@@ -262,13 +263,30 @@ export const CheckoutPage: React.FC = () => {
       return;
     }
 
+    if (items.length === 0) {
+      dispatch(addToast({ type: 'error', message: 'Your cart is empty.' }));
+      return;
+    }
+
     setIsProcessing(true);
     const enrichedAddress = { ...addressForm, fullName };
 
     try {
       const orderPayload = {
-        shippingAddress: enrichedAddress,
+        shippingAddress: {
+          ...enrichedAddress,
+          email: addressForm.email,
+          street: enrichedAddress.address,
+          postalCode: enrichedAddress.pincode,
+        },
         paymentMethod,
+        items: items.map((it) => ({
+          productId: typeof it.product === 'object' ? it.product._id : it.product,
+          size: it.size,
+          quantity: it.quantity,
+          customization: it.customization,
+        })),
+        couponCode: cart?.couponCode,
       };
 
       const res = await orderService.createOrder(orderPayload);
@@ -290,6 +308,12 @@ export const CheckoutPage: React.FC = () => {
             email: addressForm.email || user?.email,
           },
           theme: { color: '#000000' },
+          modal: {
+            ondismiss: () => {
+              dispatch(addToast({ type: 'info', message: 'Payment window was closed.' }));
+              navigate(`/order-failure/${createdOrder._id || createdOrder.orderNumber}`);
+            },
+          },
           handler: async (response: any) => {
             try {
               await orderService.verifyPayment({
@@ -297,18 +321,25 @@ export const CheckoutPage: React.FC = () => {
                 paymentId: response.razorpay_payment_id,
                 signature: response.razorpay_signature,
               });
+              trackPurchase(createdOrder);
               dispatch(clearCart());
               dispatch(addToast({ type: 'success', message: 'Payment confirmed! Package ready to dispatch.' }));
               navigate(`/order-success/${createdOrder._id || createdOrder.orderNumber}`);
             } catch {
               dispatch(addToast({ type: 'error', message: 'Payment verification failed.' }));
+              navigate(`/order-failure/${createdOrder._id || createdOrder.orderNumber}`);
             }
           },
         };
         const rzp = new (window as any).Razorpay(options);
+        rzp.on('payment.failed', function () {
+          dispatch(addToast({ type: 'error', message: 'Transaction could not be completed.' }));
+          navigate(`/order-failure/${createdOrder._id || createdOrder.orderNumber}`);
+        });
         rzp.open();
       } else {
         // Fallback demo simulation
+        trackPurchase(createdOrder);
         dispatch(clearCart());
         dispatch(addToast({ type: 'success', message: 'Order placed successfully! AWB Generated.' }));
         navigate(`/order-success/${createdOrder._id || createdOrder.orderNumber}`);
@@ -358,6 +389,7 @@ export const CheckoutPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-white text-black font-sans pb-20">
+      <SEO title="Secure Checkout" noIndex={true} />
       {/* ── Top Breadcrumbs & Stepper ── */}
       <div className="border-b border-neutral-200 bg-neutral-50/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -941,10 +973,6 @@ export const CheckoutPage: React.FC = () => {
                 >
                   {isProcessing ? (
                     'Processing Order…'
-                  ) : !isAuthenticated ? (
-                    <>
-                      Sign In & Pay Now <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </>
                   ) : (
                     <>
                       Pay Now · ₹{shippingRate.grandTotal.toLocaleString('en-IN')}{' '}

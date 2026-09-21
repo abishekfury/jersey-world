@@ -47,6 +47,13 @@ const ProductSchema = new Schema<IProductDocument>(
       detail: { type: String },
       lifestyle: { type: String },
     },
+    galleryImages: [
+      {
+        url: { type: String, required: true },
+        publicId: { type: String },
+        alt: { type: String },
+      },
+    ],
     sizes: {
       type: [String],
       enum: ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'],
@@ -61,7 +68,21 @@ const ProductSchema = new Schema<IProductDocument>(
         color: { type: String },
       },
     ],
+    variants: [
+      {
+        size: { type: String, required: true },
+        color: { type: String },
+        price: { type: Number, min: 0 },
+        discountPrice: { type: Number, min: 0 },
+        stock: { type: Number, required: true, default: 0, min: 0 },
+        sku: { type: String, trim: true },
+        isActive: { type: Boolean, default: true },
+      },
+    ],
     totalStock: { type: Number, required: true, default: 50, min: 0 },
+    brand: { type: String, trim: true },
+    category: { type: String, trim: true },
+    isPublished: { type: Boolean, default: true },
 
     colors: [{ type: String }],
     tags: [{ type: String, index: true }],
@@ -93,5 +114,6 @@ const ProductSchema = new Schema<IProductDocument>(
 ProductSchema.index({ name: 'text', team: 'text', country: 'text', description: 'text', tags: 'text' });
 ProductSchema.index({ team: 1, season: 1, type: 1 });
 ProductSchema.index({ price: 1, rating: -1 });
+ProductSchema.index({ 'variants.sku': 1 });
 
 export const Product = mongoose.model<IProductDocument>('Product', ProductSchema);

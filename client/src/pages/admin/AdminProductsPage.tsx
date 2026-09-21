@@ -1,7 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Shield, Shirt, Image as ImageIcon, Upload, Loader2 } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Shirt,
+  Image as ImageIcon,
+  Upload,
+  Loader2,
+  Search,
+  Star,
+  Sparkles,
+  Flame,
+  Check,
+  Globe,
+} from 'lucide-react';
 import { IProduct } from '@shared/types';
-import { adminService } from '../../services/api';
+import { adminService, SERVER_ORIGIN } from '../../services/api';
 import { useAppDispatch, useAppSelector } from '../../store';
 import { addToast } from '../../store/uiSlice';
 import { Modal } from '../../components/ui/Modal';
@@ -13,6 +27,8 @@ export const AdminProductsPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<IProduct | null>(null);
   const [uploadingView, setUploadingView] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterTab, setFilterTab] = useState<'all' | 'popular' | 'newArrival' | 'epl' | 'laliga'>('all');
 
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
@@ -25,9 +41,9 @@ export const AdminProductsPage: React.FC = () => {
     league: 'Premier League',
     season: '2026/27',
     type: 'Home',
-    description: 'Official Liverpool FC match edition jersey crafted with high-performance breathable fabric.',
-    price: 4999,
-    discountPrice: 4299,
+    description: 'Official match edition jersey crafted with high-performance breathable fabric.',
+    price: 999,
+    discountPrice: 799,
     totalStock: 50,
     images: {
       front: '',
@@ -37,7 +53,7 @@ export const AdminProductsPage: React.FC = () => {
     },
     isFeatured: true,
     isNewArrival: false,
-    isBestSeller: false,
+    isBestSeller: true,
   };
 
   const [formData, setFormData] = useState<any>(defaultForm);
@@ -108,12 +124,11 @@ export const AdminProductsPage: React.FC = () => {
     }
   };
 
-
-
   const loadProducts = () => {
+    setIsLoading(true);
     adminService
-      .getProducts({ limit: 50 })
-      .then((res: any) => setProducts(res.data.products))
+      .getProducts({ limit: 100 })
+      .then((res: any) => setProducts(res.data.products || []))
       .finally(() => setIsLoading(false));
   };
 
@@ -126,10 +141,10 @@ export const AdminProductsPage: React.FC = () => {
     try {
       if (editingProduct) {
         await adminService.updateProduct(editingProduct._id, formData);
-        dispatch(addToast({ type: 'success', message: 'Jersey updated successfully!' }));
+        dispatch(addToast({ type: 'success', message: 'Jersey updated successfully! Changes are live on homepage.' }));
       } else {
         await adminService.createProduct(formData);
-        dispatch(addToast({ type: 'success', message: 'New jersey added to catalog!' }));
+        dispatch(addToast({ type: 'success', message: 'New jersey added to catalog & homepage!' }));
       }
       setIsModalOpen(false);
       setEditingProduct(null);
@@ -151,15 +166,58 @@ export const AdminProductsPage: React.FC = () => {
     }
   };
 
+  const handleToggleHomepageFlag = async (
+    prod: IProduct,
+    flag: 'isBestSeller' | 'isNewArrival' | 'isFeatured'
+  ) => {
+    const nextVal = !prod[flag];
+    try {
+      await adminService.updateProduct(prod._id, { [flag]: nextVal });
+      setProducts((prev) =>
+        prev.map((p) => (p._id === prod._id ? { ...p, [flag]: nextVal } : p))
+      );
+      dispatch(
+        addToast({
+          type: 'success',
+          message: `Homepage placement updated for "${prod.name}"!`,
+        })
+      );
+    } catch {
+      dispatch(addToast({ type: 'error', message: 'Failed to update homepage status.' }));
+    }
+  };
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((prod) => {
+      const q = searchQuery.toLowerCase().trim();
+      const matchesSearch =
+        !q ||
+        prod.name.toLowerCase().includes(q) ||
+        prod.team.toLowerCase().includes(q) ||
+        prod.league?.toLowerCase().includes(q) ||
+        prod.season?.toLowerCase().includes(q);
+
+      if (!matchesSearch) return false;
+
+      if (filterTab === 'popular') return Boolean(prod.isBestSeller);
+      if (filterTab === 'newArrival') return Boolean(prod.isNewArrival);
+      if (filterTab === 'epl') return prod.league === 'Premier League';
+      if (filterTab === 'laliga') return prod.league === 'La Liga';
+
+      return true;
+    });
+  }, [products, searchQuery, filterTab]);
+
   return (
     <div className="space-y-6 font-sans">
+      {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl sm:text-3xl font-black text-black font-display uppercase tracking-tight">
-            FOOTBALL KITS & INVENTORY
+            FOOTBALL KITS & HOMEPAGE CATALOG
           </h2>
           <p className="text-sm text-gray-500 font-medium mt-1">
-            Manage match kits, size allocations, stock inventory, and club details
+            Manage jersey names, photos, stock, and configure which jerseys display on the public Homepage
           </p>
         </div>
         <button
@@ -168,10 +226,98 @@ export const AdminProductsPage: React.FC = () => {
             setFormData(defaultForm);
             setIsModalOpen(true);
           }}
-          className="inline-flex items-center gap-2 px-5 py-3 bg-[#FF5722] hover:bg-[#e04816] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-sm"
+          className="inline-flex items-center gap-2 px-5 py-3 bg-[#FF5722] hover:bg-[#e04816] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-sm cursor-pointer"
         >
           <Plus className="w-4 h-4" /> ADD NEW JERSEY
         </button>
+      </div>
+
+      {/* Guide Banner for Admin */}
+      <div className="bg-[#FAF9F5] border border-neutral-300 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+        <div className="flex items-start sm:items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center shrink-0">
+            <Globe className="w-5 h-5 text-[#FF5722]" />
+          </div>
+          <div>
+            <h4 className="text-xs sm:text-sm font-bold uppercase text-black font-sans">
+              How to manage Homepage Jersey Showcase
+            </h4>
+            <p className="text-xs text-neutral-600 mt-0.5 leading-relaxed">
+              • To change a jersey's name or pictures on the homepage: click <span className="font-bold text-black">Edit (✏️)</span> and update the title or photo URL/upload.<br />
+              • Toggle <span className="font-bold text-amber-700">★ Most Popular</span> to showcase under Most Popular Kits, or <span className="font-bold text-blue-700">⚡ New Season</span> to showcase under 2026/27 drops.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Filter Tabs & Search Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => setFilterTab('all')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase transition-all ${
+              filterTab === 'all'
+                ? 'bg-black text-white shadow-xs'
+                : 'bg-white text-neutral-700 border border-neutral-200 hover:bg-neutral-50'
+            }`}
+          >
+            All Kits ({products.length})
+          </button>
+          <button
+            onClick={() => setFilterTab('popular')}
+            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase transition-all ${
+              filterTab === 'popular'
+                ? 'bg-amber-600 text-white shadow-xs'
+                : 'bg-white text-neutral-700 border border-neutral-200 hover:bg-amber-50'
+            }`}
+          >
+            <Star className="w-3.5 h-3.5 text-amber-400" />
+            Homepage: Most Popular ({products.filter((p) => p.isBestSeller).length})
+          </button>
+          <button
+            onClick={() => setFilterTab('newArrival')}
+            className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase transition-all ${
+              filterTab === 'newArrival'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'bg-white text-neutral-700 border border-neutral-200 hover:bg-blue-50'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+            Homepage: New Season ({products.filter((p) => p.isNewArrival).length})
+          </button>
+          <button
+            onClick={() => setFilterTab('epl')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase transition-all ${
+              filterTab === 'epl'
+                ? 'bg-purple-600 text-white shadow-xs'
+                : 'bg-white text-neutral-700 border border-neutral-200 hover:bg-purple-50'
+            }`}
+          >
+            Premier League ({products.filter((p) => p.league === 'Premier League').length})
+          </button>
+          <button
+            onClick={() => setFilterTab('laliga')}
+            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase transition-all ${
+              filterTab === 'laliga'
+                ? 'bg-red-600 text-white shadow-xs'
+                : 'bg-white text-neutral-700 border border-neutral-200 hover:bg-red-50'
+            }`}
+          >
+            La Liga ({products.filter((p) => p.league === 'La Liga').length})
+          </button>
+        </div>
+
+        {/* Search Input */}
+        <div className="relative w-full sm:w-64">
+          <Search className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search kits, club, league..."
+            className="w-full pl-9 pr-3 py-2 bg-white border border-neutral-200 rounded-xl text-xs text-black placeholder:text-neutral-400 focus:outline-none focus:border-black"
+          />
+        </div>
       </div>
 
       {/* Products Table */}
@@ -180,94 +326,156 @@ export const AdminProductsPage: React.FC = () => {
           <table className="w-full text-left text-sm text-gray-700">
             <thead className="text-xs uppercase font-bold bg-gray-50 text-gray-600 border-b border-gray-200">
               <tr>
-                <th className="p-4">Jersey Name</th>
-                <th className="p-4">Club / Nation</th>
-                <th className="p-4">Season</th>
-                <th className="p-4">Type</th>
+                <th className="p-4">Jersey Name & Photo</th>
+                <th className="p-4">Club / League</th>
                 <th className="p-4">Price</th>
-                <th className="p-4">Total Stock</th>
+                <th className="p-4">Stock</th>
+                <th className="p-4">Homepage Placement</th>
                 <th className="p-4 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {products.map((prod) => (
-                <tr key={prod._id} className="hover:bg-gray-50 transition-colors">
-                  <td className="p-4 flex items-center gap-3.5">
-                    <div className="w-14 h-16 bg-[#ECEAE4] rounded-xl p-1.5 flex items-center justify-center shrink-0 overflow-hidden border border-gray-200 shadow-xs">
-                      {prod.images?.front ? (
-                        <img
-                          src={prod.images.front}
-                          alt={prod.name}
-                          className="w-full h-full object-contain"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            if (prod.images.front.startsWith('/uploads') && !target.src.includes(':5000') && !target.src.includes('http')) {
-                              const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-                              target.src = `${baseUrl}${prod.images.front}`;
-                            } else {
-                              target.style.display = 'none';
-                            }
-                          }}
-                        />
-                      ) : (
-                        <Shirt className="w-6 h-6 text-gray-400" />
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-bold text-black text-sm sm:text-base line-clamp-1">{prod.name}</p>
-                      <span className="text-xs text-gray-400 font-mono">ID: #{prod._id.slice(-6)}</span>
-                    </div>
-                  </td>
-                  <td className="p-4 font-semibold text-black text-sm">{prod.team}</td>
-                  <td className="p-4 text-gray-700 font-mono font-medium text-sm">{prod.season}</td>
-                  <td className="p-4">
-                    <span className="px-3 py-1 rounded-md text-xs font-bold uppercase bg-gray-100 text-gray-800 border border-gray-200">
-                      {prod.type}
-                    </span>
-                  </td>
-                  <td className="p-4 font-black text-black font-mono text-base">
-                    ₹{(prod.discountPrice || prod.price).toLocaleString('en-IN')}
-                  </td>
-                  <td className="p-4 font-mono font-bold text-sm">
-                    <span className={prod.totalStock < 15 ? 'text-red-600 font-black' : 'text-black'}>
-                      {prod.totalStock} units
-                    </span>
-                  </td>
-                  <td className="p-4 text-right space-x-2 shrink-0">
-                    <button
-                      onClick={() => {
-                        setEditingProduct(prod);
-                        setFormData({
-                          ...prod,
-                          isFeatured: prod.isFeatured || false,
-                          isNewArrival: prod.isNewArrival || false,
-                          isBestSeller: prod.isBestSeller || false,
-                          images: {
-                            front: prod.images?.front || '',
-                            back: prod.images?.back || '',
-                            detail: prod.images?.detail || '',
-                            lifestyle: prod.images?.lifestyle || '',
-                          },
-                        });
-                        setIsModalOpen(true);
-                      }}
-                      className="p-2.5 hover:bg-gray-100 rounded-xl text-black transition-colors"
-                      title="Edit Jersey"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    {isAdmin && (
-                      <button
-                        onClick={() => handleDeleteProduct(prod._id)}
-                        className="p-2.5 hover:bg-red-50 rounded-xl text-red-600 transition-colors"
-                        title="Delete Jersey"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
+              {filteredProducts.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="p-8 text-center text-neutral-500 italic">
+                    No jerseys match this filter. Add a new jersey or adjust search.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                filteredProducts.map((prod) => (
+                  <tr key={prod._id} className="hover:bg-gray-50 transition-colors">
+                    {/* Jersey Name & Thumbnail */}
+                    <td className="p-4 flex items-center gap-3.5">
+                      <div className="w-14 h-16 bg-[#ECEAE4] rounded-xl p-1.5 flex items-center justify-center shrink-0 overflow-hidden border border-gray-200 shadow-xs">
+                        {prod.images?.front ? (
+                          <img
+                            src={prod.images.front}
+                            alt={prod.name}
+                            className="w-full h-full object-contain"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              if (
+                                prod.images.front.startsWith('/uploads') &&
+                                !target.src.includes(':5000') &&
+                                !target.src.includes('http')
+                              ) {
+                                const baseUrl = SERVER_ORIGIN;
+                                target.src = `${baseUrl}${prod.images.front}`;
+                              } else {
+                                target.style.display = 'none';
+                              }
+                            }}
+                          />
+                        ) : (
+                          <Shirt className="w-6 h-6 text-gray-400" />
+                        )}
+                      </div>
+                      <div>
+                        <p className="font-bold text-black text-sm sm:text-base line-clamp-1">{prod.name}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-xs text-gray-400 font-mono">ID: #{prod._id.slice(-6)}</span>
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded bg-neutral-100 text-neutral-700">
+                            {prod.season} · {prod.type}
+                          </span>
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Club / League */}
+                    <td className="p-4">
+                      <p className="font-semibold text-black text-sm">{prod.team}</p>
+                      <span className="text-xs text-neutral-500">{prod.league || prod.country}</span>
+                    </td>
+
+                    {/* Price */}
+                    <td className="p-4 font-black text-black font-mono text-base">
+                      ₹{(prod.discountPrice || prod.price).toLocaleString('en-IN')}
+                    </td>
+
+                    {/* Stock */}
+                    <td className="p-4 font-mono font-bold text-sm">
+                      <span className={prod.totalStock < 15 ? 'text-red-600 font-black' : 'text-black'}>
+                        {prod.totalStock} units
+                      </span>
+                    </td>
+
+                    {/* Homepage Placement Badges & 1-Click Quick Toggles */}
+                    <td className="p-4">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleHomepageFlag(prod, 'isBestSeller')}
+                          title="Click to toggle Most Popular Kits showcase on Homepage"
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase transition-all cursor-pointer ${
+                            prod.isBestSeller
+                              ? 'bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200'
+                              : 'bg-neutral-100 text-neutral-400 border border-neutral-200 hover:text-neutral-700'
+                          }`}
+                        >
+                          <Star className="w-3 h-3" />
+                          {prod.isBestSeller ? 'Most Popular' : '+ Popular'}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleToggleHomepageFlag(prod, 'isNewArrival')}
+                          title="Click to toggle New Season 26/27 showcase on Homepage"
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase transition-all cursor-pointer ${
+                            prod.isNewArrival
+                              ? 'bg-blue-100 text-blue-900 border border-blue-300 hover:bg-blue-200'
+                              : 'bg-neutral-100 text-neutral-400 border border-neutral-200 hover:text-neutral-700'
+                          }`}
+                        >
+                          <Sparkles className="w-3 h-3" />
+                          {prod.isNewArrival ? 'New Season' : '+ New Season'}
+                        </button>
+
+                        {prod.isFeatured && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase bg-purple-100 text-purple-900 border border-purple-300">
+                            <Flame className="w-3 h-3 text-purple-700" /> Trending
+                          </span>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* Actions */}
+                    <td className="p-4 text-right space-x-2 shrink-0">
+                      <button
+                        onClick={() => {
+                          setEditingProduct(prod);
+                          setFormData({
+                            ...prod,
+                            isFeatured: prod.isFeatured || false,
+                            isNewArrival: prod.isNewArrival || false,
+                            isBestSeller: prod.isBestSeller || false,
+                            images: {
+                              front: prod.images?.front || '',
+                              back: prod.images?.back || '',
+                              detail: prod.images?.detail || '',
+                              lifestyle: prod.images?.lifestyle || '',
+                            },
+                          });
+                          setIsModalOpen(true);
+                        }}
+                        className="p-2.5 hover:bg-gray-100 rounded-xl text-black transition-colors inline-flex items-center gap-1 font-bold text-xs"
+                        title="Edit Jersey Name, Images & Details"
+                      >
+                        <Edit className="w-4 h-4 text-neutral-800" />
+                        <span className="hidden sm:inline">Edit</span>
+                      </button>
+                      {isAdmin && (
+                        <button
+                          onClick={() => handleDeleteProduct(prod._id)}
+                          className="p-2.5 hover:bg-red-50 rounded-xl text-red-600 transition-colors"
+                          title="Delete Jersey"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -342,8 +550,8 @@ export const AdminProductsPage: React.FC = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {[
-                { key: 'front', label: '1. Front View', required: true },
-                { key: 'back', label: '2. Back View', required: false },
+                { key: 'front', label: '1. Front View (Main Homepage Card Photo)', required: true },
+                { key: 'back', label: '2. Back View (Homepage Hover Flip Photo)', required: false },
                 { key: 'detail', label: '3. Badge / Detail View', required: false },
                 { key: 'lifestyle', label: '4. Lifestyle / Pitch View', required: false },
               ].map(({ key, label, required }) => {
@@ -383,7 +591,7 @@ export const AdminProductsPage: React.FC = () => {
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
                               if (currentImg.startsWith('/uploads') && !target.src.includes(':5000') && !target.src.includes('http')) {
-                                const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                                const baseUrl = SERVER_ORIGIN;
                                 target.src = `${baseUrl}${currentImg}`;
                               }
                             }}
@@ -458,46 +666,58 @@ export const AdminProductsPage: React.FC = () => {
 
           {/* Homepage Sections Allocation Toggles */}
           <div className="pt-4 border-t border-gray-200 space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-black">
-              Homepage Sections Allocation
-            </h4>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <label className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors select-none">
-                <input
-                  type="checkbox"
-                  checked={formData.isFeatured || false}
-                  onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
-                  className="w-4 h-4 text-[#FF5722] focus:ring-[#FF5722] border-gray-300 rounded"
-                />
-                <div>
-                  <span className="text-[11px] font-bold block text-black">Trending Now</span>
-                  <span className="text-[9px] text-gray-500">Show in main trending list</span>
-                </div>
-              </label>
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-black flex items-center gap-1.5">
+                <Globe className="w-4 h-4 text-[#FF5722]" /> Homepage Placement & Showcase
+              </h4>
+              <p className="text-[11px] text-gray-500 mt-0.5">
+                Check where this jersey should appear on the public Homepage. Changes apply immediately upon saving.
+              </p>
+            </div>
 
-              <label className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors select-none">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <label className="flex items-start gap-3 p-3.5 bg-amber-50/60 border border-amber-200 rounded-xl cursor-pointer hover:bg-amber-100/60 transition-colors select-none">
                 <input
                   type="checkbox"
                   checked={formData.isBestSeller || false}
                   onChange={(e) => setFormData({ ...formData, isBestSeller: e.target.checked })}
-                  className="w-4 h-4 text-[#FF5722] focus:ring-[#FF5722] border-gray-300 rounded"
+                  className="w-4 h-4 text-amber-600 focus:ring-amber-500 border-gray-300 rounded mt-0.5"
                 />
                 <div>
-                  <span className="text-[11px] font-bold block text-black">Most Popular</span>
-                  <span className="text-[9px] text-gray-500">Show in Most Popular Kits</span>
+                  <span className="text-xs font-bold block text-amber-950">★ Most Popular Kits</span>
+                  <span className="text-[10px] text-amber-800 leading-snug block mt-0.5">
+                    Showcases in the "MOST POPULAR KITS" row on the Homepage
+                  </span>
                 </div>
               </label>
 
-              <label className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-100 transition-colors select-none">
+              <label className="flex items-start gap-3 p-3.5 bg-blue-50/60 border border-blue-200 rounded-xl cursor-pointer hover:bg-blue-100/60 transition-colors select-none">
                 <input
                   type="checkbox"
                   checked={formData.isNewArrival || false}
                   onChange={(e) => setFormData({ ...formData, isNewArrival: e.target.checked })}
-                  className="w-4 h-4 text-[#FF5722] focus:ring-[#FF5722] border-gray-300 rounded"
+                  className="w-4 h-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-0.5"
                 />
                 <div>
-                  <span className="text-[11px] font-bold block text-black">New Arrival</span>
-                  <span className="text-[9px] text-gray-500">Show in New Arrivals</span>
+                  <span className="text-xs font-bold block text-blue-950">⚡ New Season 26/27</span>
+                  <span className="text-[10px] text-blue-800 leading-snug block mt-0.5">
+                    Showcases in the "NEW SEASON 26/27" drop row on the Homepage
+                  </span>
+                </div>
+              </label>
+
+              <label className="flex items-start gap-3 p-3.5 bg-purple-50/60 border border-purple-200 rounded-xl cursor-pointer hover:bg-purple-100/60 transition-colors select-none">
+                <input
+                  type="checkbox"
+                  checked={formData.isFeatured || false}
+                  onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                  className="w-4 h-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded mt-0.5"
+                />
+                <div>
+                  <span className="text-xs font-bold block text-purple-950">🔥 Trending Highlight</span>
+                  <span className="text-[10px] text-purple-800 leading-snug block mt-0.5">
+                    Mark as trending kit for shop badges and search filters
+                  </span>
                 </div>
               </label>
             </div>

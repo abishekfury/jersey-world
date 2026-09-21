@@ -21,15 +21,25 @@ import { LiveSalesProof } from './components/ui/LiveSalesProof';
 import { HomePage } from './pages/HomePage';
 import { ShopPage } from './pages/ShopPage';
 import { ProductDetailPage } from './pages/ProductDetailPage';
+import { CartPage } from './pages/CartPage';
 import { CheckoutPage } from './pages/CheckoutPage';
 import { OrderSuccessPage } from './pages/OrderSuccessPage';
+import { OrderFailurePage } from './pages/OrderFailurePage';
 import { OrdersPage } from './pages/account/OrdersPage';
 import { WishlistPage } from './pages/account/WishlistPage';
 import { AddressesPage } from './pages/account/AddressesPage';
 import { ProfilePage } from './pages/account/ProfilePage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
+import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/auth/ResetPasswordPage';
+import { GoogleCallbackPage } from './pages/auth/GoogleCallbackPage';
 import { AboutPage } from './pages/AboutPage';
+import { ContactPage } from './pages/ContactPage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
+import { TermsPage } from './pages/TermsPage';
+import { ShippingPolicyPage } from './pages/ShippingPolicyPage';
+import { ReturnPolicyPage } from './pages/ReturnPolicyPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 // Admin Pages
@@ -38,6 +48,8 @@ import { AdminProductsPage } from './pages/admin/AdminProductsPage';
 import { AdminOrdersPage } from './pages/admin/AdminOrdersPage';
 import { AdminUsersPage } from './pages/admin/AdminUsersPage';
 import { AdminCouponsPage } from './pages/admin/AdminCouponsPage';
+import { AdminReviewsPage } from './pages/admin/AdminReviewsPage';
+import { AdminCategoriesPage } from './pages/admin/AdminCategoriesPage';
 
 
 export const App: React.FC = () => {
@@ -66,12 +78,25 @@ export const App: React.FC = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/shop" element={<ShopPage />} />
           <Route path="/shop/:identifier" element={<ProductDetailPage />} />
+          <Route path="/cart" element={<CartPage />} />
           <Route path="/wishlist" element={<WishlistPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
+          <Route path="/order-failure" element={<OrderFailurePage />} />
+          <Route path="/order-failure/:orderId" element={<OrderFailurePage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/terms-and-conditions" element={<TermsPage />} />
+          <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
+          <Route path="/return-policy" element={<ReturnPolicyPage />} />
+          <Route path="/return-and-refund-policy" element={<ReturnPolicyPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+          <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
 
 
           {/* Customer Portal Nested Routes */}
@@ -87,7 +112,9 @@ export const App: React.FC = () => {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboardPage />} />
             <Route path="products" element={<AdminProductsPage />} />
+            <Route path="categories" element={<AdminCategoriesPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
+            <Route path="reviews" element={<AdminReviewsPage />} />
             <Route path="coupons" element={<AdminCouponsPage />} />
             <Route path="users" element={<AdminUsersPage />} />
           </Route>

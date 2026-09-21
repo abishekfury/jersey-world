@@ -183,8 +183,23 @@ export const Footer: React.FC = () => {
                   <span className="text-black font-semibold block">HQ Location:</span>
                   Chennai, Tamil Nadu, India
                 </p>
-                <div className="pt-2">
-                  <Link to="/about" className="text-xs font-bold text-black underline underline-offset-4 hover:text-[#FF5722]">
+                <div className="pt-2 flex flex-col gap-1.5 text-xs font-semibold">
+                  <Link to="/contact" className="hover:text-[#FF5722] transition-colors">
+                    Contact Us & Helpdesk →
+                  </Link>
+                  <Link to="/shipping-policy" className="hover:text-[#FF5722] transition-colors">
+                    Shipping & Delivery Policy
+                  </Link>
+                  <Link to="/return-policy" className="hover:text-[#FF5722] transition-colors">
+                    7-Day Return & Refund Policy
+                  </Link>
+                  <Link to="/privacy-policy" className="hover:text-[#FF5722] transition-colors">
+                    Privacy Policy
+                  </Link>
+                  <Link to="/terms" className="hover:text-[#FF5722] transition-colors">
+                    Terms & Conditions
+                  </Link>
+                  <Link to="/about" className="text-black underline underline-offset-4 hover:text-[#FF5722] pt-1">
                     About Jersey World →
                   </Link>
                 </div>

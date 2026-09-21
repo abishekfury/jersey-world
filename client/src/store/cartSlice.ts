@@ -173,6 +173,22 @@ export const applyCoupon = createAsyncThunk(
   }
 );
 
+export const removeCoupon = createAsyncThunk(
+  'cart/removeCoupon',
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem('jw_token');
+      if (token) {
+        const res = await cartService.removeCoupon();
+        if (res.data?.cart) return res.data.cart;
+      }
+    } catch {
+      // Fallback
+    }
+    return null;
+  }
+);
+
 const cartSlice = createSlice({
   name: 'cart',
   initialState,

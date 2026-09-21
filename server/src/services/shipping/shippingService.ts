@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { IShippingProvider } from './shippingProvider';
 import { MockShippingProvider } from './mockShippingProvider';
 import { ShiprocketProvider } from './shiprocketProvider';
@@ -21,19 +22,21 @@ class ShippingService {
 
   private async getSettings(): Promise<IShippingSettings> {
     try {
-      let settings = await ShippingSettings.findOne();
-      if (!settings) {
-        settings = await ShippingSettings.create({
-          enableShipping: true,
-          freeShippingThreshold: 1499, // Orders >= ₹1499 get FREE delivery
-          defaultShippingCharge: 79,
-          enableCod: true,
-          codFee: 25,
-          activeProvider: 'mock',
-          pickupPincode: '400001',
-        });
+      if (mongoose.connection.readyState === 1) {
+        let settings = await ShippingSettings.findOne().maxTimeMS(1000);
+        if (settings) {
+          return settings.toObject();
+        }
       }
-      return settings.toObject();
+      return {
+        enableShipping: true,
+        freeShippingThreshold: 1499,
+        defaultShippingCharge: 79,
+        enableCod: true,
+        codFee: 25,
+        activeProvider: 'mock',
+        pickupPincode: '400001',
+      };
     } catch {
       return {
         enableShipping: true,

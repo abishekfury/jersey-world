@@ -6,6 +6,7 @@ import {
   updateProduct,
   deleteProduct,
   getAllOrdersAdmin,
+  exportOrdersCSV,
   updateOrderStatus,
   reviewReturnRequest,
   getAllUsersAdmin,
@@ -44,6 +45,7 @@ router.delete('/products/:id', deleteProduct);
 
 
 // Orders Management & Returns
+router.get('/orders/export-csv', exportOrdersCSV);
 router.get('/orders', getAllOrdersAdmin);
 router.put('/orders/:id/status', updateOrderStatus);
 router.put('/orders/:id/return', reviewReturnRequest);

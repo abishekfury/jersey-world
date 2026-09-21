@@ -12,20 +12,21 @@ describe('Jersey World API Gateway Integration Tests', () => {
 
   beforeAll(async () => {
     const candidateUris = [
-      config.MONGODB_URI,
+      process.env.MONGODB_URI,
       'mongodb://127.0.0.1:27017/jersey-world',
       'mongodb://localhost:27017/jersey-world',
-    ];
+    ].filter(Boolean) as string[];
+
     for (const uri of candidateUris) {
       try {
-        await mongoose.connect(uri, { serverSelectionTimeoutMS: 2000 });
+        await mongoose.connect(uri, { serverSelectionTimeoutMS: 1000, connectTimeoutMS: 1000 });
         isDbConnected = mongoose.connection.readyState === 1;
         if (isDbConnected) break;
       } catch {
         // continue
       }
     }
-  }, 10000);
+  }, 5000);
 
   afterAll(async () => {
     if (mongoose.connection.readyState !== 0) {

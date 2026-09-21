@@ -3,6 +3,7 @@ import { Link, Outlet, useLocation, Navigate } from 'react-router-dom';
 import { ShoppingBag, Heart, User, MapPin, LogOut } from 'lucide-react';
 import { useAppSelector, useAppDispatch } from '../../store';
 import { logoutUser } from '../../store/authSlice';
+import { SEO } from '../seo/SEO';
 
 export const CustomerLayout: React.FC = () => {
   const location = useLocation();
@@ -22,6 +23,7 @@ export const CustomerLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <SEO title="My Account" noIndex={true} />
       {/* Account Header */}
       <div className="bg-white border border-gray-200 rounded-3xl p-6 sm:p-8 mb-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-sm">
         <div className="flex items-center gap-4 text-center sm:text-left">

@@ -23,6 +23,20 @@ const OfferBannerSchema = new Schema<IOfferBannerDocument>(
       default: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=85',
     },
     isActive: { type: Boolean, default: true },
+    // Hero Section Customization
+    heroTag: { type: String, default: 'OFFICIAL 2026/27 COLLECTION' },
+    heroHeadline: { type: String, default: 'WEAR THE PASSION.' },
+    heroSubheadline: { type: String, default: 'OWN THE GLORY.' },
+    heroDescription: {
+      type: String,
+      default:
+        'Discover authentic club & international jerseys with official custom name & number printing, free express shipping, and seamless size exchanges.',
+    },
+    heroBackgroundImage: {
+      type: String,
+      default:
+        'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=2400&q=85',
+    },
   },
   { timestamps: true }
 );

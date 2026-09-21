@@ -14,18 +14,20 @@ export const connectDB = async (): Promise<typeof mongoose> => {
   const uniqueUris = Array.from(new Set(candidateUris.filter(Boolean)));
 
   for (const uri of uniqueUris) {
+    const isRemote = uri.startsWith('mongodb+srv://') || (!uri.includes('127.0.0.1') && !uri.includes('localhost'));
+    const timeoutMs = isRemote ? 10000 : 2500;
     try {
-      logger.info(`Attempting MongoDB connection to: ${uri}...`);
+      logger.info(`Attempting MongoDB connection to: ${uri.replace(/:([^:@]+)@/, ':****@')}...`);
       const conn = await mongoose.connect(uri, {
         autoIndex: true,
-        serverSelectionTimeoutMS: 2000, // Fast 2s failover instead of 30s hang
-        connectTimeoutMS: 3000,
+        serverSelectionTimeoutMS: timeoutMs,
+        connectTimeoutMS: timeoutMs,
       });
 
-      logger.info(`✅ MongoDB Connected Successfully: ${conn.connection.host}:${conn.connection.port}/${conn.connection.name}`);
+      logger.info(`✅ MongoDB Connected Successfully: ${conn.connection.host}/${conn.connection.name}`);
       return conn;
-    } catch {
-      logger.warn(`Could not connect to MongoDB on ${uri}. Trying next candidate...`);
+    } catch (err: any) {
+      logger.warn(`Could not connect to MongoDB on candidate URI: ${err?.message || err}. Trying next...`);
     }
   }
 

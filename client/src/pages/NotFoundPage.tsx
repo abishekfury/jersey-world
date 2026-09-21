@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
+import { SEO } from '../components/seo/SEO';
 
 export const NotFoundPage: React.FC = () => {
   const [radius, setRadius] = useState(210);
@@ -87,6 +88,7 @@ export const NotFoundPage: React.FC = () => {
 
   return (
     <div className="bg-white text-black min-h-[85vh] flex flex-col items-center justify-center px-4 py-12 sm:py-16 select-none font-sans overflow-hidden">
+      <SEO title="Page Not Found" noIndex={true} />
       {/* Central Circular Stage */}
       <div className="relative w-[340px] h-[340px] sm:w-[480px] sm:h-[480px] lg:w-[560px] lg:h-[560px] flex items-center justify-center">
         {/* Giant Light Gray 404 in the exact center */}

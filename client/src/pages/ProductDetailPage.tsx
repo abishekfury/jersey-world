@@ -10,6 +10,8 @@ import { toggleWishlist } from '../store/wishlistSlice';
 import { addToast } from '../store/uiSlice';
 import { ProductCard } from '../components/product/ProductCard';
 import { Accordion } from '../components/ui/Accordion';
+import { SEO } from '../components/seo/SEO';
+import { trackViewItem, trackAddToCart } from '../utils/analytics';
 
 const ALL_SIZES: JerseySize[] = ['S', 'M', 'L', 'XL', 'XXL', '3XL'];
 
@@ -93,6 +95,7 @@ export const ProductDetailPage: React.FC = () => {
         const prod = res.data.product;
         setProduct(prod);
         setSelectedImage(prod.images?.front || '');
+        trackViewItem(prod);
 
         // Fetch related
         productService
@@ -138,6 +141,15 @@ export const ProductDetailPage: React.FC = () => {
       return;
     }
 
+    trackAddToCart({
+      productId: product._id,
+      name: product.name,
+      price: effectivePrice,
+      quantity,
+      size: selectedSize,
+      team: product.team,
+    });
+
     dispatch(
       addLocalItem({
         product,
@@ -166,6 +178,15 @@ export const ProductDetailPage: React.FC = () => {
       dispatch(addToast({ type: 'error', message: 'Please select a size first.' }));
       return;
     }
+
+    trackAddToCart({
+      productId: product._id,
+      name: product.name,
+      price: effectivePrice,
+      quantity,
+      size: selectedSize,
+      team: product.team,
+    });
 
     dispatch(
       addLocalItem({
@@ -295,8 +316,106 @@ export const ProductDetailPage: React.FC = () => {
     },
   ];
 
+  const productJsonLd = product
+    ? [
+        {
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: product.name,
+          image: [product.images.front, product.images.back, product.images.detail].filter(Boolean),
+          description:
+            product.description ||
+            `Official ${product.name} ${product.type} Kit by ${product.team} (${product.season}). Authentic fit, breathable technical fabric, available at Jersey World.`,
+          sku: product.slug || product._id,
+          brand: {
+            '@type': 'Brand',
+            name: product.team || 'Football Official',
+          },
+          offers: {
+            '@type': 'Offer',
+            url: `https://jersey-world.vercel.app/shop/${product.slug || product._id}`,
+            priceCurrency: 'INR',
+            price: product.discountPrice || product.price,
+            priceValidUntil: '2027-12-31',
+            itemCondition: 'https://schema.org/NewCondition',
+            availability: product.totalStock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            seller: {
+              '@type': 'Organization',
+              name: 'Jersey World',
+            },
+          },
+          ...(product.rating
+            ? {
+                aggregateRating: {
+                  '@type': 'AggregateRating',
+                  ratingValue: product.rating,
+                  reviewCount: product.numReviews || Math.max(reviews.length, 1),
+                  bestRating: '5',
+                  worstRating: '1',
+                },
+              }
+            : {}),
+          review: (displayReviews || []).slice(0, 5).map((rev: any) => ({
+            '@type': 'Review',
+            author: {
+              '@type': 'Person',
+              name: rev.userName || 'Verified Football Fan',
+            },
+            datePublished: rev.createdAt || '2026-08-01',
+            reviewBody: rev.comment,
+            reviewRating: {
+              '@type': 'Rating',
+              ratingValue: rev.rating || 5,
+              bestRating: '5',
+              worstRating: '1',
+            },
+          })),
+        },
+        {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Home',
+              item: 'https://jersey-world.vercel.app/',
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Shop',
+              item: 'https://jersey-world.vercel.app/shop',
+            },
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: product.league || 'Catalog',
+              item: `https://jersey-world.vercel.app/shop?league=${encodeURIComponent(product.league || '')}`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 4,
+              name: product.name,
+              item: `https://jersey-world.vercel.app/shop/${product.slug || product._id}`,
+            },
+          ],
+        },
+      ]
+    : undefined;
+
   return (
     <div className="bg-white text-black min-h-screen pb-24 lg:pb-16 font-sans">
+      {product && (
+        <SEO
+          title={`${product.name} — ${product.team} ${product.season} ${product.type} Kit`}
+          description={`Buy ${product.name} (${product.team} ${product.season} ${product.type} Jersey) for ₹${product.discountPrice || product.price}. Authentic matchwear with player customization and AI Virtual Fitting Room at Jersey World.`}
+          keywords={`${product.name}, ${product.team} jersey, ${product.league} kit, ${product.season} football shirt, buy ${product.name} online india, authentic football jersey`}
+          image={product.images.front}
+          type="product"
+          jsonLd={productJsonLd}
+        />
+      )}
       <div className="max-w-[1360px] mx-auto px-5 sm:px-8 lg:px-12 py-6 sm:py-10 space-y-20">
         {/* Main Product Layout */}
         <div className="flex flex-col lg:flex-row items-start gap-8 sm:gap-12 lg:gap-16">

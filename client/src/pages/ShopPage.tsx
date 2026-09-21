@@ -9,6 +9,7 @@ import { ProductCard } from '../components/product/ProductCard';
 import { FilterSidebar } from '../components/product/FilterSidebar';
 import { SortDropdown } from '../components/product/SortDropdown';
 import { CustomSelect } from '../components/ui/CustomSelect';
+import { SEO } from '../components/seo/SEO';
 
 
 export const ShopPage: React.FC = () => {
@@ -128,8 +129,52 @@ export const ShopPage: React.FC = () => {
 
 
 
+  const shopJsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: 'https://jersey-world.vercel.app/'
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Shop',
+          item: 'https://jersey-world.vercel.app/shop'
+        },
+        ...(selectedTeam || selectedLeague || selectedType
+          ? [
+              {
+                '@type': 'ListItem',
+                position: 3,
+                name: selectedTeam || selectedLeague || selectedType,
+                item: `https://jersey-world.vercel.app/shop?${searchParams.toString()}`
+              }
+            ]
+          : [])
+      ]
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: `${pageTitle} | Jersey World`,
+      description: `Explore authentic ${pageTitle.toLowerCase()} with custom name and number printing, player versions, and AI Virtual Try-On at Jersey World.`,
+      url: `https://jersey-world.vercel.app/shop`
+    }
+  ];
+
   return (
     <div className="bg-white text-black min-h-screen font-sans">
+      <SEO
+        title={`${pageTitle} — Football Kits & Matchwear`}
+        description={`Explore authentic ${pageTitle.toLowerCase()} with custom name and number printing, fan & player editions, retro collections, and AI Virtual Try-On at Jersey World.`}
+        keywords={`${pageTitle.toLowerCase()}, authentic football shirts, soccer kits, buy football jersey online india, player version jerseys, retro kits`}
+        jsonLd={shopJsonLd}
+      />
       <div className="w-full px-5 sm:px-8 md:px-14 lg:px-16 xl:px-20">
         {/* ── Collection Header ── */}
         <div className="pt-8 sm:pt-12 pb-6 sm:pb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-4">

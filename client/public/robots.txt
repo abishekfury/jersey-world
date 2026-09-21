@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+Allow: /shop
+Allow: /shop/*
+Allow: /about
+Allow: /contact
+Allow: /sitemap.xml
+
+# Protected and checkout paths
+Disallow: /account/
+Disallow: /account/*
+Disallow: /checkout
+Disallow: /order-success/
+Disallow: /order-failure/
+Disallow: /admin/
+Disallow: /admin/*
+Disallow: /login
+Disallow: /register
+
+Sitemap: https://jersey-world.vercel.app/sitemap.xml

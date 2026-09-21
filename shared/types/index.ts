@@ -4,6 +4,7 @@ export type UserRole = 'customer' | 'manager' | 'admin';
 export interface IUserAddress {
   _id?: string;
   fullName: string;
+  email?: string;
   phone: string;
   address: string;
   apartment?: string;
@@ -49,6 +50,23 @@ export type JerseySize = 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | '3XL';
 export type JerseyGender = 'Men' | 'Women' | 'Unisex' | 'Kids';
 
 
+export interface IImageGalleryItem {
+  url: string;
+  publicId?: string;
+  alt?: string;
+}
+
+export interface IProductVariant {
+  _id?: string;
+  size: JerseySize;
+  color?: string;
+  price?: number;
+  discountPrice?: number;
+  stock: number;
+  sku: string;
+  isActive?: boolean;
+}
+
 export interface IProductImage {
   front: string;
   back: string;
@@ -68,6 +86,9 @@ export interface IAIAsset {
 export interface ISizeStock {
   size: JerseySize;
   stock: number;
+  sku?: string;
+  priceOverride?: number;
+  color?: string;
 }
 
 export interface IProductShipping {
@@ -82,6 +103,8 @@ export interface IProduct {
   name: string;
   slug: string;
   team: string;
+  brand?: string;
+  category?: string;
   country: string;
   league: string;
   season: string;
@@ -95,8 +118,10 @@ export interface IProduct {
   discountPrice?: number;
   shipping: IProductShipping;
   images: IProductImage;
+  galleryImages?: IImageGalleryItem[];
   sizes: JerseySize[];
   sizeStock: ISizeStock[];
+  variants?: IProductVariant[];
   totalStock: number;
   colors: string[];
   tags: string[];
@@ -106,6 +131,7 @@ export interface IProduct {
   isFeatured: boolean;
   isNewArrival: boolean;
   isBestSeller: boolean;
+  isPublished?: boolean;
   isCustomizable: boolean;
   customizationPrice?: number;
   gender?: JerseyGender;
@@ -192,7 +218,8 @@ export interface IOrderReturnDetails {
 export interface IOrder {
   _id: string;
   orderNumber: string;
-  user: string;
+  user?: string;
+  guestEmail?: string;
   items: IOrderItem[];
   shippingAddress: IUserAddress;
   paymentMethod: PaymentMethodType;
@@ -436,6 +463,12 @@ export interface IOfferBanner {
   leftImage: string;
   rightImage: string;
   isActive: boolean;
+  // Hero Section Customization
+  heroTag?: string;
+  heroHeadline?: string;
+  heroSubheadline?: string;
+  heroDescription?: string;
+  heroBackgroundImage?: string;
 }
 
 const SharedTypes = {};

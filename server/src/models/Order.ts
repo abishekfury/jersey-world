@@ -45,7 +45,8 @@ const PricingSchema = new Schema<IOrderPricing>(
 const OrderSchema = new Schema<IOrderDocument>(
   {
     orderNumber: { type: String, required: true, unique: true, index: true },
-    user: { type: Schema.Types.ObjectId as any, ref: 'User', required: true, index: true },
+    user: { type: Schema.Types.ObjectId as any, ref: 'User', required: false, index: true },
+    guestEmail: { type: String, trim: true, lowercase: true },
     items: [OrderItemSchema],
     shippingAddress: {
       fullName: { type: String, required: true },

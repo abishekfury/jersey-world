@@ -5,6 +5,13 @@ import { User, IUserDocument } from '../models/User';
 import { AppError } from './errorHandler';
 import { UserRole } from '@shared/types';
 
+declare global {
+  namespace Express {
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface User extends IUserDocument {}
+  }
+}
+
 export interface AuthenticatedRequest extends Request {
   user?: IUserDocument;
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Truck, Edit, Check, PackageCheck, MapPin, Sparkles, ExternalLink, Send } from 'lucide-react';
+import { ShoppingBag, Truck, Edit, Check, PackageCheck, MapPin, Sparkles, ExternalLink, Send, Download } from 'lucide-react';
 import { adminService, shippingService } from '../../services/api';
 import { IOrder, OrderStatus } from '@shared/types';
 import { Modal } from '../../components/ui/Modal';
@@ -10,6 +10,7 @@ import { useAppDispatch } from '../../store';
 export const AdminOrdersPage: React.FC = () => {
   const [orders, setOrders] = useState<IOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null);
   const [newStatus, setNewStatus] = useState<OrderStatus>('Processing');
   const [trackingNumber, setTrackingNumber] = useState('');
@@ -28,6 +29,27 @@ export const AdminOrdersPage: React.FC = () => {
   useEffect(() => {
     loadOrders();
   }, []);
+
+  const handleExportCsv = async () => {
+    setIsExporting(true);
+    try {
+      const response = await adminService.exportOrdersCSV();
+      const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `jersey_world_orders_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      dispatch(addToast({ type: 'success', message: 'Orders CSV report downloaded!' }));
+    } catch {
+      dispatch(addToast({ type: 'error', message: 'Failed to export CSV report.' }));
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const handleGenerateAwb = async (orderId: string) => {
     setIsGeneratingAwb(orderId);
@@ -72,6 +94,15 @@ export const AdminOrdersPage: React.FC = () => {
             Track order status, manage India post/BlueDart tracking numbers, and view customer shipping details
           </p>
         </div>
+
+        <button
+          onClick={handleExportCsv}
+          disabled={isExporting || orders.length === 0}
+          className="inline-flex items-center gap-2 px-5 py-3 bg-black hover:bg-[#FF5722] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-sm disabled:opacity-50"
+        >
+          <Download className="w-4 h-4" />
+          <span>{isExporting ? 'Exporting CSV...' : 'Export Orders (CSV)'}</span>
+        </button>
       </div>
 
       {/* Orders Table */}

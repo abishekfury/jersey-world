@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import { AuthenticatedRequest } from '../middleware/auth';
 import { Order } from '../models/Order';
+import { User } from '../models/User';
 import { Cart } from '../models/Cart';
 import { Product } from '../models/Product';
 import { Coupon } from '../models/Coupon';
@@ -82,26 +83,69 @@ const atomicallyRestoreInventory = async (items: any[]) => {
 
 export const createOrder = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const userId = req.user!._id;
-    const { shippingAddress, paymentMethod = 'PREPAID' } = req.body;
+    const { shippingAddress, paymentMethod = 'PREPAID', items: bodyItems, couponCode: bodyCouponCode } = req.body;
 
     if (!shippingAddress || (!shippingAddress.pincode && !shippingAddress.postalCode)) {
       return next(new AppError('Complete delivery address with PIN code is required.', 400));
     }
 
     const deliveryPincode = (shippingAddress.pincode || shippingAddress.postalCode || '').trim();
+    const guestEmail = (shippingAddress.email || req.body.email || req.user?.email || '').trim().toLowerCase();
 
-    const cart = await Cart.findOne({ user: userId }).populate('items.product');
-    if (!cart || cart.items.length === 0) {
+    // 1. Resolve User (if logged in, or find/create guest account)
+    let orderUserId = req.user?._id;
+    if (!orderUserId && guestEmail) {
+      let guestUser = await User.findOne({ email: guestEmail });
+      if (!guestUser) {
+        guestUser = await User.create({
+          name: shippingAddress.fullName || 'Guest Customer',
+          email: guestEmail,
+          phone: shippingAddress.phone || '',
+          authProvider: 'otp',
+          isEmailVerified: false,
+          role: 'customer',
+        });
+      }
+      orderUserId = guestUser._id;
+    }
+
+    // 2. Resolve items & coupon (from Cart if logged in, or from body for guest)
+    let cartItems: any[] = [];
+    let cartCouponCode = bodyCouponCode;
+
+    if (req.user) {
+      const dbCart = await Cart.findOne({ user: req.user._id }).populate('items.product');
+      if (dbCart && dbCart.items && dbCart.items.length > 0) {
+        cartItems = dbCart.items;
+        cartCouponCode = dbCart.couponCode || bodyCouponCode;
+      }
+    }
+
+    if (cartItems.length === 0 && bodyItems && Array.isArray(bodyItems) && bodyItems.length > 0) {
+      for (const bItem of bodyItems) {
+        const prodId = bItem.productId || (typeof bItem.product === 'object' ? bItem.product?._id : bItem.product);
+        const productDoc = await Product.findById(prodId);
+        if (productDoc) {
+          cartItems.push({
+            product: productDoc,
+            size: bItem.size,
+            quantity: bItem.quantity || 1,
+            customization: bItem.customization,
+          });
+        }
+      }
+    }
+
+    if (cartItems.length === 0) {
       return next(new AppError('Your cart is empty.', 400));
     }
 
-    // 1. Verify stock and calculate zero-trust items from database
+    // 3. Verify stock and calculate zero-trust items from database
     const orderItems: any[] = [];
     const cartItemsForShipping: Array<{ productId: string; quantity: number }> = [];
     let calculatedSubtotal = 0;
 
-    for (const item of cart.items) {
+    for (const item of cartItems) {
       const product = item.product as any;
       if (!product || !product.active) {
         return next(new AppError(`Jersey ${product?.name || ''} is no longer active.`, 400));
@@ -144,14 +188,14 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response, next
       });
     }
 
-    // 2. Zero-Trust Coupon Recalculation
+    // 4. Zero-Trust Coupon Recalculation
     let validatedDiscount = 0;
     let usedCouponDoc: any = null;
 
-    if (cart.couponCode) {
+    if (cartCouponCode) {
       const now = new Date();
       usedCouponDoc = await Coupon.findOne({
-        code: cart.couponCode.toUpperCase(),
+        code: cartCouponCode.toUpperCase(),
         active: true,
         validFrom: { $lte: now },
         validUntil: { $gte: now },
@@ -170,7 +214,7 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response, next
       }
     }
 
-    // 3. Zero-Trust Shipping & COD Rate Recalculation on Backend
+    // 5. Zero-Trust Shipping & COD Rate Recalculation on Backend
     const shippingRate = await shippingService.calculateCartShipping({
       pincode: deliveryPincode,
       items: cartItemsForShipping,
@@ -198,7 +242,7 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response, next
         amountInINR: grandTotal,
         receipt: orderNumber,
         notes: {
-          userId: userId.toString(),
+          userId: orderUserId ? orderUserId.toString() : 'guest',
           orderNumber,
         },
       });
@@ -212,10 +256,18 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response, next
 
     const order = await Order.create({
       orderNumber,
-      user: userId,
+      user: orderUserId || undefined,
+      guestEmail: guestEmail || undefined,
       items: orderItems,
       shippingAddress: {
-        ...shippingAddress,
+        fullName: shippingAddress.fullName,
+        phone: shippingAddress.phone,
+        street: shippingAddress.street || shippingAddress.address || '',
+        address: shippingAddress.address || shippingAddress.street || '',
+        apartment: shippingAddress.apartment || '',
+        area: shippingAddress.area || '',
+        city: shippingAddress.city,
+        state: shippingAddress.state,
         pincode: deliveryPincode,
         postalCode: deliveryPincode,
         country: shippingAddress.country || 'India',
@@ -252,19 +304,23 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response, next
     if (isCod) {
       await shippingService.createShipmentForOrder(order._id.toString());
 
-      if (usedCouponDoc) {
+      if (usedCouponDoc && orderUserId) {
         await Coupon.updateOne(
           { _id: usedCouponDoc._id },
           {
             $inc: { usedCount: 1 },
-            $push: { usedBy: { userId, count: 1 } },
+            $push: { usedBy: { userId: orderUserId, count: 1 } },
           }
         );
       }
 
-      await Cart.findOneAndUpdate({ user: userId }, { items: [], discount: 0, couponCode: undefined });
-      NotificationService.notifyOrderPlaced(order, req.user);
-      NotificationService.notifyOrderConfirmed(order, req.user);
+      if (req.user) {
+        await Cart.findOneAndUpdate({ user: req.user._id }, { items: [], discount: 0, couponCode: undefined });
+      }
+
+      const customer = req.user || { name: shippingAddress.fullName, email: guestEmail };
+      NotificationService.notifyOrderPlaced(order, customer);
+      NotificationService.notifyOrderConfirmed(order, customer);
     }
 
     res.status(201).json({
@@ -290,13 +346,12 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response, next
 export const verifyPayment = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { orderId, paymentId, signature } = req.body;
-    const userId = req.user!._id;
 
     if (!orderId || !paymentId || !signature) {
       return next(new AppError('Missing payment verification parameters.', 400));
     }
 
-    const order = await Order.findOne({ 'paymentResult.orderId': orderId, user: userId });
+    const order = await Order.findOne({ 'paymentResult.orderId': orderId });
     if (!order) {
       return next(new AppError('Order not found.', 404));
     }
@@ -342,21 +397,28 @@ export const verifyPayment = async (req: AuthenticatedRequest, res: Response, ne
     await shippingService.createShipmentForOrder(order._id.toString());
 
     // 4. Update coupon tracking if applicable
-    const cart = await Cart.findOne({ user: userId });
-    if (cart?.couponCode) {
-      await Coupon.updateOne(
-        { code: cart.couponCode.toUpperCase() },
-        {
-          $inc: { usedCount: 1 },
-          $push: { usedBy: { userId, count: 1 } },
-        }
-      );
+    const activeUserId = req.user?._id || order.user;
+    if (activeUserId) {
+      const cart = await Cart.findOne({ user: activeUserId });
+      if (cart?.couponCode) {
+        await Coupon.updateOne(
+          { code: cart.couponCode.toUpperCase() },
+          {
+            $inc: { usedCount: 1 },
+            $push: { usedBy: { userId: activeUserId, count: 1 } },
+          }
+        );
+      }
+      await Cart.findOneAndUpdate({ user: activeUserId }, { items: [], discount: 0, couponCode: undefined });
     }
 
-    // 5. Clear cart & notify customer
-    await Cart.findOneAndUpdate({ user: userId }, { items: [], discount: 0, couponCode: undefined });
-    NotificationService.notifyOrderPlaced(order, req.user);
-    NotificationService.notifyOrderConfirmed(order, req.user);
+    // 5. Notify customer (SendGrid order confirmation email)
+    const customer = req.user || {
+      name: order.shippingAddress.fullName,
+      email: (order as any).guestEmail || order.shippingAddress.email || '',
+    };
+    NotificationService.notifyOrderPlaced(order, customer);
+    NotificationService.notifyOrderConfirmed(order, customer);
 
     res.status(200).json({
       success: true,
@@ -371,7 +433,7 @@ export const verifyPayment = async (req: AuthenticatedRequest, res: Response, ne
 export const handlePaymentWebhook = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const webhookSignature = req.headers['x-razorpay-signature'] as string;
-    const webhookSecret = config.RAZORPAY_KEY_SECRET;
+    const webhookSecret = config.RAZORPAY_WEBHOOK_SECRET || config.RAZORPAY_KEY_SECRET;
 
     if (webhookSignature && webhookSecret) {
       const expectedSignature = crypto
@@ -436,11 +498,16 @@ export const getMyOrders = async (req: AuthenticatedRequest, res: Response, next
 export const getOrderById = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { id } = req.params;
-    const userId = req.user!._id;
-    const isPrivileged = req.user!.role === 'admin' || req.user!.role === 'manager';
+    const isPrivileged = req.user && (req.user.role === 'admin' || req.user.role === 'manager');
 
-    const query = isPrivileged ? { _id: id } : { _id: id, user: userId };
-    const order = await Order.findOne(query).populate('shipmentId');
+    let order;
+    if (isPrivileged) {
+      order = await Order.findById(id).populate('shipmentId');
+    } else if (req.user) {
+      order = await Order.findOne({ _id: id, user: req.user._id }).populate('shipmentId');
+    } else {
+      order = await Order.findById(id).populate('shipmentId');
+    }
 
     if (!order) {
       return next(new AppError('Order not found.', 404));

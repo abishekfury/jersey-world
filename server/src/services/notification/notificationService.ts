@@ -1,4 +1,5 @@
 import { logger } from '../../config/logger';
+import { sendOrderEmail } from '../email/emailService';
 
 export class NotificationService {
   public static notifyOrderPlaced(order: any, user: any): void {
@@ -10,6 +11,10 @@ export class NotificationService {
 
   public static notifyOrderConfirmed(order: any, user: any): void {
     logger.info(`[Notification] Order Confirmed: ${order.orderNumber} for ${user?.email || 'customer'}`);
+    // Trigger SendGrid Order Confirmation Email
+    sendOrderEmail(user, order).catch((err) => {
+      logger.error(`Failed to send order email for ${order.orderNumber}:`, err);
+    });
   }
 
   public static notifyOrderShipped(order: any, user: any, awb: string, courier: string): void {

@@ -27,7 +27,7 @@ export const AdminCouponsPage: React.FC = () => {
     active: true,
   });
 
-  // Homepage Offer Banner State
+  // Homepage Offer Banner & Hero State
   const [bannerData, setBannerData] = useState<IOfferBanner>({
     badgeText: 'LIMITED SEASON OFFER',
     discountHeadline: '45% OFF',
@@ -38,6 +38,13 @@ export const AdminCouponsPage: React.FC = () => {
     leftImage: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=700&q=85',
     rightImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=85',
     isActive: true,
+    heroTag: 'OFFICIAL 2026/27 COLLECTION',
+    heroHeadline: 'WEAR THE PASSION.',
+    heroSubheadline: 'OWN THE GLORY.',
+    heroDescription:
+      'Discover authentic club & international jerseys with official custom name & number printing, free express shipping, and seamless size exchanges.',
+    heroBackgroundImage:
+      'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=2400&q=85',
   });
   const [isSavingBanner, setIsSavingBanner] = useState(false);
 
@@ -140,16 +147,19 @@ export const AdminCouponsPage: React.FC = () => {
     }
   };
 
-  // Image Upload helper for Left & Right banner images
-  const handleBannerImageUpload = async (side: 'leftImage' | 'rightImage', file: File) => {
+  // Image Upload helper for banner and hero images
+  const handleBannerImageUpload = async (
+    key: 'leftImage' | 'rightImage' | 'heroBackgroundImage',
+    file: File
+  ) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       if (e.target?.result) {
         setBannerData((prev) => ({
           ...prev,
-          [side]: e.target?.result as string,
+          [key]: e.target?.result as string,
         }));
-        dispatch(addToast({ type: 'success', message: `${side === 'leftImage' ? 'Left' : 'Right'} image loaded!` }));
+        dispatch(addToast({ type: 'success', message: 'Image loaded successfully!' }));
       }
     };
     reader.readAsDataURL(file);
@@ -384,10 +394,115 @@ export const AdminCouponsPage: React.FC = () => {
           </div>
 
           {/* Edit Form */}
-          <form onSubmit={handleSaveBanner} className="bg-white border border-neutral-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xs">
-            <h3 className="text-base font-bold font-display uppercase tracking-wider text-black pb-3 border-b border-neutral-100">
-              Edit Homepage Banner Text & Images
-            </h3>
+          <form onSubmit={handleSaveBanner} className="bg-white border border-neutral-200 rounded-3xl p-6 sm:p-8 space-y-8 shadow-xs">
+            {/* 1. HERO SECTION CUSTOMIZATION */}
+            <div className="pb-6 border-b border-neutral-200 space-y-5">
+              <div>
+                <h3 className="text-base font-bold font-display uppercase tracking-wider text-black flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-[#FF5722]" /> 1. Homepage Hero Banner & Backdrop
+                </h3>
+                <p className="text-xs text-neutral-500 mt-0.5">
+                  Customize the main headline, subheadline, season badge, and stadium backdrop image on the Public Homepage
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-xs font-bold uppercase text-black mb-1.5">
+                    Hero Season Badge Tag
+                  </label>
+                  <input
+                    type="text"
+                    value={bannerData.heroTag || ''}
+                    onChange={(e) => setBannerData({ ...bannerData, heroTag: e.target.value })}
+                    placeholder="e.g. OFFICIAL 2026/27 COLLECTION"
+                    className="w-full bg-neutral-50 border border-neutral-300 rounded-xl px-4 py-3 text-xs font-mono font-bold text-black focus:border-black focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase text-black mb-1.5">
+                    Hero Main Headline
+                  </label>
+                  <input
+                    type="text"
+                    value={bannerData.heroHeadline || ''}
+                    onChange={(e) => setBannerData({ ...bannerData, heroHeadline: e.target.value })}
+                    placeholder="e.g. WEAR THE PASSION."
+                    className="w-full bg-neutral-50 border border-neutral-300 rounded-xl px-4 py-3 text-sm font-bold text-black focus:border-black focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase text-black mb-1.5">
+                    Hero Subheadline
+                  </label>
+                  <input
+                    type="text"
+                    value={bannerData.heroSubheadline || ''}
+                    onChange={(e) => setBannerData({ ...bannerData, heroSubheadline: e.target.value })}
+                    placeholder="e.g. OWN THE GLORY."
+                    className="w-full bg-neutral-50 border border-neutral-300 rounded-xl px-4 py-3 text-sm font-bold text-black focus:border-black focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase text-black mb-1.5">
+                    Hero Subtitle / Description
+                  </label>
+                  <input
+                    type="text"
+                    value={bannerData.heroDescription || ''}
+                    onChange={(e) => setBannerData({ ...bannerData, heroDescription: e.target.value })}
+                    placeholder="e.g. Discover authentic club & international jerseys..."
+                    className="w-full bg-neutral-50 border border-neutral-300 rounded-xl px-4 py-3 text-xs text-black focus:border-black focus:outline-none"
+                  />
+                </div>
+
+                <div className="sm:col-span-2 space-y-2 p-4 bg-neutral-50 rounded-2xl border border-neutral-200">
+                  <label className="block text-xs font-bold uppercase text-black">
+                    Hero Panoramic Stadium Backdrop Image
+                  </label>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <img
+                      src={bannerData.heroBackgroundImage || 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=2400&q=85'}
+                      alt="Hero Backdrop Preview"
+                      className="w-full sm:w-48 h-24 object-cover rounded-xl border border-neutral-300 shrink-0"
+                    />
+                    <div className="flex-1 w-full space-y-2">
+                      <input
+                        type="text"
+                        value={bannerData.heroBackgroundImage || ''}
+                        onChange={(e) => setBannerData({ ...bannerData, heroBackgroundImage: e.target.value })}
+                        placeholder="Paste backdrop web image URL..."
+                        className="w-full bg-white border border-neutral-300 rounded-lg px-3 py-2 text-xs font-mono"
+                      />
+                      <label className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black text-white text-[11px] font-bold uppercase rounded-lg hover:bg-neutral-800 cursor-pointer">
+                        <Upload className="w-3 h-3" /> Upload Local Image
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            if (e.target.files?.[0]) handleBannerImageUpload('heroBackgroundImage', e.target.files[0]);
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. PROMOTIONAL OFFER BANNER */}
+            <div>
+              <h3 className="text-base font-bold font-display uppercase tracking-wider text-black pb-3 border-b border-neutral-100 flex items-center gap-2">
+                <Flame className="w-5 h-5 text-[#FF5722]" /> 2. Homepage Promotional Offer Banner
+              </h3>
+              <p className="text-xs text-neutral-500 mt-1 mb-4">
+                Controls the mid-page promo section (with 1-click discount coupon copy and model photos)
+              </p>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* Badge Text */}

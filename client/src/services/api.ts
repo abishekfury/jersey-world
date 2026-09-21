@@ -10,8 +10,13 @@ import {
 } from '@shared/types';
 
 
-const API_URL = import.meta.env.VITE_API_URL || '';
-const API_BASE_URL = `${API_URL}/api/v1`;
+const rawApiUrl = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
+export const SERVER_ORIGIN = rawApiUrl.replace(/\/api\/v1$/, '') || 'http://localhost:5000';
+export const API_BASE_URL = rawApiUrl
+  ? rawApiUrl.endsWith('/api/v1')
+    ? rawApiUrl
+    : `${rawApiUrl}/api/v1`
+  : '/api/v1';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -63,6 +68,12 @@ api.interceptors.response.use(
 );
 
 // Typed API services
+export const authService = {
+  forgotPassword: (email: string) => api.post<{ success: boolean; message: string; devResetUrl?: string }>('/auth/forgot-password', { email }),
+  resetPassword: (token: string, password: string) =>
+    api.post<{ success: boolean; message: string; accessToken: string; user: IUser }>(`/auth/reset-password/${token}`, { password }),
+};
+
 export const productService = {
   getProducts: (params?: IProductFilterQuery) => api.get<{ success: boolean; products: IProduct[]; pagination: any }>('/products', { params }),
   getProductByIdOrSlug: (idOrSlug: string) => api.get<{ success: boolean; product: IProduct }>(`/products/${idOrSlug}`),
@@ -149,6 +160,7 @@ export const adminService = {
   deleteCoupon: (id: string) => api.delete<{ success: boolean; message: string }>(`/admin/coupons/${id}`),
   getReviews: () => api.get<{ success: boolean; reviews: any[] }>('/admin/reviews'),
   deleteReview: (id: string) => api.delete<{ success: boolean; message: string }>(`/admin/reviews/${id}`),
+  exportOrdersCSV: () => api.get('/admin/orders/export-csv', { responseType: 'blob' }),
   uploadProductImage: (file: File) => {
     const formData = new FormData();
     formData.append('image', file);
