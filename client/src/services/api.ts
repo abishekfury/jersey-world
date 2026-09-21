@@ -107,8 +107,22 @@ export const cartService = {
   removeItem: (itemId: string) =>
     api.delete<{ success: boolean; cart: ICart }>(`/cart/items/${itemId}`),
   clearCart: () => api.delete<{ success: boolean; cart: ICart }>('/cart'),
-  applyCoupon: (code: string) => api.post<{ success: boolean; cart: ICart }>('/cart/coupon', { code }),
-  removeCoupon: () => api.delete<{ success: boolean; cart: ICart }>('/cart/coupon'),
+  applyCoupon: (code: string, subtotal?: number) =>
+    api.post<{
+      success: boolean;
+      message: string;
+      coupon?: {
+        code: string;
+        discountType: string;
+        discountValue: number;
+        discountPercent?: number;
+        maxDiscountAmount?: number;
+        minOrderAmount?: number;
+        discountAmount: number;
+      };
+      cart?: ICart;
+    }>('/cart/coupon/validate', { code, subtotal }),
+  removeCoupon: () => Promise.resolve({ data: { success: true, message: 'Coupon removed' } }),
 };
 
 export const orderService = {

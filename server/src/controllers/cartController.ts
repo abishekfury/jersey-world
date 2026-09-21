@@ -1,4 +1,4 @@
-import { Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from '../middleware/auth';
 import { Cart } from '../models/Cart';
 import { Product } from '../models/Product';
@@ -319,3 +319,67 @@ export const removeCoupon = async (req: AuthenticatedRequest, res: Response, nex
     next(error);
   }
 };
+
+export const validateCouponPublic = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { code, subtotal = 0 } = req.body;
+    if (!code) {
+      return next(new AppError('Please enter a coupon code.', 400));
+    }
+
+    const cleanCode = String(code).trim().toUpperCase();
+    const now = new Date();
+    const coupon = await Coupon.findOne({
+      code: cleanCode,
+      active: true,
+      validFrom: { $lte: now },
+      validUntil: { $gte: now },
+    });
+
+    if (!coupon) {
+      return next(new AppError('Invalid or expired coupon code.', 400));
+    }
+
+    if (coupon.usageLimit && coupon.usedCount >= coupon.usageLimit) {
+      return next(new AppError('This coupon has reached its maximum usage limit.', 400));
+    }
+
+    if (coupon.minOrderAmount && subtotal > 0 && subtotal < coupon.minOrderAmount) {
+      return next(
+        new AppError(`Minimum order amount of ₹${coupon.minOrderAmount} required for ${coupon.code}.`, 400)
+      );
+    }
+
+    let calculatedDiscount = 0;
+    if (coupon.discountType === 'percentage') {
+      calculatedDiscount = (subtotal * coupon.discountValue) / 100;
+      if (coupon.maxDiscountAmount && calculatedDiscount > coupon.maxDiscountAmount) {
+        calculatedDiscount = coupon.maxDiscountAmount;
+      }
+    } else {
+      calculatedDiscount = Math.min(coupon.discountValue, subtotal > 0 ? subtotal : coupon.discountValue);
+    }
+
+    const discountMsg =
+      coupon.discountType === 'percentage'
+        ? `${coupon.discountValue}% OFF`
+        : `₹${coupon.discountValue} FLAT OFF`;
+
+    res.status(200).json({
+      success: true,
+      message: `Coupon "${coupon.code}" applied! (${discountMsg})`,
+      coupon: {
+        code: coupon.code,
+        discountType: coupon.discountType,
+        discountValue: coupon.discountValue,
+        discountPercent: coupon.discountType === 'percentage' ? coupon.discountValue : undefined,
+        maxDiscountAmount: coupon.maxDiscountAmount,
+        minOrderAmount: coupon.minOrderAmount,
+        discountAmount: Math.round(calculatedDiscount),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+

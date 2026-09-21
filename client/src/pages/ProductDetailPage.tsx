@@ -5,7 +5,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { productService, reviewService } from '../services/api';
 import { IProduct, IReview, JerseySize } from '@shared/types';
 import { useAppDispatch, useAppSelector } from '../store';
-import { addToCart, addLocalItem, closeCartDrawer } from '../store/cartSlice';
+import {
+  addToCart,
+  addLocalItem,
+  closeCartDrawer,
+  openCartDrawer,
+  updateLocalQuantity,
+  updateCartItem,
+} from '../store/cartSlice';
 import { toggleWishlist } from '../store/wishlistSlice';
 import { addToast } from '../store/uiSlice';
 import { ProductCard } from '../components/product/ProductCard';
@@ -81,9 +88,45 @@ export const ProductDetailPage: React.FC = () => {
   const [selectedSize, setSelectedSizeState] = useState<JerseySize | ''>('');
   const [quantity, setQuantity] = useState(1);
 
-  // Wishlist state
+  // Wishlist & Cart state
   const wishlist = useAppSelector((state) => state.wishlist.items);
   const isWishlisted = product ? wishlist.some((item) => item._id === product._id) : false;
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const cart = useAppSelector((state) => state.cart.cart);
+  const existingCartItem = (cart?.items || []).find(
+    (it) => (it.product?._id === product?._id || (it.product as any) === product?._id) && it.size === selectedSize
+  );
+
+  // Keep stepper in perfect sync with what is currently in the cart
+  useEffect(() => {
+    if (existingCartItem) {
+      setQuantity(existingCartItem.quantity);
+    } else {
+      setQuantity(1);
+    }
+  }, [selectedSize, existingCartItem?.quantity]);
+
+  const handleIncrement = () => {
+    const newQty = quantity + 1;
+    setQuantity(newQty);
+    if (existingCartItem && existingCartItem._id) {
+      dispatch(updateLocalQuantity({ itemId: existingCartItem._id, quantity: newQty }));
+      if (isAuthenticated) {
+        dispatch(updateCartItem({ itemId: existingCartItem._id, quantity: newQty }));
+      }
+    }
+  };
+
+  const handleDecrement = () => {
+    const newQty = Math.max(1, quantity - 1);
+    setQuantity(newQty);
+    if (existingCartItem && existingCartItem._id) {
+      dispatch(updateLocalQuantity({ itemId: existingCartItem._id, quantity: newQty }));
+      if (isAuthenticated) {
+        dispatch(updateCartItem({ itemId: existingCartItem._id, quantity: newQty }));
+      }
+    }
+  };
 
   useEffect(() => {
     if (!identifier) return;
@@ -141,6 +184,23 @@ export const ProductDetailPage: React.FC = () => {
       return;
     }
 
+    if (existingCartItem) {
+      if (existingCartItem.quantity !== quantity && existingCartItem._id) {
+        dispatch(updateLocalQuantity({ itemId: existingCartItem._id, quantity }));
+        if (isAuthenticated) {
+          dispatch(updateCartItem({ itemId: existingCartItem._id, quantity }));
+        }
+      }
+      dispatch(openCartDrawer());
+      dispatch(
+        addToast({
+          type: 'success',
+          message: `Bag updated: ${product.name} (${selectedSize} × ${quantity})`,
+        })
+      );
+      return;
+    }
+
     trackAddToCart({
       productId: product._id,
       name: product.name,
@@ -150,21 +210,25 @@ export const ProductDetailPage: React.FC = () => {
       team: product.team,
     });
 
-    dispatch(
-      addLocalItem({
-        product,
-        size: selectedSize,
-        quantity,
-      })
-    );
-    dispatch(
-      addToCart({
-        productId: product._id,
-        product,
-        size: selectedSize,
-        quantity,
-      })
-    );
+    if (isAuthenticated) {
+      dispatch(
+        addToCart({
+          productId: product._id,
+          product,
+          size: selectedSize,
+          quantity,
+        })
+      );
+    } else {
+      dispatch(
+        addLocalItem({
+          product,
+          size: selectedSize,
+          quantity,
+        })
+      );
+    }
+
     dispatch(
       addToast({
         type: 'success',
@@ -179,33 +243,44 @@ export const ProductDetailPage: React.FC = () => {
       return;
     }
 
-    trackAddToCart({
-      productId: product._id,
-      name: product.name,
-      price: effectivePrice,
-      quantity,
-      size: selectedSize,
-      team: product.team,
-    });
-
-    dispatch(
-      addLocalItem({
-        product,
-        size: selectedSize,
-        quantity,
-      })
-    );
-    dispatch(
-      addToCart({
+    if (existingCartItem) {
+      if (existingCartItem.quantity !== quantity && existingCartItem._id) {
+        dispatch(updateLocalQuantity({ itemId: existingCartItem._id, quantity }));
+        if (isAuthenticated) {
+          dispatch(updateCartItem({ itemId: existingCartItem._id, quantity }));
+        }
+      }
+    } else {
+      trackAddToCart({
         productId: product._id,
-        product,
-        size: selectedSize,
+        name: product.name,
+        price: effectivePrice,
         quantity,
-      })
-    ).then(() => {
-      dispatch(closeCartDrawer());
-    });
+        size: selectedSize,
+        team: product.team,
+      });
 
+      if (isAuthenticated) {
+        dispatch(
+          addToCart({
+            productId: product._id,
+            product,
+            size: selectedSize,
+            quantity,
+          })
+        );
+      } else {
+        dispatch(
+          addLocalItem({
+            product,
+            size: selectedSize,
+            quantity,
+          })
+        );
+      }
+    }
+
+    dispatch(closeCartDrawer());
     navigate('/checkout');
   };
 
@@ -536,7 +611,8 @@ export const ProductDetailPage: React.FC = () => {
                 {/* Stepper */}
                 <div className="flex items-center bg-neutral-100 rounded-xl h-14 px-3 border border-neutral-200 shrink-0">
                   <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    type="button"
+                    onClick={handleDecrement}
                     className="w-7 text-lg font-bold text-neutral-600 hover:text-black transition-colors"
                   >
                     −
@@ -545,7 +621,8 @@ export const ProductDetailPage: React.FC = () => {
                     {quantity}
                   </span>
                   <button
-                    onClick={() => setQuantity(quantity + 1)}
+                    type="button"
+                    onClick={handleIncrement}
                     className="w-7 text-lg font-bold text-neutral-600 hover:text-black transition-colors"
                   >
                     +
@@ -559,7 +636,11 @@ export const ProductDetailPage: React.FC = () => {
                   onClick={handleAddToCart}
                   className="flex-1 h-14 bg-black text-white hover:bg-[#FF5722] transition-colors text-xs font-bold tracking-widest uppercase rounded-xl flex items-center justify-center shadow-md"
                 >
-                  {selectedSize ? 'ADD TO CART' : 'SELECT YOUR SIZE'}
+                  {selectedSize
+                    ? existingCartItem
+                      ? `IN BAG (${existingCartItem.quantity}) • VIEW BAG`
+                      : 'ADD TO CART'
+                    : 'SELECT YOUR SIZE'}
                 </motion.button>
 
                 {/* Wishlist Button */}

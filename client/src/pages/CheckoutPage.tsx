@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '../store';
 import { orderService, shippingService, cartService } from '../services/api';
-import { clearCart, fetchCart } from '../store/cartSlice';
+import { clearCart, fetchCart, applyCouponLocal, removeCouponLocal } from '../store/cartSlice';
 import { addToast } from '../store/uiSlice';
 import { SEO } from '../components/seo/SEO';
 import { trackPurchase } from '../utils/analytics';
@@ -218,14 +218,24 @@ export const CheckoutPage: React.FC = () => {
   }, [addressForm.pincode, items.length]);
 
   const handleApplyCoupon = async () => {
-    if (!couponInput.trim()) return;
+    const code = couponInput.trim().toUpperCase();
+    if (!code) return;
     setIsApplyingCoupon(true);
     try {
-      const res = await cartService.applyCoupon(couponInput.trim().toUpperCase());
-      if (res.data?.cart) {
-        dispatch(fetchCart());
-        dispatch(addToast({ type: 'success', message: 'Promo coupon applied successfully!' }));
+      const res = await cartService.applyCoupon(code, cart?.subtotal || 0);
+      if (res.data?.success && res.data?.coupon) {
+        const c = res.data.coupon;
+        dispatch(
+          applyCouponLocal({
+            code: c.code,
+            discountPercent: c.discountPercent,
+            discountAmount: c.discountAmount,
+          })
+        );
+        dispatch(addToast({ type: 'success', message: res.data.message || 'Promo coupon applied successfully!' }));
         setCouponInput('');
+      } else {
+        dispatch(addToast({ type: 'error', message: res.data?.message || 'Invalid or expired promo code.' }));
       }
     } catch (err: any) {
       dispatch(addToast({ type: 'error', message: err.response?.data?.message || 'Invalid or expired promo code.' }));
@@ -235,13 +245,8 @@ export const CheckoutPage: React.FC = () => {
   };
 
   const handleRemoveCoupon = async () => {
-    try {
-      await cartService.removeCoupon();
-      dispatch(fetchCart());
-      dispatch(addToast({ type: 'info', message: 'Promo code removed.' }));
-    } catch (err: any) {
-      dispatch(addToast({ type: 'error', message: 'Failed to remove promo code.' }));
-    }
+    dispatch(removeCouponLocal());
+    dispatch(addToast({ type: 'info', message: 'Promo code removed.' }));
   };
 
   const handlePlaceOrder = async (e: React.FormEvent) => {

@@ -5,12 +5,16 @@ import {
   updateCartItem,
   removeFromCart,
   applyCoupon,
+  validateCouponPublic,
 } from '../controllers/cartController';
 import { requireAuth } from '../middleware/auth';
 import { validateRequest } from '../middleware/validate';
 import { addToCartSchema, updateCartItemSchema } from '../validators/productValidator';
 
 const router = Router();
+
+// Public coupon validation endpoint (works for guests & customers without 401)
+router.post('/coupon/validate', validateCouponPublic);
 
 router.use(requireAuth);
 

@@ -60,7 +60,7 @@ export const CartPage: React.FC = () => {
     setIsApplyingCoupon(true);
     try {
       const result = await dispatch(applyCoupon(couponInput.trim().toUpperCase())).unwrap();
-      dispatch(addToast({ type: 'success', message: `Coupon applied: Saved ₹${result?.discount || 0}` }));
+      dispatch(addToast({ type: 'success', message: result?.message || `Coupon applied: Saved ₹${result?.coupon?.discountAmount || 0}` }));
       setCouponInput('');
     } catch (err: any) {
       dispatch(addToast({ type: 'error', message: err || 'Invalid coupon code.' }));

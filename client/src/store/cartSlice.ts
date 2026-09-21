@@ -159,33 +159,25 @@ export const removeCartItem = createAsyncThunk(
 
 export const applyCoupon = createAsyncThunk(
   'cart/applyCoupon',
-  async (code: string, { rejectWithValue }) => {
+  async (code: string, { getState, rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('jw_token');
-      if (token) {
-        const res = await cartService.applyCoupon(code);
-        if (res.data?.cart) return res.data.cart;
+      const state = getState() as any;
+      const subtotal = state.cart?.cart?.subtotal || 0;
+      const res = await cartService.applyCoupon(code, subtotal);
+      if (res.data?.success && res.data.coupon) {
+        return res.data;
       }
-    } catch {
-      // Fallback
+      return rejectWithValue(res.data?.message || 'Invalid coupon code');
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Invalid or expired coupon code.');
     }
-    return null;
   }
 );
 
 export const removeCoupon = createAsyncThunk(
   'cart/removeCoupon',
-  async (_, { rejectWithValue }) => {
-    try {
-      const token = localStorage.getItem('jw_token');
-      if (token) {
-        const res = await cartService.removeCoupon();
-        if (res.data?.cart) return res.data.cart;
-      }
-    } catch {
-      // Fallback
-    }
-    return null;
+  async () => {
+    return { success: true };
   }
 );
 
@@ -273,6 +265,38 @@ const cartSlice = createSlice({
       Object.assign(state.cart, totals);
       saveCartToStorage(state.cart);
     },
+    applyCouponLocal: (
+      state,
+      action: PayloadAction<{
+        code: string;
+        discountPercent?: number;
+        discountAmount?: number;
+      }>
+    ) => {
+      const { code, discountPercent, discountAmount } = action.payload;
+      state.cart.couponCode = code;
+      const subtotal = state.cart.subtotal;
+      let finalDiscount = 0;
+      if (discountAmount !== undefined && discountAmount > 0) {
+        finalDiscount = discountAmount;
+      } else if (discountPercent && discountPercent > 0) {
+        finalDiscount = Math.round((subtotal * discountPercent) / 100);
+      }
+      state.cart.discount = finalDiscount;
+      const shipping = subtotal >= 1499 || subtotal === 0 ? 0 : 79;
+      const tax = Math.round(Math.max(0, subtotal - finalDiscount) * 0.05);
+      state.cart.shipping = shipping;
+      state.cart.tax = tax;
+      state.cart.grandTotal = Math.max(0, subtotal - finalDiscount + shipping + tax);
+      saveCartToStorage(state.cart);
+    },
+    removeCouponLocal: (state) => {
+      state.cart.couponCode = undefined;
+      state.cart.discount = 0;
+      const totals = calculateCartTotals(state.cart.items, undefined, 0);
+      Object.assign(state.cart, totals);
+      saveCartToStorage(state.cart);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -304,6 +328,29 @@ const cartSlice = createSlice({
           saveCartToStorage(state.cart);
         }
         state.isLoading = false;
+      })
+      .addCase(applyCoupon.fulfilled, (state, action) => {
+        if (action.payload?.coupon) {
+          const c = action.payload.coupon;
+          state.cart.couponCode = c.code;
+          state.cart.discount = c.discountAmount;
+          const subtotal = state.cart.subtotal;
+          const shipping = subtotal >= 1499 || subtotal === 0 ? 0 : 79;
+          const tax = Math.round(Math.max(0, subtotal - c.discountAmount) * 0.05);
+          state.cart.shipping = shipping;
+          state.cart.tax = tax;
+          state.cart.grandTotal = Math.max(0, subtotal - c.discountAmount + shipping + tax);
+          saveCartToStorage(state.cart);
+        }
+        state.isLoading = false;
+      })
+      .addCase(removeCoupon.fulfilled, (state) => {
+        state.cart.couponCode = undefined;
+        state.cart.discount = 0;
+        const totals = calculateCartTotals(state.cart.items, undefined, 0);
+        Object.assign(state.cart, totals);
+        saveCartToStorage(state.cart);
+        state.isLoading = false;
       });
   },
 });
@@ -316,6 +363,8 @@ export const {
   addLocalItem,
   updateLocalQuantity,
   removeLocalItem,
+  applyCouponLocal,
+  removeCouponLocal,
 } = cartSlice.actions;
 
 export default cartSlice.reducer;
