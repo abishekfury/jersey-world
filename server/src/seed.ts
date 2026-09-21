@@ -10,49 +10,22 @@ import { Order } from './models/Order';
 import { Shipment } from './models/Shipment';
 import { ShippingSettings } from './models/ShippingSettings';
 
-const seedData = async () => {
+export const populateInitialData = async () => {
   try {
-    const candidateUris = [
-      config.MONGODB_URI,
-      'mongodb://127.0.0.1:27017/jersey-world',
-      'mongodb://127.0.0.1:27018/jersey-world',
-      'mongodb://localhost:27017/jersey-world',
-    ];
-    const uniqueUris = Array.from(new Set(candidateUris.filter(Boolean)));
-    let connected = false;
-
-    for (const uri of uniqueUris) {
-      const isRemote = uri.startsWith('mongodb+srv://') || (!uri.includes('127.0.0.1') && !uri.includes('localhost'));
-      const timeoutMs = isRemote ? 10000 : 2500;
-      try {
-        await mongoose.connect(uri, { serverSelectionTimeoutMS: timeoutMs, connectTimeoutMS: timeoutMs });
-        logger.info(`Connected to MongoDB for database seeding on: ${uri.replace(/:([^:@]+)@/, ':****@')}`);
-        connected = true;
-        break;
-      } catch (err: any) {
-        logger.warn(`Could not connect for seeding on candidate: ${err?.message || err}. Trying next...`);
-      }
-    }
-
-    if (!connected) {
-      throw new Error(`Could not connect to MongoDB on any candidate port (27017, 27018).`);
-    }
-
     // Clear existing data
-    await Promise.all([
-      User.deleteMany({}),
-      Product.deleteMany({}),
-      Category.deleteMany({}),
-      Team.deleteMany({}),
-      Country.deleteMany({}),
-      Coupon.deleteMany({}),
-      Review.deleteMany({}),
-      Order.deleteMany({}),
-      Shipment.deleteMany({}),
-      ShippingSettings.deleteMany({}),
-    ]);
-
-    logger.info('Cleared previous database collections.');
+  await Promise.all([
+    User.deleteMany({}),
+    Product.deleteMany({}),
+    Category.deleteMany({}),
+    Team.deleteMany({}),
+    Country.deleteMany({}),
+    Coupon.deleteMany({}),
+    Review.deleteMany({}),
+    Order.deleteMany({}),
+    Shipment.deleteMany({}),
+    ShippingSettings.deleteMany({}),
+  ]);
+  logger.info('Cleared previous database collections.');
 
     // 1. Seed Users
     const adminUser = await User.create({
@@ -982,11 +955,32 @@ const seedData = async () => {
     }
 
     logger.info('Database seeding completed successfully!');
-    process.exit(0);
   } catch (error) {
     logger.error('Error during database seed:', error);
-    process.exit(1);
+    throw error;
   }
 };
 
-seedData();
+if (require.main === module) {
+  const seedStandalone = async () => {
+    try {
+      const candidateUris = [
+        config.MONGODB_URI,
+        'mongodb://127.0.0.1:27017/jersey-world',
+        'mongodb://localhost:27017/jersey-world',
+      ];
+      for (const uri of Array.from(new Set(candidateUris.filter(Boolean)))) {
+        try {
+          await mongoose.connect(uri, { serverSelectionTimeoutMS: 5000 });
+          break;
+        } catch {}
+      }
+      await populateInitialData();
+      process.exit(0);
+    } catch (err) {
+      logger.error('Standalone seed failed:', err);
+      process.exit(1);
+    }
+  };
+  seedStandalone();
+}
