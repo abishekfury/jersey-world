@@ -106,6 +106,8 @@ const seedData = async () => {
     await Coupon.create([
       {
         code: 'JERSEY10',
+        discountType: 'percentage',
+        discountValue: 10,
         discountPercent: 10,
         minOrderAmount: 1999,
         maxDiscountAmount: 500,
@@ -114,6 +116,8 @@ const seedData = async () => {
       },
       {
         code: 'WORLD20',
+        discountType: 'percentage',
+        discountValue: 20,
         discountPercent: 20,
         minOrderAmount: 4999,
         maxDiscountAmount: 1500,
@@ -122,6 +126,8 @@ const seedData = async () => {
       },
       {
         code: 'FIRSTGOAL',
+        discountType: 'percentage',
+        discountValue: 15,
         discountPercent: 15,
         minOrderAmount: 0,
         maxDiscountAmount: 800,
