@@ -55,7 +55,7 @@ export const ReturnPolicyPage: React.FC = () => {
               3. Non-Returnable Items
             </h2>
             <ul className="list-disc pl-5 space-y-1 text-neutral-600">
-              <li><strong>Customized / Personalized Jerseys:</strong> Shirts with custom player names, individual personal names, or custom numbers printed cannot be returned or refunded unless there is a confirmed manufacturing defect.</li>
+              <li><strong>Worn or Washed Items:</strong> Apparel with missing original manufacturer tags or signs of wear, perfume, or washing cannot be returned.</li>
               <li><strong>Items marked as "Final Clearance":</strong> Items discounted at over 60% during annual warehouse clearance sales.</li>
             </ul>
           </section>
@@ -68,14 +68,10 @@ export const ReturnPolicyPage: React.FC = () => {
             <p>
               Once your return request is approved in the customer portal, our courier will arrange a reverse pickup from your address within 24-48 hours.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mt-3">
+            <div className="text-xs mt-3">
               <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200">
-                <strong className="block text-black font-semibold">Prepaid Orders (Razorpay)</strong>
-                <span className="text-neutral-600">Refund credited to original bank account/UPI within 3-5 business days of item inspection.</span>
-              </div>
-              <div className="p-4 rounded-2xl bg-neutral-50 border border-neutral-200">
-                <strong className="block text-black font-semibold">Cash on Delivery (COD)</strong>
-                <span className="text-neutral-600">Refund transferred directly to customer's verified UPI ID or Bank account within 48 hours of inspection.</span>
+                <strong className="block text-black font-semibold">100% Digital Online Refund (Razorpay)</strong>
+                <span className="text-neutral-600">Refund credited directly to your original payment method (Bank Account, UPI, or Credit/Debit Card) within 3-5 business days of item inspection.</span>
               </div>
             </div>
           </section>

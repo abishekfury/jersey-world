@@ -24,8 +24,6 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
   const [selectedSize, setSelectedSize] = useState<JerseySize>('M');
   const [selectedImage, setSelectedImage] = useState<'front' | 'back'>('front');
   const [quantity, setQuantity] = useState(1);
-  const [playerName, setPlayerName] = useState('');
-  const [playerNumber, setPlayerNumber] = useState('');
   const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
@@ -33,8 +31,6 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
       setSelectedSize('M');
       setSelectedImage('front');
       setQuantity(1);
-      setPlayerName('');
-      setPlayerNumber('');
     }
   }, [product]);
 
@@ -49,14 +45,6 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
     if (isOutOfStock) return;
     setIsAdding(true);
 
-    const customization =
-      playerName.trim() || playerNumber.trim()
-        ? {
-            playerName: playerName.trim().toUpperCase() || undefined,
-            playerNumber: playerNumber.trim() || undefined,
-          }
-        : undefined;
-
     try {
       if (isAuthenticated) {
         await dispatch(
@@ -65,7 +53,6 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
             product,
             size: selectedSize,
             quantity,
-            customization,
           })
         ).unwrap();
       } else {
@@ -74,7 +61,6 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
             product,
             size: selectedSize,
             quantity,
-            customization,
           })
         );
       }
@@ -234,34 +220,6 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({ product, isOpen,
                 </div>
               </div>
 
-              {/* Custom Name & Number Options */}
-              <div className="pt-2 border-t border-neutral-100 space-y-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-black block">
-                  Custom Printing (Optional)
-                </span>
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="col-span-2">
-                    <input
-                      type="text"
-                      placeholder="NAME (e.g. MESSI)"
-                      maxLength={14}
-                      value={playerName}
-                      onChange={(e) => setPlayerName(e.target.value.toUpperCase())}
-                      className="w-full px-3 py-2 text-xs border border-neutral-200 rounded focus:border-black focus:outline-none uppercase"
-                    />
-                  </div>
-                  <div>
-                    <input
-                      type="text"
-                      placeholder="NO. (10)"
-                      maxLength={2}
-                      value={playerNumber}
-                      onChange={(e) => setPlayerNumber(e.target.value.replace(/[^0-9]/g, ''))}
-                      className="w-full px-3 py-2 text-xs border border-neutral-200 rounded focus:border-black focus:outline-none text-center font-mono font-bold"
-                    />
-                  </div>
-                </div>
-              </div>
 
               {/* Quantity Stepper */}
               <div className="flex items-center gap-3 pt-2">

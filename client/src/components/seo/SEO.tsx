@@ -21,9 +21,9 @@ export interface SEOProps {
 
 const DEFAULT_TITLE = 'JERSEY WORLD — Wear The Game | Authentic Football Jerseys & AI Try-On';
 const DEFAULT_DESCRIPTION =
-  'Shop authentic club and national team football jerseys with premium player customization, retro kits, and AI Virtual Fitting Room experience. Fast delivery across India.';
+  'Shop authentic club and national team football jerseys, iconic retro kits, and AI Virtual Fitting Room experience. Fast delivery across India.';
 const DEFAULT_KEYWORDS =
-  'football jerseys, soccer jerseys, authentic jerseys, retro kits, premier league jerseys, real madrid jersey, barcelona jersey, custom jersey printing, AI virtual fitting, india football shop';
+  'football jerseys, soccer jerseys, authentic jerseys, retro kits, premier league jerseys, real madrid jersey, barcelona jersey, AI virtual fitting, india football shop';
 const DEFAULT_IMAGE = '/og-image.jpg';
 const SITE_NAME = 'Jersey World';
 

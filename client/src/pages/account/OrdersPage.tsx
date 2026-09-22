@@ -166,11 +166,6 @@ export const OrdersPage: React.FC = () => {
                       <p className="text-[11px] text-gray-500 font-medium">
                         Size: {item.size} • Qty: {item.quantity} • ₹{item.price.toLocaleString('en-IN')}
                       </p>
-                      {item.customization?.playerName && (
-                        <p className="text-[10px] text-[#FF5722] font-mono">
-                          Print: #{item.customization.playerNumber} {item.customization.playerName}
-                        </p>
-                      )}
                     </div>
                   </div>
                 ))}

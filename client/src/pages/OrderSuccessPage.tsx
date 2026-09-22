@@ -74,11 +74,6 @@ export const OrderSuccessPage: React.FC = () => {
                     <p className="text-[11px] text-gray-400 font-mono">
                       Size: {item.size} • Qty: {item.quantity}
                     </p>
-                    {item.customization?.playerName && (
-                      <p className="text-[10px] text-neon-lime font-mono">
-                        #{item.customization.playerNumber} {item.customization.playerName}
-                      </p>
-                    )}
                   </div>
                 </div>
                 <span className="text-xs font-mono font-bold text-white">

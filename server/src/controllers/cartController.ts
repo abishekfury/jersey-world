@@ -15,29 +15,9 @@ export const recalculateCart = async (cart: any) => {
       // Use discount price if active, otherwise standard base price
       const basePrice = product.discountPrice && product.discountPrice > 0 ? product.discountPrice : product.price;
 
-      // Calculate customization charges on backend
-      let customizationCharge = 0;
-      if (item.customization?.playerName || item.customization?.playerNumber) {
-        if (item.customization.playerName) {
-          item.customization.playerName = String(item.customization.playerName)
-            .trim()
-            .toUpperCase()
-            .slice(0, 16)
-            .replace(/[^A-Z0-9 ]/g, '');
-        }
-        if (item.customization.playerNumber) {
-          item.customization.playerNumber = String(item.customization.playerNumber)
-            .trim()
-            .slice(0, 2)
-            .replace(/[^0-9]/g, '');
-        }
-        customizationCharge = product.customizationPrice ?? 299;
-        item.customization.customizationPrice = customizationCharge;
-      }
-
-      const effectiveUnitPrice = basePrice + customizationCharge;
-      item.price = effectiveUnitPrice;
-      subtotal += effectiveUnitPrice * item.quantity;
+      item.price = basePrice;
+      item.customization = undefined;
+      subtotal += basePrice * item.quantity;
     }
   }
 
@@ -128,34 +108,14 @@ export const addToCart = async (req: AuthenticatedRequest, res: Response, next: 
       cart = new Cart({ user: userId, items: [] });
     }
 
-    // Format & validate customization
-    let formattedCustomization = undefined;
-    if (customization && (customization.playerName || customization.playerNumber)) {
-      const cleanName = customization.playerName
-        ? String(customization.playerName).trim().toUpperCase().slice(0, 16).replace(/[^A-Z0-9 ]/g, '')
-        : undefined;
-      const cleanNumber = customization.playerNumber
-        ? String(customization.playerNumber).trim().slice(0, 2).replace(/[^0-9]/g, '')
-        : undefined;
-
-      formattedCustomization = {
-        playerName: cleanName,
-        playerNumber: cleanNumber,
-        customizationPrice: product.customizationPrice ?? 299,
-      };
-    }
-
-    // Check if duplicate item with same size and customization exists
+    // Check if duplicate item with same size exists
     const existingIndex = cart.items.findIndex(
       (item: any) =>
         item.product.toString() === productId &&
-        item.size === size &&
-        (item.customization?.playerName || '') === (formattedCustomization?.playerName || '') &&
-        (item.customization?.playerNumber || '') === (formattedCustomization?.playerNumber || '')
+        item.size === size
     );
 
     const basePrice = product.discountPrice && product.discountPrice > 0 ? product.discountPrice : product.price;
-    const itemPrice = basePrice + (formattedCustomization ? (product.customizationPrice ?? 299) : 0);
 
     if (existingIndex > -1) {
       cart.items[existingIndex].quantity += quantity;
@@ -164,8 +124,7 @@ export const addToCart = async (req: AuthenticatedRequest, res: Response, next: 
         product: product._id as any,
         size,
         quantity,
-        price: itemPrice,
-        customization: formattedCustomization,
+        price: basePrice,
       });
     }
 

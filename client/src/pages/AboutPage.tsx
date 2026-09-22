@@ -65,7 +65,7 @@ export const AboutPage: React.FC = () => {
     <div className="bg-white text-black min-h-screen">
       <SEO
         title="About Us — Heritage, Quality & Football Culture"
-        description="Learn about Jersey World's mission to bring authentic football matchwear, player customization, and AI Virtual Fitting Room technology to fans worldwide."
+        description="Learn about Jersey World's mission to bring authentic football matchwear, retro kit heritage, and AI Virtual Fitting Room technology to fans worldwide."
         keywords="about jersey world, authentic football jersey store, football culture streetwear, premium soccer kits india"
         jsonLd={aboutJsonLd}
       />

@@ -32,7 +32,7 @@ export const PrivacyPolicyPage: React.FC = () => {
               1. Overview & Commitment
             </h2>
             <p>
-              Jersey World ("we", "our", or "us") is dedicated to protecting your privacy. This Privacy Policy details how we collect, use, store, and safeguard your personal data when you visit our website, purchase football apparel, customize jerseys, or interact with our virtual fitting room services.
+              Jersey World ("we", "our", or "us") is dedicated to protecting your privacy. This Privacy Policy details how we collect, use, store, and safeguard your personal data when you visit our website, purchase football apparel, or interact with our virtual fitting room services.
             </p>
           </section>
 

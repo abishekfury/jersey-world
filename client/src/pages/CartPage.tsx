@@ -86,7 +86,7 @@ export const CartPage: React.FC = () => {
     <div className="min-h-screen bg-[#FAF9F5] text-[#171C1B] font-sans pb-24">
       <SEO
         title="Your Shopping Cart"
-        description="Review selected football jerseys, customize club apparel, apply promo codes, and proceed to secure checkout."
+        description="Review selected football jerseys, apply promo codes, and proceed to secure checkout."
         noIndex={true}
       />
 
@@ -160,8 +160,7 @@ export const CartPage: React.FC = () => {
                   const product = item.product as any;
                   const itemKey = item._id || `${product?._id || idx}-${item.size}`;
                   const unitPrice = item.price || product?.discountPrice || product?.price || 0;
-                  const customPrice = item.customization ? (product?.customizationPrice || 299) : 0;
-                  const totalItemPrice = (unitPrice + customPrice) * item.quantity;
+                  const totalItemPrice = unitPrice * item.quantity;
 
                   return (
                     <div key={itemKey} className="p-4 sm:p-6 flex flex-col sm:flex-row gap-4 sm:gap-6 items-start sm:items-center justify-between">
@@ -188,11 +187,6 @@ export const CartPage: React.FC = () => {
                             <span className="px-2 py-0.5 rounded-md bg-neutral-100 font-mono font-bold text-neutral-700">
                               Size: {item.size}
                             </span>
-                            {item.customization && (
-                              <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 font-mono text-[11px]">
-                                Print: #{item.customization.playerNumber} {item.customization.playerName}
-                              </span>
-                            )}
                           </div>
                         </div>
                       </div>
@@ -225,7 +219,7 @@ export const CartPage: React.FC = () => {
                           </div>
                           {item.quantity > 1 && (
                             <div className="text-[10px] font-mono text-neutral-400">
-                              ₹{unitPrice + customPrice} each
+                              ₹{unitPrice} each
                             </div>
                           )}
                         </div>
@@ -340,7 +334,7 @@ export const CartPage: React.FC = () => {
 
                 <div className="pt-2 flex items-center justify-center gap-2 text-[11px] text-neutral-400 font-mono">
                   <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>100% Secure Checkout with Razorpay & COD</span>
+                  <span>100% Secure Checkout with Razorpay (UPI, Cards & NetBanking)</span>
                 </div>
               </div>
             </div>

@@ -860,11 +860,6 @@ export const CheckoutPage: React.FC = () => {
                             <span className="text-[10px] font-bold uppercase bg-white border border-neutral-200 px-1.5 py-0.5 rounded text-neutral-700">
                               Size: {item.size}
                             </span>
-                            {item.customization?.playerName && (
-                              <span className="text-[10px] font-bold text-[#FF5722] font-mono">
-                                #{item.customization.playerNumber} {item.customization.playerName}
-                              </span>
-                            )}
                           </div>
                         </div>
 

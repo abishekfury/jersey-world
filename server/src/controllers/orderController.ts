@@ -159,8 +159,7 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response, next
       }
 
       const basePrice = product.discountPrice && product.discountPrice > 0 ? product.discountPrice : product.price;
-      const customPrice = item.customization?.playerName || item.customization?.playerNumber ? (product.customizationPrice ?? 299) : 0;
-      const effectiveUnitPrice = basePrice + customPrice;
+      const effectiveUnitPrice = basePrice;
 
       calculatedSubtotal += effectiveUnitPrice * item.quantity;
 
@@ -173,13 +172,6 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response, next
         size: item.size,
         quantity: item.quantity,
         price: effectiveUnitPrice,
-        customization: item.customization
-          ? {
-              playerName: item.customization.playerName,
-              playerNumber: item.customization.playerNumber,
-              customizationPrice: customPrice,
-            }
-          : undefined,
       });
 
       cartItemsForShipping.push({
@@ -214,45 +206,47 @@ export const createOrder = async (req: AuthenticatedRequest, res: Response, next
       }
     }
 
-    // 5. Zero-Trust Shipping & COD Rate Recalculation on Backend
+    // 5. Zero-Trust Payment Validation (Prepaid only via Razorpay)
+    if (paymentMethod === 'COD') {
+      return next(
+        new AppError(
+          'Cash on Delivery (COD) is not accepted. Please pay online via Razorpay.',
+          400,
+          'COD_NOT_SUPPORTED'
+        )
+      );
+    }
+
+    // 6. Zero-Trust Shipping Rate Recalculation on Backend
     const shippingRate = await shippingService.calculateCartShipping({
       pincode: deliveryPincode,
       items: cartItemsForShipping,
-      paymentMethod: paymentMethod === 'COD' ? 'COD' : 'PREPAID',
+      paymentMethod: 'PREPAID',
       couponDiscount: validatedDiscount,
     });
 
-    const isCod = paymentMethod === 'COD';
+    const isCod = false;
     const subtotal = Math.round(calculatedSubtotal);
     const discount = Math.round(validatedDiscount);
     const shipping = shippingRate.shippingCharge;
-    const codFee = shippingRate.codCharge;
+    const codFee = 0;
     const tax = Math.round(Math.max(0, subtotal - discount) * 0.05); // 5% GST on apparel
-    const grandTotal = Math.max(0, subtotal - discount + shipping + codFee + tax);
+    const grandTotal = Math.max(0, subtotal - discount + shipping + tax);
 
     // Generate unique order number (e.g. JW-2026-98124)
     const randomSuffix = Math.floor(10000 + Math.random() * 90000);
     const orderNumber = `JW-${new Date().getFullYear()}-${randomSuffix}`;
 
-    let gatewayOrderId: string | undefined = undefined;
-
-    // If Prepaid, create Razorpay payment order
-    if (!isCod) {
-      const gatewayOrder = await PaymentService.createOrder({
-        amountInINR: grandTotal,
-        receipt: orderNumber,
-        notes: {
-          userId: orderUserId ? orderUserId.toString() : 'guest',
-          orderNumber,
-        },
-      });
-      gatewayOrderId = gatewayOrder.id;
-    }
-
-    // If COD, deduct inventory immediately with concurrency protection
-    if (isCod) {
-      await atomicallyDeductInventory(orderItems);
-    }
+    // Create Razorpay payment order
+    const gatewayOrder = await PaymentService.createOrder({
+      amountInINR: grandTotal,
+      receipt: orderNumber,
+      notes: {
+        userId: orderUserId ? orderUserId.toString() : 'guest',
+        orderNumber,
+      },
+    });
+    const gatewayOrderId = gatewayOrder.id;
 
     const order = await Order.create({
       orderNumber,

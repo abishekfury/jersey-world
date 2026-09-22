@@ -70,7 +70,7 @@ export const HomePage: React.FC = () => {
     heroHeadline: 'WEAR THE PASSION.',
     heroSubheadline: 'OWN THE GLORY.',
     heroDescription:
-      'Discover authentic club & international jerseys with official custom name & number printing, free express shipping, and seamless size exchanges.',
+      'Discover authentic club & international jerseys with official badges, free express shipping, and seamless size exchanges.',
     heroBackgroundImage:
       'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=2400&q=85',
   });
@@ -443,7 +443,7 @@ export const HomePage: React.FC = () => {
       name: 'Sofia Martinez',
       avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
       role: 'Verified Buyer',
-      quote: '"Super fast delivery across India. The custom player printing on the back looks crisp and professional."',
+      quote: '"Super fast delivery across India. The jersey fabric and stitching look crisp and professional."',
       stars: 5,
     },
     {
@@ -464,9 +464,9 @@ export const HomePage: React.FC = () => {
     },
     {
       id: 'faq-2',
-      title: 'Can I customize my jersey with any player name and number?',
+      title: 'What payment methods do you accept?',
       content:
-        'Absolutely! We offer official league and cup font heat-transfer printing for any player name (e.g. BELLINGHAM 5, MESSI 10, MBAPPÉ 9, CR7) or your own custom name and number.',
+        'We accept 100% secure digital prepaid payments via Razorpay, including UPI (Google Pay, PhonePe, Paytm), Credit & Debit Cards (Visa, Mastercard, RuPay), and Net Banking. All transactions are end-to-end encrypted with instant order confirmation.',
     },
     {
       id: 'faq-3',
@@ -489,7 +489,7 @@ export const HomePage: React.FC = () => {
       name: 'Jersey World',
       url: 'https://jersey-world.vercel.app',
       logo: 'https://jersey-world.vercel.app/logo.png',
-      description: 'India\'s premier destination for authentic football jerseys, player customized kits, retro collections, and AI Virtual Fitting Room technology.',
+      description: 'India\'s premier destination for authentic football jerseys, iconic kits, retro collections, and AI Virtual Fitting Room technology.',
       sameAs: [
         'https://instagram.com/jerseyworld_in',
         'https://twitter.com/jerseyworld_in',
@@ -518,8 +518,8 @@ export const HomePage: React.FC = () => {
     <div className="bg-white text-black min-h-screen font-sans selection:bg-black selection:text-white">
       <SEO
         title="Authentic Football Jerseys & AI Fitting Room"
-        description="Shop authentic football club & national team jerseys. Premium player customization, iconic retro kits, and AI Virtual Fitting Room experience with fast shipping across India."
-        keywords="football jerseys, authentic soccer kits, real madrid jersey, barcelona kit, arsenal jersey, manchester united kit, retro football shirts, custom jersey name printing, AI virtual fitting room"
+        description="Shop authentic football club & national team jerseys. Iconic retro kits, player editions, and AI Virtual Fitting Room experience with fast shipping across India."
+        keywords="football jerseys, authentic soccer kits, real madrid jersey, barcelona kit, arsenal jersey, manchester united kit, retro football shirts, AI virtual fitting room"
         jsonLd={homeJsonLd}
       />
       {/* 1. HERO SECTION (Full Width Edge-to-Edge) */}
@@ -585,7 +585,7 @@ export const HomePage: React.FC = () => {
               className="text-sm sm:text-base md:text-lg text-neutral-200 font-normal max-w-xl leading-relaxed"
             >
               {offerBanner.heroDescription ||
-                'Discover authentic club & international jerseys with official custom name & number printing, free express shipping, and seamless size exchanges.'}
+                'Discover authentic club & international jerseys with official badges, free express shipping, and seamless size exchanges.'}
             </motion.p>
 
             {/* Action Buttons */}
@@ -962,7 +962,7 @@ export const HomePage: React.FC = () => {
               EVERYTHING YOU NEED TO KNOW.
             </h2>
             <p className="text-xs sm:text-sm text-neutral-600 font-medium leading-relaxed">
-              Have questions regarding sizing, custom heat-transfer printing, authenticity, or shipping? Read our quick answers below.
+              Have questions regarding sizing, payment methods, authenticity, or shipping? Read our quick answers below.
             </p>
             <div className="pt-2">
               <Link

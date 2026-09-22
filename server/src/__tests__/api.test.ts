@@ -141,13 +141,13 @@ describe('Jersey World API Gateway Integration Tests', () => {
         .send({
           pincode: '560038',
           items: [{ productId: product._id.toString(), quantity: 2 }],
-          paymentMethod: 'COD',
+          paymentMethod: 'PREPAID',
         });
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.totalWeightGrams).toBe((product.shipping?.weight || 350) * 2);
-      expect(res.body.data.codCharge).toBe(25); // ₹25 COD fee
+      expect(res.body.data.codCharge).toBe(0); // No COD fee
       expect(res.body.data.courierCost).toBeDefined();
     });
 
@@ -157,7 +157,6 @@ describe('Jersey World API Gateway Integration Tests', () => {
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
       expect(res.body.data.settings.freeShippingThreshold).toBe(1499);
-      expect(res.body.data.settings.enableCod).toBe(true);
     });
   });
 

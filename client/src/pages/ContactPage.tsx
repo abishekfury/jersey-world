@@ -186,7 +186,7 @@ export const ContactPage: React.FC = () => {
                         <option value="">Select Topic</option>
                         <option value="Order Status">Track Existing Order</option>
                         <option value="Sizing Advice">Size & Fit Guidance</option>
-                        <option value="Customization">Custom Player Name / Number</option>
+                        <option value="Product Availability">Product Availability & Restock</option>
                         <option value="Exchange or Return">Exchange / Return Request</option>
                         <option value="Wholesale">Bulk / Club Inquiry</option>
                         <option value="Other">Other</option>

@@ -169,11 +169,6 @@ export const CartDrawer: React.FC = () => {
                             <p className="text-[11px] text-neutral-500 font-medium">
                               Size: <strong className="text-black uppercase">{item.size}</strong>
                             </p>
-                            {item.customization?.playerName && (
-                              <p className="text-[10px] text-[#FF5722] font-mono font-bold">
-                                #{item.customization.playerNumber} {item.customization.playerName}
-                              </p>
-                            )}
                             <p className="font-bold text-xs text-black font-mono pt-0.5">
                               ₹{(itemPrice * item.quantity).toLocaleString('en-IN')}
                             </p>

@@ -65,7 +65,7 @@ export const ShippingPolicyPage: React.FC = () => {
             <ul className="list-disc pl-5 space-y-1 text-neutral-600">
               <li><strong>Prepaid Orders above ₹1,499:</strong> Completely <strong className="text-emerald-700">FREE EXPRESS SHIPPING</strong>.</li>
               <li><strong>Orders below ₹1,499:</strong> Nominal flat delivery charge of ₹79 per order.</li>
-              <li><strong>Cash on Delivery (COD):</strong> An additional ₹25 handling surcharge applies to COD orders.</li>
+              <li><strong>Payment Modes:</strong> 100% secure digital payments via Razorpay (UPI, Credit/Debit Cards, Net Banking). Cash on Delivery (COD) is not accepted.</li>
             </ul>
           </section>
 

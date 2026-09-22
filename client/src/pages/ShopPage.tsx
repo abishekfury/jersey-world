@@ -162,7 +162,7 @@ export const ShopPage: React.FC = () => {
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',
       name: `${pageTitle} | Jersey World`,
-      description: `Explore authentic ${pageTitle.toLowerCase()} with custom name and number printing, player versions, and AI Virtual Try-On at Jersey World.`,
+      description: `Explore authentic ${pageTitle.toLowerCase()}, player editions, and AI Virtual Try-On at Jersey World.`,
       url: `https://jersey-world.vercel.app/shop`
     }
   ];
@@ -171,7 +171,7 @@ export const ShopPage: React.FC = () => {
     <div className="bg-white text-black min-h-screen font-sans">
       <SEO
         title={`${pageTitle} — Football Kits & Matchwear`}
-        description={`Explore authentic ${pageTitle.toLowerCase()} with custom name and number printing, fan & player editions, retro collections, and AI Virtual Try-On at Jersey World.`}
+        description={`Explore authentic ${pageTitle.toLowerCase()}, fan & player editions, retro collections, and AI Virtual Try-On at Jersey World.`}
         keywords={`${pageTitle.toLowerCase()}, authentic football shirts, soccer kits, buy football jersey online india, player version jerseys, retro kits`}
         jsonLd={shopJsonLd}
       />

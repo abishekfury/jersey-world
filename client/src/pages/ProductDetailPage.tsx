@@ -67,7 +67,7 @@ const fallbackReviews = [
     userName: 'Kartik Vishwakarma',
     userAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=120&q=80',
     rating: 5,
-    comment: 'Amazing jersey! The size fits perfectly, and the custom player print looks ultra clean.',
+    comment: 'Amazing jersey! The size fits perfectly, and the club crest and stitching look ultra clean.',
     createdAt: '2026-07-14T12:00:00.000Z',
     isVerified: true,
   },
@@ -484,7 +484,7 @@ export const ProductDetailPage: React.FC = () => {
       {product && (
         <SEO
           title={`${product.name} — ${product.team} ${product.season} ${product.type} Kit`}
-          description={`Buy ${product.name} (${product.team} ${product.season} ${product.type} Jersey) for ₹${product.discountPrice || product.price}. Authentic matchwear with player customization and AI Virtual Fitting Room at Jersey World.`}
+          description={`Buy ${product.name} (${product.team} ${product.season} ${product.type} Jersey) for ₹${product.discountPrice || product.price}. Authentic matchwear and AI Virtual Fitting Room at Jersey World.`}
           keywords={`${product.name}, ${product.team} jersey, ${product.league} kit, ${product.season} football shirt, buy ${product.name} online india, authentic football jersey`}
           image={product.images.front}
           type="product"

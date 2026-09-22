@@ -156,8 +156,8 @@ class ShippingService {
     // 4. Free Shipping Rule Evaluation
     const isFreeShipping = subtotal >= settings.freeShippingThreshold;
     const customerShipping = isFreeShipping ? 0 : rateResult.shippingCharge;
-    const codCharge = paymentMethod === 'COD' && settings.enableCod ? settings.codFee : 0;
-    const finalTotal = Math.max(0, subtotal - couponDiscount + customerShipping + codCharge);
+    const codCharge = 0;
+    const finalTotal = Math.max(0, subtotal - couponDiscount + customerShipping);
 
     return {
       available: true,
