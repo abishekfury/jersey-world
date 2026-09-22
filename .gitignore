@@ -44,3 +44,7 @@ data/
 *.sln
 *.sw?
 
+# Scratch directories
+scratch/
+
+
