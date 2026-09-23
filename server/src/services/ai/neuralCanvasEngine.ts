@@ -64,7 +64,7 @@ export class NeuralCanvasEngine {
           <!-- Authentic Studio Stamp Badge -->
           <g transform="translate(${targetWidth - 220}, ${targetHeight - 70})">
             <rect width="200" height="50" rx="8" fill="#0A0A0C" fill-opacity="0.85" stroke="#F59E0B" stroke-width="1.2"/>
-            <text x="100" y="24" fill="#F3F4F6" font-family="sans-serif" font-size="12" font-weight="bold" text-anchor="middle">JERSEY WORLD AI FIT</text>
+            <text x="100" y="24" fill="#F3F4F6" font-family="sans-serif" font-size="12" font-weight="bold" text-anchor="middle">GOALZA AI FIT</text>
             <text x="100" y="40" fill="#9CA3AF" font-family="sans-serif" font-size="10" text-anchor="middle">${params.team.toUpperCase()} • SIZE ${params.size}</text>
           </g>
         </svg>

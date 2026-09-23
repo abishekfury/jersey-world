@@ -29,7 +29,7 @@ router.get('/health', (_req, res) => {
   res.status(200).json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
-    service: 'Jersey World API Gateway',
+    service: 'GOALZA API Gateway',
     version: '1.0.0',
   });
 });

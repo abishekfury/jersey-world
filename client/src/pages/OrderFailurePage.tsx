@@ -113,7 +113,7 @@ export const OrderFailurePage: React.FC = () => {
               <PhoneCall className="w-5 h-5 text-neutral-500 shrink-0 mt-0.5" />
               <div className="text-[11px] text-neutral-600">
                 <strong className="block text-black font-semibold">Need Assistance?</strong>
-                Contact support at <strong>support@jerseyworld.com</strong> or WhatsApp helpdesk.
+                Contact support at <strong>support@goalza.com</strong> or WhatsApp helpdesk.
               </div>
             </div>
           </div>

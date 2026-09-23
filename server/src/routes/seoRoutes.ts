@@ -85,7 +85,7 @@ router.get('/sitemap.xml', async (_req: Request, res: Response) => {
         xml += `    <image:image>\n`;
         xml += `      <image:loc>${escapeXml(imageUrl)}</image:loc>\n`;
         xml += `      <image:title>${escapeXml(imageTitle)}</image:title>\n`;
-        xml += `      <image:caption>${escapeXml(`Official ${prod.name} available at Jersey World`)}</image:caption>\n`;
+        xml += `      <image:caption>${escapeXml(`Official ${prod.name} available at GOALZA`)}</image:caption>\n`;
         xml += `    </image:image>\n`;
       }
 
@@ -108,7 +108,7 @@ router.get('/sitemap.xml', async (_req: Request, res: Response) => {
  */
 router.get('/robots.txt', (_req: Request, res: Response) => {
   const baseUrl = config.CLIENT_URL.replace(/\/+$/, '');
-  const robots = `# Dynamic Robots.txt for Jersey World
+  const robots = `# Dynamic Robots.txt for GOALZA
 User-agent: *
 Allow: /
 Allow: /shop

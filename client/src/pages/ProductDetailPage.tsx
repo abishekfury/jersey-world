@@ -400,7 +400,7 @@ export const ProductDetailPage: React.FC = () => {
           image: [product.images.front, product.images.back, product.images.detail].filter(Boolean),
           description:
             product.description ||
-            `Official ${product.name} ${product.type} Kit by ${product.team} (${product.season}). Authentic fit, breathable technical fabric, available at Jersey World.`,
+            `Official ${product.name} ${product.type} Kit by ${product.team} (${product.season}). Authentic fit, breathable technical fabric, available at GOALZA.`,
           sku: product.slug || product._id,
           brand: {
             '@type': 'Brand',
@@ -408,7 +408,7 @@ export const ProductDetailPage: React.FC = () => {
           },
           offers: {
             '@type': 'Offer',
-            url: `https://jersey-world.vercel.app/shop/${product.slug || product._id}`,
+            url: `https://goalza.vercel.app/shop/${product.slug || product._id}`,
             priceCurrency: 'INR',
             price: product.discountPrice || product.price,
             priceValidUntil: '2027-12-31',
@@ -416,7 +416,7 @@ export const ProductDetailPage: React.FC = () => {
             availability: product.totalStock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
             seller: {
               '@type': 'Organization',
-              name: 'Jersey World',
+              name: 'GOALZA',
             },
           },
           ...(product.rating
@@ -454,25 +454,25 @@ export const ProductDetailPage: React.FC = () => {
               '@type': 'ListItem',
               position: 1,
               name: 'Home',
-              item: 'https://jersey-world.vercel.app/',
+              item: 'https://goalza.vercel.app/',
             },
             {
               '@type': 'ListItem',
               position: 2,
               name: 'Shop',
-              item: 'https://jersey-world.vercel.app/shop',
+              item: 'https://goalza.vercel.app/shop',
             },
             {
               '@type': 'ListItem',
               position: 3,
               name: product.league || 'Catalog',
-              item: `https://jersey-world.vercel.app/shop?league=${encodeURIComponent(product.league || '')}`,
+              item: `https://goalza.vercel.app/shop?league=${encodeURIComponent(product.league || '')}`,
             },
             {
               '@type': 'ListItem',
               position: 4,
               name: product.name,
-              item: `https://jersey-world.vercel.app/shop/${product.slug || product._id}`,
+              item: `https://goalza.vercel.app/shop/${product.slug || product._id}`,
             },
           ],
         },
@@ -484,7 +484,7 @@ export const ProductDetailPage: React.FC = () => {
       {product && (
         <SEO
           title={`${product.name} — ${product.team} ${product.season} ${product.type} Kit`}
-          description={`Buy ${product.name} (${product.team} ${product.season} ${product.type} Jersey) for ₹${product.discountPrice || product.price}. Authentic matchwear and AI Virtual Fitting Room at Jersey World.`}
+          description={`Buy ${product.name} (${product.team} ${product.season} ${product.type} Jersey) for ₹${product.discountPrice || product.price}. Authentic matchwear and AI Virtual Fitting Room at GOALZA.`}
           keywords={`${product.name}, ${product.team} jersey, ${product.league} kit, ${product.season} football shirt, buy ${product.name} online india, authentic football jersey`}
           image={product.images.front}
           type="product"

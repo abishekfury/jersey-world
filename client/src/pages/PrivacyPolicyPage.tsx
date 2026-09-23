@@ -7,7 +7,7 @@ export const PrivacyPolicyPage: React.FC = () => {
     <div className="min-h-screen bg-[#FAF9F5] text-[#171C1B] font-sans pb-24">
       <SEO
         title="Privacy Policy"
-        description="Learn how Jersey World collects, secures, and handles your personal data, payment transactions, and browsing information."
+        description="Learn how GOALZA collects, secures, and handles your personal data, payment transactions, and browsing information."
         canonical="/privacy-policy"
       />
 
@@ -32,7 +32,7 @@ export const PrivacyPolicyPage: React.FC = () => {
               1. Overview & Commitment
             </h2>
             <p>
-              Jersey World ("we", "our", or "us") is dedicated to protecting your privacy. This Privacy Policy details how we collect, use, store, and safeguard your personal data when you visit our website, purchase football apparel, or interact with our virtual fitting room services.
+              GOALZA ("we", "our", or "us") is dedicated to protecting your privacy. This Privacy Policy details how we collect, use, store, and safeguard your personal data when you visit our website, purchase football apparel, or interact with our virtual fitting room services.
             </p>
           </section>
 
@@ -44,7 +44,7 @@ export const PrivacyPolicyPage: React.FC = () => {
             <p>We collect information to provide, process, and optimize our e-commerce services:</p>
             <ul className="list-disc pl-5 space-y-1 text-neutral-600">
               <li><strong>Personal Identifiers:</strong> Name, email address, phone number, shipping and billing address.</li>
-              <li><strong>Order Data:</strong> Jersey models purchased, sizing choices, custom player name/number prints, transaction timestamps, and order histories.</li>
+              <li><strong>Order Data:</strong> Jersey models purchased, sizing choices, transaction timestamps, and order histories.</li>
               <li><strong>Payment Information:</strong> We do NOT store card CVVs or bank passwords. All payments are tokenized securely through PCI-DSS Level 1 compliant gateway partners (Razorpay).</li>
               <li><strong>Device & Telemetry Data:</strong> IP address, browser type, operating system, and anonymous interaction analytics.</li>
             </ul>
@@ -95,7 +95,7 @@ export const PrivacyPolicyPage: React.FC = () => {
               6. Your Privacy Rights & Contact
             </h2>
             <p>
-              You may request access to, correction of, or permanent deletion of your customer profile and order history at any time. For privacy queries, email our Data Protection Officer at <strong>privacy@jerseyworld.com</strong>.
+              You may request access to, correction of, or permanent deletion of your customer profile and order history at any time. For privacy queries, email our Data Protection Officer at <strong>privacy@goalza.com</strong>.
             </p>
           </section>
         </div>

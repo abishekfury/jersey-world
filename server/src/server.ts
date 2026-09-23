@@ -23,7 +23,7 @@ const startServer = async () => {
     }
 
     app.listen(config.PORT, () => {
-      logger.info(`⚽ Jersey World Server running on http://localhost:${config.PORT}`);
+      logger.info(`⚽ GOALZA Server running on http://localhost:${config.PORT}`);
       logger.info(`🚀 API Gateway active at http://localhost:${config.PORT}/api/v1`);
       logger.info(`✨ AI Engine Provider configured: ${config.AI_PROVIDER}`);
     });

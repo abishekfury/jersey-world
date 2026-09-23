@@ -15,7 +15,7 @@ export const TermsPage: React.FC = () => {
       <SEO
         title="Terms of Service & Sales Agreement"
         description="Review the terms and conditions governing jersey purchases, pricing, shipping, returns, and intellectual property."
-        keywords="jersey world terms, sales agreement, return terms, online shopping conditions"
+        keywords="goalza terms, sales agreement, return terms, online shopping conditions, goalza"
         jsonLd={termsJsonLd}
       />
 
@@ -34,7 +34,7 @@ export const TermsPage: React.FC = () => {
               1. Acceptance of Terms
             </h2>
             <p>
-              By accessing, browsing, or purchasing items on Jersey World (jersey-world.vercel.app), you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. If you do not agree with any portion of these terms, you should immediately discontinue the use of our services.
+              By accessing, browsing, or purchasing items on GOALZA (goalza.vercel.app), you acknowledge that you have read, understood, and agree to be bound by these Terms of Service. If you do not agree with any portion of these terms, you should immediately discontinue the use of our services.
             </p>
           </section>
 
@@ -44,7 +44,7 @@ export const TermsPage: React.FC = () => {
               2. Authenticity & Sizing
             </h2>
             <p>
-              All jerseys sold on Jersey World are authentic club and international kits:
+              All jerseys sold on GOALZA are authentic club and international kits:
             </p>
             <ul className="list-disc pl-5 space-y-1 text-neutral-600">
               <li>Our jerseys adhere to international manufacturer sizing charts. Please consult the interactive size guide on product detail pages prior to ordering.</li>
@@ -58,7 +58,7 @@ export const TermsPage: React.FC = () => {
               3. Pricing, Taxes & Payment
             </h2>
             <p>
-              All prices listed on Jersey World are in Indian Rupees (INR ₹) and are inclusive of applicable goods and services tax (5% GST on apparel) unless stated otherwise.
+              All prices listed on GOALZA are in Indian Rupees (INR ₹) and are inclusive of applicable goods and services tax (5% GST on apparel) unless stated otherwise.
             </p>
             <ul className="list-disc pl-5 space-y-1 text-neutral-600">
               <li>We accept 100% secure prepaid digital payments via Razorpay (UPI, Credit/Debit Cards, Net Banking). Cash on Delivery (COD) is not accepted.</li>

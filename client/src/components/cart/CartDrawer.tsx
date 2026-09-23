@@ -222,8 +222,8 @@ export const CartDrawer: React.FC = () => {
                     </div>
                     <div className="flex items-center justify-between text-[11px]">
                       <span>India Express Shipping</span>
-                      <span className="text-emerald-600 font-bold font-mono">
-                        {subtotal >= FREE_SHIPPING_THRESHOLD ? 'FREE' : 'Calculated at checkout'}
+                      <span className={`font-bold font-mono ${subtotal >= FREE_SHIPPING_THRESHOLD ? 'text-emerald-600' : 'text-neutral-700'}`}>
+                        {subtotal >= FREE_SHIPPING_THRESHOLD ? 'FREE' : '₹79 (Free above ₹1,499)'}
                       </span>
                     </div>
                   </div>

@@ -27,10 +27,14 @@ export const getOfferBanner = async (_req: Request, res: Response): Promise<void
         couponCode: defaultCode,
         buttonText: 'Shop Collection',
         buttonLink: '/shop',
-        leftImage: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=700&q=85',
-        rightImage: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=85',
+        leftImage: '/images/image2.jpg',
+        rightImage: '/images/image3.jpg',
+        heroBackgroundImage: '/images/image1.jpg',
         isActive: true,
       });
+    } else if (banner.heroBackgroundImage && banner.heroBackgroundImage.includes('photo-1522778119026')) {
+      banner.heroBackgroundImage = '/images/image1.jpg';
+      await banner.save();
     }
 
     res.status(200).json({

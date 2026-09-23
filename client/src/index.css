@@ -1,8 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  .font-serif {
+    font-family: 'Instrument Serif', Georgia, serif;
+  }
   body {
     font-family: 'Spline Sans', 'Inter', sans-serif;
     background-color: #FFFFFF;
@@ -125,4 +129,14 @@
   background-size: 200% 100%;
   animation: shimmer 2.5s infinite;
 }
+
+/* Hide scrollbar for Chrome, Safari, Opera, Edge, Firefox */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 

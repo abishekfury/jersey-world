@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ArrowUpRight, Check, Send } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export const Footer: React.FC = () => {
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+
+  const handleGoHome = (e: React.MouseEvent) => {
+    if (location.pathname === '/' && !location.search) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,15 +77,28 @@ export const Footer: React.FC = () => {
           {/* Column 1: Brand Image + Logo */}
           <div className="md:col-span-4 relative overflow-hidden min-h-[360px] md:min-h-[440px] bg-[#F5F5F3] flex flex-col justify-end group">
             <img
-              src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?auto=format&fit=crop&w=700&q=85"
-              alt="Jersey World"
-              className="absolute inset-0 w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700 ease-out"
+              src="/images/image8.jpg"
+              onError={(e) => {
+                e.currentTarget.src = '/images/image1.jpg';
+              }}
+              alt="GOALZA"
+              className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
             <div className="relative z-10 p-8 space-y-2">
-              <Link to="/" className="inline-block">
+              <Link
+                to="/"
+                onClick={handleGoHome}
+                className="inline-flex items-center gap-3 group cursor-pointer"
+                aria-label="GOALZA Home"
+              >
+                <img
+                  src="/images/logo.png"
+                  alt="GOALZA Logo"
+                  className="w-9 h-9 object-contain brightness-0 invert drop-shadow-md group-hover:scale-105 transition-transform duration-300"
+                />
                 <span className="text-4xl font-normal font-display tracking-tight uppercase text-white drop-shadow-lg">
-                  JERSEY WORLD<span className="text-[#FF5722]">.</span>
+                  GOALZA<span className="text-[#FF5722]">.</span>
                 </span>
               </Link>
               <p className="text-xs text-neutral-300 leading-relaxed font-medium">
@@ -173,7 +194,7 @@ export const Footer: React.FC = () => {
               <div className="space-y-3 text-xs text-neutral-600 leading-relaxed font-medium">
                 <p>
                   <span className="text-black font-semibold block">Email Support:</span>
-                  support@jerseyworld.in
+                  support@goalza.in
                 </p>
                 <p>
                   <span className="text-black font-semibold block">Helpline:</span>
@@ -200,7 +221,7 @@ export const Footer: React.FC = () => {
                     Terms & Conditions
                   </Link>
                   <Link to="/about" className="text-black underline underline-offset-4 hover:text-[#FF5722] pt-1">
-                    About Jersey World →
+                    About GOALZA →
                   </Link>
                 </div>
               </div>
@@ -209,7 +230,17 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="px-5 sm:px-8 md:px-14 lg:px-16 xl:px-20 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-[11px] text-neutral-400 font-medium">
-          <div>© {new Date().getFullYear()} JERSEY WORLD. All rights reserved. Effortless Shopping, Exceptional Choices.</div>
+          <div>
+            © {new Date().getFullYear()}{' '}
+            <Link
+              to="/"
+              onClick={handleGoHome}
+              className="text-neutral-300 hover:text-white font-bold transition-colors cursor-pointer"
+            >
+              GOALZA
+            </Link>
+            . All rights reserved. Effortless Shopping, Exceptional Choices.
+          </div>
           <div className="flex items-center gap-6">
             <span className="text-neutral-500">100% Secure Checkout</span>
             <span className="text-neutral-500">Fast India Delivery</span>

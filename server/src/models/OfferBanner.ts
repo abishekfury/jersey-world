@@ -16,11 +16,11 @@ const OfferBannerSchema = new Schema<IOfferBannerDocument>(
     buttonLink: { type: String, default: '/shop' },
     leftImage: {
       type: String,
-      default: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=700&q=85',
+      default: '/images/image2.jpg',
     },
     rightImage: {
       type: String,
-      default: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=85',
+      default: '/images/image3.jpg',
     },
     isActive: { type: Boolean, default: true },
     // Hero Section Customization
@@ -34,8 +34,7 @@ const OfferBannerSchema = new Schema<IOfferBannerDocument>(
     },
     heroBackgroundImage: {
       type: String,
-      default:
-        'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=2400&q=85',
+      default: '/images/image1.jpg',
     },
   },
   { timestamps: true }

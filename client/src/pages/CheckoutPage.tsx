@@ -304,7 +304,7 @@ export const CheckoutPage: React.FC = () => {
           key: paymentDetails.key,
           amount: paymentDetails.amount * 100,
           currency: 'INR',
-          name: 'Jersey World',
+          name: 'GOALZA',
           description: `Payment for Order ${createdOrder.orderNumber}`,
           order_id: paymentDetails.orderId,
           prefill: {

@@ -61,10 +61,10 @@ export const App: React.FC = () => {
     dispatch(fetchCart());
   }, [dispatch]);
 
-  // Scroll to top on route change
+  // Scroll to top on route change or navigation action
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [location.pathname]);
+  }, [location.pathname, location.key]);
 
   const isAdminRoute = location.pathname.startsWith('/admin');
 

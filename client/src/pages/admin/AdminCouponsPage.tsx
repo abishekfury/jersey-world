@@ -42,7 +42,7 @@ export const AdminCouponsPage: React.FC = () => {
     heroHeadline: 'WEAR THE PASSION.',
     heroSubheadline: 'OWN THE GLORY.',
     heroDescription:
-      'Discover authentic club & international jerseys with official custom name & number printing, free express shipping, and seamless size exchanges.',
+      'Discover authentic club & international jerseys, official match kits, free express shipping, and seamless size exchanges.',
     heroBackgroundImage:
       'https://images.unsplash.com/photo-1522778119026-d647f0596c20?auto=format&fit=crop&w=2400&q=85',
   });

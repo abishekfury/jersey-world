@@ -19,13 +19,13 @@ export interface SEOProps {
   modifiedTime?: string;
 }
 
-const DEFAULT_TITLE = 'JERSEY WORLD — Wear The Game | Authentic Football Jerseys & AI Try-On';
+const DEFAULT_TITLE = 'GOALZA — Wear The Game | Authentic Football Jerseys & AI Try-On';
 const DEFAULT_DESCRIPTION =
   'Shop authentic club and national team football jerseys, iconic retro kits, and AI Virtual Fitting Room experience. Fast delivery across India.';
 const DEFAULT_KEYWORDS =
-  'football jerseys, soccer jerseys, authentic jerseys, retro kits, premier league jerseys, real madrid jersey, barcelona jersey, AI virtual fitting, india football shop';
+  'football jerseys, soccer jerseys, authentic jerseys, retro kits, premier league jerseys, real madrid jersey, barcelona jersey, AI virtual fitting, india football shop, goalza';
 const DEFAULT_IMAGE = '/og-image.jpg';
-const SITE_NAME = 'Jersey World';
+const SITE_NAME = 'GOALZA';
 
 export const SEO: React.FC<SEOProps> = ({
   title,
@@ -37,7 +37,7 @@ export const SEO: React.FC<SEOProps> = ({
   noIndex = false,
   canonical,
   jsonLd,
-  author = 'Jersey World',
+  author = 'GOALZA',
   publishedTime,
   modifiedTime,
 }) => {
@@ -81,8 +81,8 @@ export const SEO: React.FC<SEOProps> = ({
 
       {/* Twitter Card Meta Tags */}
       <meta name="twitter:card" content={image ? 'summary_large_image' : 'summary'} />
-      <meta name="twitter:site" content="@jerseyworld_in" />
-      <meta name="twitter:creator" content="@jerseyworld_in" />
+      <meta name="twitter:site" content="@goalza_in" />
+      <meta name="twitter:creator" content="@goalza_in" />
       <meta name="twitter:title" content={formattedTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={absoluteImageUrl} />

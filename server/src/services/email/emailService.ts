@@ -51,7 +51,7 @@ export const sendOrderEmail = async (user: any, order: any): Promise<boolean> =>
       <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f7f7f7; margin: 0; padding: 24px; color: #111;">
         <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
           <div style="background-color: #0d0f11; padding: 28px; text-align: center;">
-            <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 2px; text-transform: uppercase;">Jersey World</h1>
+            <h1 style="color: #ffffff; margin: 0; font-size: 24px; letter-spacing: 2px; text-transform: uppercase;">GOALZA</h1>
             <p style="color: #FF5722; margin: 4px 0 0; font-size: 12px; font-weight: bold; letter-spacing: 1px;">OFFICIAL MATCHWEAR</p>
           </div>
           <div style="padding: 32px;">
@@ -95,7 +95,7 @@ export const sendOrderEmail = async (user: any, order: any): Promise<boolean> =>
             </div>
           </div>
           <div style="background-color: #fafafa; padding: 16px; text-align: center; font-size: 12px; color: #888; border-top: 1px solid #eee;">
-            Jersey World &bull; Authentic Matchwear & Kits &bull; Support: support@jerseyworld.in
+            GOALZA &bull; Authentic Matchwear & Kits &bull; Support: support@goalza.in
           </div>
         </div>
       </body>
@@ -106,7 +106,7 @@ export const sendOrderEmail = async (user: any, order: any): Promise<boolean> =>
     try {
       await sgMail.send({
         to: recipientEmail,
-        from: config.SENDGRID_FROM_EMAIL || 'orders@jerseyworld.in',
+        from: config.SENDGRID_FROM_EMAIL || 'orders@goalza.in',
         subject: `Order #${orderIdentifier} Confirmed`,
         html: htmlContent,
       });

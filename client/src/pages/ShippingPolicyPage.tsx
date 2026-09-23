@@ -7,7 +7,7 @@ export const ShippingPolicyPage: React.FC = () => {
     <div className="min-h-screen bg-[#FAF9F5] text-[#171C1B] font-sans pb-24">
       <SEO
         title="Shipping & Delivery Policy"
-        description="Learn about Jersey World express delivery timelines across India, free shipping thresholds, live PIN code serviceability, and order tracking."
+        description="Learn about GOALZA express delivery timelines across India, free shipping thresholds, live PIN code serviceability, and order tracking."
         canonical="/shipping-policy"
       />
 

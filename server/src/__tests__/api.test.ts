@@ -7,7 +7,7 @@ import { config } from '../config/env';
 
 jest.setTimeout(20000);
 
-describe('Jersey World API Gateway Integration Tests', () => {
+describe('GOALZA API Gateway Integration Tests', () => {
   let isDbConnected = false;
 
   beforeAll(async () => {
@@ -39,7 +39,7 @@ describe('Jersey World API Gateway Integration Tests', () => {
       const res = await request(app).get('/api/v1/health');
       expect(res.status).toBe(200);
       expect(res.body.status).toBe('healthy');
-      expect(res.body.service).toBe('Jersey World API Gateway');
+      expect(res.body.service).toBe('GOALZA API Gateway');
     });
   });
 

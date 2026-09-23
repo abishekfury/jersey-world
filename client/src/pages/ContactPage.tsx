@@ -35,7 +35,7 @@ export const ContactPage: React.FC = () => {
     <div className="min-h-screen bg-[#FAF9F5] text-[#171C1B] font-sans pb-24">
       <SEO
         title="Contact & Support Helpdesk"
-        description="Get in touch with Jersey World customer support for order tracking, size advice, custom jersey printing inquiries, and returns."
+        description="Get in touch with GOALZA customer support for order tracking, size advice, custom jersey printing inquiries, and returns."
         canonical="/contact"
       />
 
@@ -49,7 +49,7 @@ export const ContactPage: React.FC = () => {
             HOW CAN WE HELP YOU?
           </h1>
           <p className="text-xs sm:text-sm text-neutral-300 max-w-xl mx-auto font-sans leading-relaxed">
-            Have questions about an order, custom player printing, sizing, or delivery? Reach out to our dedicated support team.
+            Have questions about an order, sizing, or delivery? Reach out to our dedicated support team.
           </p>
         </div>
       </div>
@@ -65,7 +65,7 @@ export const ContactPage: React.FC = () => {
 
               <div className="space-y-4 text-xs">
                 <a
-                  href="mailto:support@jerseyworld.com"
+                  href="mailto:support@goalza.com"
                   className="flex items-start gap-4 p-4 rounded-2xl bg-neutral-50 hover:bg-neutral-100 transition-colors border border-neutral-200 group"
                 >
                   <div className="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center shrink-0 group-hover:bg-[#FF5722] transition-colors">
@@ -73,7 +73,7 @@ export const ContactPage: React.FC = () => {
                   </div>
                   <div>
                     <span className="text-neutral-500 font-medium block">Email Support</span>
-                    <strong className="text-black font-semibold text-sm">support@jerseyworld.com</strong>
+                    <strong className="text-black font-semibold text-sm">support@goalza.com</strong>
                     <span className="text-[11px] text-neutral-400 block mt-0.5">Average response under 4 hours</span>
                   </div>
                 </a>
@@ -95,7 +95,7 @@ export const ContactPage: React.FC = () => {
                   </div>
                   <div>
                     <span className="text-neutral-500 font-medium block">Headquarters & Fulfillment Hub</span>
-                    <strong className="text-black font-semibold text-sm">Jersey World Retail Private Limited</strong>
+                    <strong className="text-black font-semibold text-sm">GOALZA Retail Private Limited</strong>
                     <span className="text-[11px] text-neutral-500 block mt-0.5">
                       Brigade Tech Park, Whitefield, Bangalore, Karnataka 560066, India
                     </span>
@@ -108,7 +108,7 @@ export const ContactPage: React.FC = () => {
             <div className="p-6 rounded-3xl bg-neutral-900 text-white space-y-4">
               <div className="flex items-center gap-3">
                 <ShieldCheck className="w-6 h-6 text-[#FF5722]" />
-                <h3 className="text-sm font-bold uppercase tracking-wider">The Jersey World Promise</h3>
+                <h3 className="text-sm font-bold uppercase tracking-wider">The GOALZA Promise</h3>
               </div>
               <p className="text-xs text-neutral-300 leading-relaxed">
                 Every football kit is inspected for authentic crest badges, heat-pressed sponsors, and certified moisture-wicking material before dispatch.
@@ -126,7 +126,7 @@ export const ContactPage: React.FC = () => {
                   </div>
                   <h3 className="text-2xl font-bold font-display uppercase">Message Sent Successfully!</h3>
                   <p className="text-xs sm:text-sm text-neutral-500 max-w-md mx-auto">
-                    Thank you for contacting Jersey World. A customer success representative has been assigned to your ticket and will reply via email shortly.
+                    Thank you for contacting GOALZA. A customer success representative has been assigned to your ticket and will reply via email shortly.
                   </p>
                   <button
                     onClick={() => {

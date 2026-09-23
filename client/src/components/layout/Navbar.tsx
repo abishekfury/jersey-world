@@ -47,12 +47,35 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-neutral-200 transition-all font-sans w-full">
+      {/* Top Free Shipping Announcement Strip */}
+      <div className="bg-black text-white text-[10px] sm:text-[11px] py-1.5 px-4 text-center font-sans tracking-widest uppercase font-medium flex items-center justify-center gap-2 select-none border-b border-neutral-800">
+        <span className="text-[#FF5722] font-bold">🚚 Free Shipping</span>
+        <span className="text-neutral-500">•</span>
+        <span className="text-neutral-200">Only on orders above ₹1,499 across India</span>
+      </div>
+
       <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16">
         <div className="flex items-center justify-between h-16 sm:h-20">
-          {/* Brand Logo on Left: JERSEY WORLD. */}
-          <Link to="/" className="flex items-center gap-1.5 group flex-shrink-0">
+          {/* Brand Logo on Left: GOALZA. */}
+          <Link
+            to="/"
+            onClick={(e) => {
+              setIsMobileMenuOpen(false);
+              if (location.pathname === '/') {
+                e.preventDefault();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }
+            }}
+            className="flex items-center gap-2.5 sm:gap-3 group flex-shrink-0 cursor-pointer"
+            aria-label="GOALZA Home"
+          >
+            <img
+              src="/images/logo.png"
+              alt="GOALZA Logo"
+              className="w-8 h-8 sm:w-9 sm:h-9 object-contain group-hover:scale-105 transition-transform duration-300"
+            />
             <span className="text-2xl sm:text-3xl font-bold text-black font-sans tracking-wider uppercase">
-              JERSEY WORLD<span className="text-[#FF5722]">.</span>
+              GOALZA<span className="text-[#FF5722]">.</span>
             </span>
           </Link>
 
@@ -69,6 +92,12 @@ export const Navbar: React.FC = () => {
                 <Link
                   key={link.label}
                   to={link.path}
+                  onClick={(e) => {
+                    if (link.path === '/' && location.pathname === '/' && !location.search) {
+                      e.preventDefault();
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                  }}
                   className={`text-xs font-bold tracking-wider uppercase transition-colors font-sans hover:text-[#FF5722] ${
                     isActive ? 'text-black' : 'text-neutral-800'
                   }`}
@@ -230,7 +259,13 @@ export const Navbar: React.FC = () => {
               <Link
                 key={link.label}
                 to={link.path}
-                onClick={() => setIsMobileMenuOpen(false)}
+                onClick={(e) => {
+                  setIsMobileMenuOpen(false);
+                  if (link.path === '/' && location.pathname === '/' && !location.search) {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }
+                }}
                 className="block text-sm font-bold uppercase tracking-wider text-neutral-900 hover:text-[#FF5722] py-1.5"
               >
                 {link.label}

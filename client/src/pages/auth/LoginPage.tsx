@@ -163,7 +163,7 @@ export const LoginPage: React.FC = () => {
         origin: { y: 0.65 },
         colors: ['#FF5722', '#171C1B', '#FACC15'],
       });
-      dispatch(addToast({ type: 'success', message: 'Verified! Welcome to Jersey World.' }));
+      dispatch(addToast({ type: 'success', message: 'Verified! Welcome to GOALZA.' }));
       navigate(redirectUrl);
     }
   };
@@ -223,9 +223,14 @@ export const LoginPage: React.FC = () => {
 
         {/* Top Branding Header */}
         <div className="relative z-10">
-          <Link to="/" className="inline-flex items-center gap-1.5 group">
+          <Link to="/" className="inline-flex items-center gap-2.5 group">
+            <img
+              src="/images/logo.png"
+              alt="GOALZA Logo"
+              className="w-8 h-8 object-contain brightness-0 invert drop-shadow-sm"
+            />
             <span className="text-3xl font-normal text-white font-display tracking-tight uppercase">
-              JERSEY WORLD<span className="text-[#FF5722] animate-pulse">.</span>
+              GOALZA<span className="text-[#FF5722] animate-pulse">.</span>
             </span>
           </Link>
           <span className="block text-xs font-mono text-neutral-400 uppercase tracking-widest mt-1">
@@ -248,7 +253,7 @@ export const LoginPage: React.FC = () => {
               CRAFTED FOR CHAMPIONS. WORN BY LEGENDS.
             </h2>
             <p className="text-xs xl:text-sm text-neutral-300 font-medium leading-relaxed">
-              Experience India’s premier destination for authentic player-grade jerseys, custom name & number printing, and historic football collectibles.
+              Experience India’s premier destination for authentic player-grade jerseys, official club kits, and historic football collectibles.
             </p>
           </div>
 
@@ -266,7 +271,7 @@ export const LoginPage: React.FC = () => {
 
         {/* Bottom Footer Note */}
         <div className="relative z-10 flex items-center justify-between text-[11px] text-neutral-400 font-mono border-t border-white/10 pt-4">
-          <span>© 2026 JERSEY WORLD INDIA</span>
+          <span>© 2026 GOALZA INDIA</span>
           <span>SECURE 256-BIT ENCRYPTION</span>
         </div>
       </div>

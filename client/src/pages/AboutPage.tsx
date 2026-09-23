@@ -50,13 +50,13 @@ export const AboutPage: React.FC = () => {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://jersey-world.vercel.app/'
+        item: 'https://goalza.vercel.app/'
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'About Us',
-        item: 'https://jersey-world.vercel.app/about'
+        item: 'https://goalza.vercel.app/about'
       }
     ]
   };
@@ -65,8 +65,8 @@ export const AboutPage: React.FC = () => {
     <div className="bg-white text-black min-h-screen">
       <SEO
         title="About Us — Heritage, Quality & Football Culture"
-        description="Learn about Jersey World's mission to bring authentic football matchwear, retro kit heritage, and AI Virtual Fitting Room technology to fans worldwide."
-        keywords="about jersey world, authentic football jersey store, football culture streetwear, premium soccer kits india"
+        description="Learn about GOALZA's mission to bring authentic football matchwear, retro kit heritage, and AI Virtual Fitting Room technology to fans worldwide."
+        keywords="about goalza, authentic football jersey store, football culture streetwear, premium soccer kits india, goalza"
         jsonLd={aboutJsonLd}
       />
 
@@ -85,7 +85,7 @@ export const AboutPage: React.FC = () => {
             <div className="relative w-72 h-96 sm:w-80 sm:h-[440px] rounded-full overflow-hidden border-4 border-white/30 shadow-2xl">
               <img
                 src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80"
-                alt="Jersey World Editorial Model"
+                alt="GOALZA Editorial Model"
                 className="w-full h-full object-cover object-center filter contrast-105"
               />
             </div>
@@ -94,7 +94,7 @@ export const AboutPage: React.FC = () => {
           {/* Right Description Text */}
           <div className="lg:col-span-4 lg:pl-6 space-y-4">
             <p className="text-sm sm:text-base text-white/95 leading-relaxed font-medium">
-              At Jersey World, we believe football culture and premium street fashion belong together—on the pitch, in the stands, and in daily streetwear. We curate authentic match kits, iconic retro classics, and official club collections built for the modern football devotee.
+              At GOALZA, we believe football culture and premium street fashion belong together—on the pitch, in the stands, and in daily streetwear. We curate authentic match kits, iconic retro classics, and official club collections built for the modern football devotee.
             </p>
           </div>
         </div>
@@ -121,7 +121,7 @@ export const AboutPage: React.FC = () => {
               >
                 <img
                   src={item.image}
-                  alt={`Jersey World Archive ${(idx % missionGallery.length) + 1}`}
+                  alt={`GOALZA Archive ${(idx % missionGallery.length) + 1}`}
                   className="w-full h-full object-cover"
                   loading="lazy"
                 />

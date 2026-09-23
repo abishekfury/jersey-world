@@ -105,7 +105,7 @@ export const RegisterPage: React.FC = () => {
         origin: { y: 0.6 },
         colors: ['#FF5722', '#171C1B', '#FACC15'],
       });
-      dispatch(addToast({ type: 'success', message: 'Account created! Welcome to Jersey World.' }));
+      dispatch(addToast({ type: 'success', message: 'Account created! Welcome to GOALZA.' }));
       navigate(redirectUrl);
     }
   };
@@ -128,9 +128,14 @@ export const RegisterPage: React.FC = () => {
 
         {/* Top Branding Header */}
         <div className="relative z-10">
-          <Link to="/" className="inline-flex items-center gap-1.5 group">
+          <Link to="/" className="inline-flex items-center gap-2.5 group">
+            <img
+              src="/images/logo.png"
+              alt="GOALZA Logo"
+              className="w-8 h-8 object-contain brightness-0 invert drop-shadow-sm"
+            />
             <span className="text-3xl font-normal text-white font-display tracking-tight uppercase">
-              JERSEY WORLD<span className="text-[#FF5722] animate-pulse">.</span>
+              GOALZA<span className="text-[#FF5722] animate-pulse">.</span>
             </span>
           </Link>
           <span className="block text-xs font-mono text-neutral-400 uppercase tracking-widest mt-1">
@@ -153,7 +158,7 @@ export const RegisterPage: React.FC = () => {
               JOIN INDIA’S #1 JERSEY DESTINATION.
             </h2>
             <p className="text-xs xl:text-sm text-neutral-300 font-medium leading-relaxed">
-              Create an account to unlock member discounts, custom name & number printing, and instant size exchange privileges.
+              Create an account to unlock member discounts, early access drops, and instant size exchange privileges.
             </p>
           </div>
 
@@ -171,7 +176,7 @@ export const RegisterPage: React.FC = () => {
 
         {/* Bottom Footer Note */}
         <div className="relative z-10 flex items-center justify-between text-[11px] text-neutral-400 font-mono border-t border-white/10 pt-4">
-          <span>© 2026 JERSEY WORLD INDIA</span>
+          <span>© 2026 GOALZA INDIA</span>
           <span>SECURE 256-BIT ENCRYPTION</span>
         </div>
       </div>

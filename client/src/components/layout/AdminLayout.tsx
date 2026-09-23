@@ -41,13 +41,19 @@ export const AdminLayout: React.FC = () => {
         <div>
           {/* Admin Header */}
           <div className="flex items-center gap-3.5 mb-8">
-            <div className="w-12 h-12 rounded-xl bg-black flex items-center justify-center font-black text-white text-base shadow-sm">
-              JW
-            </div>
+            <Link
+              to="/"
+              className="w-12 h-12 rounded-xl bg-black flex items-center justify-center shadow-sm hover:opacity-85 transition-opacity"
+              title="Return to GOALZA Store"
+            >
+              <img src="/images/logo.png" alt="GOALZA Logo" className="w-7 h-7 object-contain" />
+            </Link>
             <div>
-              <h2 className="font-display font-black text-base uppercase text-black tracking-tight">
-                ADMIN PORTAL
-              </h2>
+              <Link to="/" className="group" title="Return to GOALZA Store">
+                <h2 className="font-display font-black text-base uppercase text-black tracking-tight group-hover:text-[#FF5722] transition-colors">
+                  GOALZA ADMIN
+                </h2>
+              </Link>
               <div className="flex items-center gap-1.5 mt-1">
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase px-2.5 py-1 rounded-md bg-[#FF5722]/10 text-[#FF5722] border border-[#FF5722]/20">
                   <Shield className="w-3.5 h-3.5" /> Full Administrator

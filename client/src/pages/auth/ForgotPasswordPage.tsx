@@ -54,9 +54,14 @@ export const ForgotPasswordPage: React.FC = () => {
         </div>
 
         <div className="relative z-10">
-          <Link to="/" className="inline-flex items-center gap-1.5 group">
+          <Link to="/" className="inline-flex items-center gap-2.5 group">
+            <img
+              src="/images/logo.png"
+              alt="GOALZA Logo"
+              className="w-8 h-8 object-contain brightness-0 invert drop-shadow-sm"
+            />
             <span className="text-3xl font-normal text-white font-display tracking-tight uppercase">
-              JERSEY WORLD<span className="text-[#FF5722] animate-pulse">.</span>
+              GOALZA<span className="text-[#FF5722] animate-pulse">.</span>
             </span>
           </Link>
           <span className="block text-xs font-mono text-neutral-400 uppercase tracking-widest mt-1">

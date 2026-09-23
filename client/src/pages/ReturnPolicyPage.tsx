@@ -7,7 +7,7 @@ export const ReturnPolicyPage: React.FC = () => {
     <div className="min-h-screen bg-[#FAF9F5] text-[#171C1B] font-sans pb-24">
       <SEO
         title="Return & Refund Policy"
-        description="Understand the Jersey World 7-day hassle-free return and exchange policy for football kits, size replacements, and refund processing."
+        description="Understand the GOALZA 7-day hassle-free return and exchange policy for football kits, size replacements, and refund processing."
         canonical="/return-policy"
       />
 
