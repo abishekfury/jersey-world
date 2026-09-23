@@ -35,57 +35,54 @@ export const VideoFocusCarousel: React.FC<ScrollStreamProps> = () => {
   }, [scrollYProgress]);
 
   // Center image reveals (3 scroll stages total, smooth vertical slide-up reveals)
-  // Stage 2 reveal (Alex Frankfurt)
+  // Stage 2 reveal (Alex Frankfurt / Goalza Edition)
   const reveal2Y = useTransform(scrollYProgress, [0.26, 0.44], ['100%', '0%']);
   // Stage 3 reveal (Milan Heritage)
   const reveal3Y = useTransform(scrollYProgress, [0.60, 0.78], ['100%', '0%']);
 
   // ================= STAGE 1 LOGOS (0% -> 36%) =================
-  // Large Barcelona & Real Madrid medallions
   const s1Opacity = useTransform(scrollYProgress, [0, 0.28, 0.36], [1, 1, 0]);
   const s1Scale = useTransform(scrollYProgress, [0, 0.28, 0.36], [1, 1, 0.85]);
 
-  // 1. Barcelona (Top-Left): streams diagonally down-right
-  const barcaY = useTransform(scrollYProgress, [0, 0.36], [-20, 100]);
-  const barcaX = useTransform(scrollYProgress, [0, 0.36], [-15, 35]);
+  // 1. Barcelona (Top-Left): gentle diagonal stream
+  const barcaY = useTransform(scrollYProgress, [0, 0.36], [-10, 45]);
+  const barcaX = useTransform(scrollYProgress, [0, 0.36], [-5, 15]);
 
-  // 2. Real Madrid (Top-Right): streams diagonally down-left
-  const realY = useTransform(scrollYProgress, [0, 0.36], [-25, 95]);
-  const realX = useTransform(scrollYProgress, [0, 0.36], [20, -35]);
+  // 2. Real Madrid (Top-Right): gentle diagonal stream
+  const realY = useTransform(scrollYProgress, [0, 0.36], [-10, 45]);
+  const realX = useTransform(scrollYProgress, [0, 0.36], [5, -15]);
 
   // ================= STAGE 2 LOGOS (32% -> 72%) =================
-  // Manchester United, Manchester City & Bayern Munich medallions
   const s2Opacity = useTransform(scrollYProgress, [0.32, 0.40, 0.62, 0.70], [0, 1, 1, 0]);
   const s2Scale = useTransform(scrollYProgress, [0.32, 0.40, 0.62, 0.70], [0.85, 1, 1, 0.85]);
 
-  // 3. Manchester United (Mid-Left): drifts smoothly upward
-  const utdY = useTransform(scrollYProgress, [0.32, 0.70], [70, -60]);
-  const utdX = useTransform(scrollYProgress, [0.32, 0.70], [-25, 25]);
+  // 3. Manchester United (Mid-Left): gentle float
+  const utdY = useTransform(scrollYProgress, [0.32, 0.70], [30, -30]);
+  const utdX = useTransform(scrollYProgress, [0.32, 0.70], [-10, 15]);
 
-  // 4. Manchester City (Mid-Right): drifts smoothly upward
-  const cityY = useTransform(scrollYProgress, [0.32, 0.70], [80, -50]);
-  const cityX = useTransform(scrollYProgress, [0.32, 0.70], [25, -25]);
+  // 4. Manchester City (Mid-Right): gentle float
+  const cityY = useTransform(scrollYProgress, [0.32, 0.70], [30, -30]);
+  const cityX = useTransform(scrollYProgress, [0.32, 0.70], [10, -15]);
 
-  // 5. Bayern Munich (Bottom-Left / Center-Left): rises and flows
-  const bayernY = useTransform(scrollYProgress, [0.32, 0.70], [70, -70]);
-  const bayernX = useTransform(scrollYProgress, [0.32, 0.70], [-10, 30]);
+  // 5. Bayern Munich (Bottom-Left): gentle rise
+  const bayernY = useTransform(scrollYProgress, [0.32, 0.70], [25, -25]);
+  const bayernX = useTransform(scrollYProgress, [0.32, 0.70], [-5, 15]);
 
   // ================= STAGE 3 LOGOS (65% -> 100%) =================
-  // Inter Milan, Borussia Dortmund & AC Milan medallions
   const s3Opacity = useTransform(scrollYProgress, [0.66, 0.76, 1], [0, 1, 1]);
   const s3Scale = useTransform(scrollYProgress, [0.66, 0.76, 1], [0.85, 1, 1]);
 
-  // 6. Inter Milan (Bottom-Right): rises gracefully
-  const interY = useTransform(scrollYProgress, [0.66, 1], [85, -35]);
-  const interX = useTransform(scrollYProgress, [0.66, 1], [25, -25]);
+  // 6. Inter Milan (Bottom-Right): gentle rise
+  const interY = useTransform(scrollYProgress, [0.66, 1], [25, -25]);
+  const interX = useTransform(scrollYProgress, [0.66, 1], [10, -15]);
 
-  // 7. Borussia Dortmund (Top-Left): drifts downward
-  const bvbY = useTransform(scrollYProgress, [0.66, 1], [-45, 65]);
-  const bvbX = useTransform(scrollYProgress, [0.66, 1], [-15, 30]);
+  // 7. Borussia Dortmund (Top-Left): gentle drift
+  const bvbY = useTransform(scrollYProgress, [0.66, 1], [-20, 30]);
+  const bvbX = useTransform(scrollYProgress, [0.66, 1], [-5, 15]);
 
-  // 8. AC Milan (Top-Right): drifts downward
-  const milanY = useTransform(scrollYProgress, [0.66, 1], [-35, 75]);
-  const milanX = useTransform(scrollYProgress, [0.66, 1], [20, -25]);
+  // 8. AC Milan (Top-Right): gentle drift
+  const milanY = useTransform(scrollYProgress, [0.66, 1], [-20, 30]);
+  const milanX = useTransform(scrollYProgress, [0.66, 1], [10, -15]);
 
   return (
     <div
@@ -99,12 +96,12 @@ export const VideoFocusCarousel: React.FC<ScrollStreamProps> = () => {
         {/* Floating Club Icon 1: FC Barcelona (Stage 1 - Top Left) */}
         <motion.div
           style={{ x: barcaX, y: barcaY, opacity: s1Opacity, scale: s1Scale }}
-          className={`absolute top-[8%] sm:top-[10%] left-[3%] sm:left-[8%] z-10 ${stage === 1 ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          className={`absolute top-[4%] sm:top-[8%] left-[2%] sm:left-[6%] z-10 ${stage === 1 ? 'pointer-events-auto' : 'pointer-events-none'}`}
         >
           <Link
             to="/shop?team=Barcelona"
             title="FC Barcelona Jerseys"
-            className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full bg-white shadow-2xl border border-neutral-200/90 flex items-center justify-center p-3 sm:p-5 md:p-6 hover:scale-110 hover:shadow-2xl transition-all duration-300 block"
+            className="w-14 h-14 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full bg-white shadow-xl sm:shadow-2xl border border-neutral-200/90 flex items-center justify-center p-2 sm:p-5 md:p-6 hover:scale-110 hover:shadow-2xl transition-all duration-300 block overflow-hidden"
           >
             <img
               src="/images/barcaicon.png"
@@ -122,12 +119,12 @@ export const VideoFocusCarousel: React.FC<ScrollStreamProps> = () => {
         {/* Floating Club Icon 2: Real Madrid (Stage 1 - Top Right) */}
         <motion.div
           style={{ x: realX, y: realY, opacity: s1Opacity, scale: s1Scale }}
-          className={`absolute top-[8%] sm:top-[10%] right-[3%] sm:right-[8%] z-10 ${stage === 1 ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          className={`absolute top-[4%] sm:top-[8%] right-[2%] sm:right-[6%] z-10 ${stage === 1 ? 'pointer-events-auto' : 'pointer-events-none'}`}
         >
           <Link
             to="/shop?team=Real+Madrid"
             title="Real Madrid Jerseys"
-            className="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full bg-white shadow-2xl border border-neutral-200/90 flex items-center justify-center p-3 sm:p-5 md:p-6 hover:scale-110 hover:shadow-2xl transition-all duration-300 block"
+            className="w-14 h-14 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full bg-white shadow-xl sm:shadow-2xl border border-neutral-200/90 flex items-center justify-center p-2 sm:p-5 md:p-6 hover:scale-110 hover:shadow-2xl transition-all duration-300 block overflow-hidden"
           >
             <img
               src="/images/realicon.png"
@@ -147,12 +144,12 @@ export const VideoFocusCarousel: React.FC<ScrollStreamProps> = () => {
         {/* Floating Club Icon 3: Manchester United (Stage 2 - Mid Left) */}
         <motion.div
           style={{ x: utdX, y: utdY, opacity: s2Opacity, scale: s2Scale }}
-          className={`absolute top-[38%] sm:top-[40%] left-[2%] sm:left-[6%] z-10 ${stage === 2 ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          className={`absolute top-[42%] sm:top-[42%] left-[2%] sm:left-[5%] z-10 ${stage === 2 ? 'pointer-events-auto' : 'pointer-events-none'}`}
         >
           <Link
             to="/shop?team=Manchester+United"
             title="Manchester United Jerseys"
-            className="w-22 h-22 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full bg-white shadow-2xl border border-neutral-200/90 flex items-center justify-center p-3 sm:p-5 md:p-6 hover:scale-110 hover:shadow-2xl transition-all duration-300 block"
+            className="w-14 h-14 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full bg-white shadow-xl sm:shadow-2xl border border-neutral-200/90 flex items-center justify-center p-2 sm:p-5 md:p-6 hover:scale-110 hover:shadow-2xl transition-all duration-300 block overflow-hidden"
           >
             <img
               src="/images/unitedicon.png"
@@ -170,12 +167,12 @@ export const VideoFocusCarousel: React.FC<ScrollStreamProps> = () => {
         {/* Floating Club Icon 4: Manchester City (Stage 2 - Mid Right) */}
         <motion.div
           style={{ x: cityX, y: cityY, opacity: s2Opacity, scale: s2Scale }}
-          className={`absolute top-[36%] sm:top-[38%] right-[2%] sm:right-[6%] z-10 ${stage === 2 ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          className={`absolute top-[40%] sm:top-[40%] right-[2%] sm:right-[5%] z-10 ${stage === 2 ? 'pointer-events-auto' : 'pointer-events-none'}`}
         >
           <Link
             to="/shop?team=Manchester+City"
             title="Manchester City Jerseys"
-            className="w-22 h-22 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full bg-white shadow-2xl border border-neutral-200/90 flex items-center justify-center p-3 sm:p-5 md:p-6 hover:scale-110 hover:shadow-2xl transition-all duration-300 block"
+            className="w-14 h-14 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full bg-white shadow-xl sm:shadow-2xl border border-neutral-200/90 flex items-center justify-center p-2 sm:p-5 md:p-6 hover:scale-110 hover:shadow-2xl transition-all duration-300 block overflow-hidden"
           >
             <img
               src="/images/cityicon.png"
@@ -190,15 +187,15 @@ export const VideoFocusCarousel: React.FC<ScrollStreamProps> = () => {
           </Link>
         </motion.div>
 
-        {/* Floating Club Icon 5: Bayern Munich (Stage 2 - Bottom Left) */}
+        {/* Floating Club Icon 5: Bayern Munich (Stage 2 - Bottom Left Corner) */}
         <motion.div
           style={{ x: bayernX, y: bayernY, opacity: s2Opacity, scale: s2Scale }}
-          className={`absolute bottom-[10%] sm:bottom-[12%] left-[4%] sm:left-[10%] z-10 ${stage === 2 ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          className={`absolute bottom-[3%] sm:bottom-[6%] left-[2%] sm:left-[6%] z-10 ${stage === 2 ? 'pointer-events-auto' : 'pointer-events-none'}`}
         >
           <Link
             to="/shop?team=Bayern+Munich"
             title="Bayern Munich Jerseys"
-            className="w-22 h-22 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full bg-white shadow-2xl border border-neutral-200/90 flex items-center justify-center p-3 sm:p-5 md:p-6 hover:scale-110 hover:shadow-2xl transition-all duration-300 block overflow-hidden"
+            className="w-14 h-14 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full bg-white shadow-xl sm:shadow-2xl border border-neutral-200/90 flex items-center justify-center p-2 sm:p-5 md:p-6 hover:scale-110 hover:shadow-2xl transition-all duration-300 block overflow-hidden"
           >
             <img
               src="/images/bayernicon.jpg"
@@ -215,15 +212,15 @@ export const VideoFocusCarousel: React.FC<ScrollStreamProps> = () => {
 
 
         {/* ----------------- STAGE 3 LOGOS ----------------- */}
-        {/* Floating Club Icon 6: Inter Milan (Stage 3 - Bottom Right) */}
+        {/* Floating Club Icon 6: Inter Milan (Stage 3 - Bottom Right Corner) */}
         <motion.div
           style={{ x: interX, y: interY, opacity: s3Opacity, scale: s3Scale }}
-          className={`absolute bottom-[10%] sm:bottom-[12%] right-[4%] sm:right-[10%] z-10 ${stage === 3 ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          className={`absolute bottom-[3%] sm:bottom-[6%] right-[2%] sm:right-[6%] z-10 ${stage === 3 ? 'pointer-events-auto' : 'pointer-events-none'}`}
         >
           <Link
             to="/shop?team=Inter+Milan"
             title="Inter Milan Jerseys"
-            className="w-22 h-22 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full bg-white shadow-2xl border border-neutral-200/90 flex items-center justify-center p-3 sm:p-5 md:p-6 hover:scale-110 hover:shadow-2xl transition-all duration-300 block"
+            className="w-14 h-14 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full bg-white shadow-xl sm:shadow-2xl border border-neutral-200/90 flex items-center justify-center p-2 sm:p-5 md:p-6 hover:scale-110 hover:shadow-2xl transition-all duration-300 block overflow-hidden"
           >
             <img
               src="/images/intericon.png"
@@ -238,15 +235,15 @@ export const VideoFocusCarousel: React.FC<ScrollStreamProps> = () => {
           </Link>
         </motion.div>
 
-        {/* Floating Club Icon 7: Borussia Dortmund (Stage 3 - Top Left) */}
+        {/* Floating Club Icon 7: Borussia Dortmund (Stage 3 - Top Left Corner) */}
         <motion.div
           style={{ x: bvbX, y: bvbY, opacity: s3Opacity, scale: s3Scale }}
-          className={`absolute top-[10%] sm:top-[12%] left-[4%] sm:left-[10%] z-10 ${stage === 3 ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          className={`absolute top-[4%] sm:top-[8%] left-[2%] sm:left-[6%] z-10 ${stage === 3 ? 'pointer-events-auto' : 'pointer-events-none'}`}
         >
           <Link
             to="/shop?team=Borussia+Dortmund"
             title="Borussia Dortmund Jerseys"
-            className="w-22 h-22 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full bg-white shadow-2xl border border-neutral-200/90 flex items-center justify-center p-3 sm:p-5 md:p-6 hover:scale-110 hover:shadow-2xl transition-all duration-300 block"
+            className="w-14 h-14 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full bg-white shadow-xl sm:shadow-2xl border border-neutral-200/90 flex items-center justify-center p-2 sm:p-5 md:p-6 hover:scale-110 hover:shadow-2xl transition-all duration-300 block overflow-hidden"
           >
             <img
               src="/images/bvbicon.png"
@@ -261,15 +258,15 @@ export const VideoFocusCarousel: React.FC<ScrollStreamProps> = () => {
           </Link>
         </motion.div>
 
-        {/* Floating Club Icon 8: AC Milan (Stage 3 - Top Right) */}
+        {/* Floating Club Icon 8: AC Milan (Stage 3 - Top Right Corner) */}
         <motion.div
           style={{ x: milanX, y: milanY, opacity: s3Opacity, scale: s3Scale }}
-          className={`absolute top-[10%] sm:top-[12%] right-[4%] sm:right-[10%] z-10 ${stage === 3 ? 'pointer-events-auto' : 'pointer-events-none'}`}
+          className={`absolute top-[4%] sm:top-[8%] right-[2%] sm:right-[6%] z-10 ${stage === 3 ? 'pointer-events-auto' : 'pointer-events-none'}`}
         >
           <Link
             to="/shop?team=AC+Milan"
             title="AC Milan Jerseys"
-            className="w-22 h-22 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full bg-white shadow-2xl border border-neutral-200/90 flex items-center justify-center p-3 sm:p-5 md:p-6 hover:scale-110 hover:shadow-2xl transition-all duration-300 block"
+            className="w-14 h-14 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40 rounded-full bg-white shadow-xl sm:shadow-2xl border border-neutral-200/90 flex items-center justify-center p-2 sm:p-5 md:p-6 hover:scale-110 hover:shadow-2xl transition-all duration-300 block overflow-hidden"
           >
             <img
               src="/images/acmilanicon.png"
@@ -288,7 +285,7 @@ export const VideoFocusCarousel: React.FC<ScrollStreamProps> = () => {
         <div className="relative z-20 flex flex-col items-center justify-center max-w-5xl mx-auto text-center px-4">
           
           {/* Main Central Portrait Photo with 3-Stage Reveal Layers (NO red line) */}
-          <div className="relative w-[190px] sm:w-[250px] md:w-[300px] lg:w-[330px] aspect-[3/4] overflow-hidden shadow-2xl bg-neutral-100">
+          <div className="relative w-[160px] xs:w-[190px] sm:w-[250px] md:w-[300px] lg:w-[330px] aspect-[3/4] overflow-hidden shadow-2xl bg-neutral-100 rounded-lg">
             {/* Stage 1 Base Image: Tracy Newyork */}
             <img
               src="/images/image8.jpg"
@@ -299,7 +296,7 @@ export const VideoFocusCarousel: React.FC<ScrollStreamProps> = () => {
               className="w-full h-full object-cover object-center"
             />
 
-            {/* Stage 2 Sliding Reveal Layer: Alex Frankfurt (Clean slide, no red bar) */}
+            {/* Stage 2 Sliding Reveal Layer: Alex Frankfurt / Goalza Edition */}
             <motion.div
               style={{ y: reveal2Y }}
               className="absolute inset-0 w-full h-full bg-white overflow-hidden"
@@ -314,7 +311,7 @@ export const VideoFocusCarousel: React.FC<ScrollStreamProps> = () => {
               />
             </motion.div>
 
-            {/* Stage 3 Sliding Reveal Layer: Milan Heritage (Third scroll stage) */}
+            {/* Stage 3 Sliding Reveal Layer: Milan Heritage */}
             <motion.div
               style={{ y: reveal3Y }}
               className="absolute inset-0 w-full h-full bg-white overflow-hidden"
@@ -331,14 +328,14 @@ export const VideoFocusCarousel: React.FC<ScrollStreamProps> = () => {
           </div>
 
           {/* Red/Coral Location Tag matching sroll-stream */}
-          <div className="mt-4 sm:mt-6 mb-2 sm:mb-3">
+          <div className="mt-3 sm:mt-6 mb-2 sm:mb-3">
             <span className="text-[#E9281F] text-[11px] sm:text-xs font-sans tracking-[0.22em] uppercase font-bold">
               {caption}
             </span>
           </div>
 
           {/* Big Editorial Headline in Instrument Serif Italic matching sroll-stream */}
-          <h2 className="font-serif italic font-normal tracking-tight text-black text-5xl sm:text-7xl md:text-8xl lg:text-[108px] leading-[0.88] uppercase select-none">
+          <h2 className="font-serif italic font-normal tracking-tight text-black text-4xl xs:text-5xl sm:text-7xl md:text-8xl lg:text-[108px] leading-[0.9] uppercase select-none">
             IMAGINE MORE
             <br />
             WITH US

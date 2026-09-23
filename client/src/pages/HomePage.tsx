@@ -789,7 +789,7 @@ export const HomePage: React.FC = () => {
           <img
             src="/images/banner1.png"
             alt="WHY GOALZA - Wear The Game"
-            className="w-full h-auto min-h-[500px] sm:min-h-[680px] md:min-h-[840px] lg:min-h-[980px] object-cover object-top filter contrast-105 hover:scale-102 transition-transform duration-700"
+            className="w-full h-[76vh] sm:h-[82vh] md:h-auto min-h-[620px] sm:min-h-[720px] md:min-h-[820px] lg:min-h-[940px] object-cover object-[38%_top] sm:object-center filter contrast-105 transition-transform duration-700 select-none"
           />
         </motion.div>
 
